@@ -1,336 +1,147 @@
-# BeamioContract
+# Beamio Commerce Protocol (BCP)
 
-[![Solidity](https://img.shields.io/badge/Solidity-0.8.33-blue.svg)](https://soliditylang.org/)
-[![Hardhat](https://img.shields.io/badge/Hardhat-3.1.6-yellow.svg)](https://hardhat.org/)
-[![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Solidity](https://img.shields.io/badge/Solidity-%5E0.8.20-blue)](https://docs.soliditylang.org/)
+[![Status](https://img.shields.io/badge/Status-Beta-orange)]()
 
-Smart contracts for Beamio ecosystem, featuring Account Abstraction (ERC-4337) support and comprehensive deployment tooling for Base network.
+**A standard interface for programmable cascading payments and atomic asset containers on EVM chains.**
 
-## 📋 Table of Contents
-
-- [Overview](#overview)
-- [Features](#features)
-- [Architecture](#architecture)
-- [Getting Started](#getting-started)
-- [Deployment](#deployment)
-- [Contract Verification](#contract-verification)
-- [Project Structure](#project-structure)
-- [Development](#development)
-- [Security](#security)
-- [License](#license)
-
-## 🎯 Overview
-
-BeamioContract is a collection of smart contracts implementing Account Abstraction (ERC-4337) functionality on Base network. The project includes:
-
-- **BeamioAccount**: ERC-4337 compatible smart contract wallet with multi-signature support
-- **BeamioUserCard**: ERC-1155 based user card system with redeem functionality
-- **Deployment Tools**: Automated deployment and verification scripts for Base network
-
-## ✨ Features
-
-### Account Abstraction (ERC-4337)
-- ✅ ERC-4337 EntryPoint V0.7 compatible
-- ✅ Multi-signature wallet support
-- ✅ Gas abstraction via Paymaster
-- ✅ Batch transactions
-- ✅ Social recovery mechanisms
-
-### User Card System
-- ✅ ERC-1155 token standard
-- ✅ Redeem functionality with password-based access
-- ✅ Faucet pool support
-- ✅ Container-based asset management
-
-### Deployment & Verification
-- ✅ Automated deployment scripts
-- ✅ CREATE2 deployment support for predictable addresses
-- ✅ Automatic contract verification on BaseScan
-- ✅ Multi-network support (Base Mainnet & Sepolia)
-
-## 🏗️ Architecture
-
-### Core Contracts
-
-#### BeamioAccount
-ERC-4337 compatible smart contract wallet that supports:
-- Multi-signature operations
-- Threshold-based policy management
-- EntryPoint integration for gas abstraction
-- Container module for asset management
-
-#### BeamioAccountDeployer
-CREATE2-based deployer for predictable account addresses:
-- Factory-controlled deployment
-- Salt-based address computation
-- Batch account creation support
-
-#### BeamioUserCard
-ERC-1155 implementation for user card system:
-- Currency management
-- Oracle integration for pricing
-- Quote helper for conversions
-- Redeem module for access control
-
-## 🚀 Getting Started
-
-### Prerequisites
-
-- Node.js >= 18.0.0
-- npm >= 9.0.0
-- Git
-
-### Installation
-
-1. Clone the repository:
-```bash
-git clone <repository-url>
-cd BeamioContract
-```
-
-2. Install dependencies:
-```bash
-npm install
-```
-
-3. Set up environment variables:
-```bash
-cp .env.example .env
-```
-
-Edit `.env` and configure:
-```env
-# Base Network RPC URLs
-BASE_RPC_URL=https://mainnet.base.org
-BASE_SEPOLIA_RPC_URL=https://sepolia.base.org
-
-# Deployer Account
-PRIVATE_KEY=your_private_key_here
-
-# BaseScan API Key (for automatic verification)
-BASESCAN_API_KEY=your_basescan_api_key_here
-```
-
-### Compile Contracts
-
-```bash
-npm run compile
-```
-
-## 📦 Deployment
-
-### Standard Deployment
-
-Deploy BeamioAccount directly:
-
-```bash
-# Base Mainnet
-npm run deploy:base
-
-# Base Sepolia Testnet
-npm run deploy:base-sepolia
-```
-
-### CREATE2 Deployment (Predictable Addresses)
-
-For batch deployments with predictable addresses:
-
-1. Deploy BeamioAccountDeployer:
-```bash
-npm run deploy:deployer:base
-```
-
-2. Set Factory address (if needed):
-```typescript
-await deployerContract.setFactory(factoryAddress);
-```
-
-3. Deploy AA accounts via deployer:
-```bash
-# Set in .env:
-# DEPLOYER_ADDRESS=0x...
-# FACTORY_ADDRESS=0x... (optional)
-# CREATOR_ADDRESS=0x... (optional, defaults to deployer)
-# ACCOUNT_INDEX=0
-
-npm run deploy:aa:base
-```
-
-### Deployment Scripts
-
-| Script | Description | Network |
-|--------|-------------|---------|
-| `deployBeamioAccount.ts` | Standard deployment | `--network base` |
-| `deployBeamioAccountDeployer.ts` | Deploy CREATE2 deployer | `--network base` |
-| `deployAAAccountViaDeployer.ts` | Deploy via deployer | `--network base` |
-
-## ✅ Contract Verification
-
-All deployment scripts include **automatic contract verification** on BaseScan.
-
-### Features
-
-- ✅ Automatic verification after deployment
-- ✅ Smart retry with block confirmation wait
-- ✅ CREATE2 deployment support
-- ✅ Friendly error handling
-- ✅ BaseScan link generation
-
-### Manual Verification
-
-If automatic verification fails, verify manually:
-
-```bash
-npx hardhat verify --network base <CONTRACT_ADDRESS> <CONSTRUCTOR_ARGS>
-```
-
-Example:
-```bash
-npx hardhat verify --network base 0x1234... 0x0000000071727De22E5E9d8BAf0edAc6f37da032
-```
-
-## 📁 Project Structure
-
-```
-BeamioContract/
-├── src/
-│   ├── BeamioAccount/          # Account Abstraction contracts
-│   │   ├── BeamioAccount.sol
-│   │   ├── BeamioAccountDeployer.sol
-│   │   ├── BeamioContainerModuleV07.sol
-│   │   ├── BeamioFactoryPaymasterV07.sol
-│   │   └── BeamioTypesV07.sol
-│   ├── BeamioUserCard/         # User Card system contracts
-│   │   ├── BeamioUserCard.sol
-│   │   ├── BeamioERC1155Logic.sol
-│   │   ├── BeamioOracle.sol
-│   │   └── ...
-│   └── contracts/              # Shared utilities
-│       ├── token/              # ERC20, ERC721, ERC1155
-│       ├── utils/              # Utility libraries
-│       └── ...
-├── scripts/
-│   ├── deployBeamioAccount.ts
-│   ├── deployBeamioAccountDeployer.ts
-│   ├── deployAAAccountViaDeployer.ts
-│   └── utils/
-│       └── verifyContract.ts   # Verification utilities
-├── deployments/                # Deployment records (auto-generated)
-├── artifacts/                  # Compilation artifacts (auto-generated)
-├── hardhat.config.ts          # Hardhat configuration
-└── package.json
-```
-
-## 🔧 Development
-
-### Available Scripts
-
-```bash
-# Compile contracts
-npm run compile
-
-# Clean artifacts and cache
-npm run clean
-
-# Deploy BeamioAccount only (no Oracle needed)
-npm run deploy:base
-
-# Deploy full system (includes Oracle)
-npm run deploy:full:base
-
-# Deploy deployer contract
-npm run deploy:deployer:base
-
-# Deploy AA account via deployer
-npm run deploy:aa:base
-
-# Verify contract manually
-npm run verify
-```
-
-### Testing
-
-```bash
-npm test
-```
-
-### Code Quality
-
-The project uses:
-- Solidity 0.8.33
-- Hardhat 3.1.6
-- TypeScript for deployment scripts
-- ESLint (if configured)
-
-## 🔒 Security
-
-### Important Security Notes
-
-1. **Private Keys**: Never commit `.env` files to version control
-2. **Deployment Accounts**: Use dedicated accounts for deployment, not main wallets
-3. **Multi-sig**: Consider using multi-signature wallets for critical operations
-4. **Audits**: Contracts should be audited before mainnet deployment
-
-### EntryPoint Address
-
-The project uses the standard ERC-4337 EntryPoint V0.7 address:
-```
-0x0000000071727De22E5E9d8BAf0edAc6f37da032
-```
-
-This address is consistent across all chains.
-
-## 📚 Documentation
-
-- [Architecture Guide](./ARCHITECTURE.md) - System architecture and dependency explanation
-- [Deployment Guide](./DEPLOY.md) - Detailed deployment instructions
-- [Deployment & Verification Guide](./README_DEPLOYMENT.md) - Complete deployment and verification guide
-
-### Why BeamioAccount doesn't need Oracle?
-
-**BeamioAccount** and **BeamioUserCard** are two independent systems:
-- **BeamioAccount**: ERC-4337 Account Abstraction - only needs EntryPoint (no Oracle required)
-- **BeamioUserCard**: ERC-1155 card system - needs Oracle for exchange rates (accessed via Gateway)
-
-See [ARCHITECTURE.md](./ARCHITECTURE.md) for detailed explanation.
-
-## 🌐 Network Information
-
-### Base Mainnet
-- Chain ID: `8453`
-- RPC URL: `https://mainnet.base.org`
-- Explorer: [BaseScan](https://basescan.org/)
-
-### Base Sepolia (Testnet)
-- Chain ID: `84532`
-- RPC URL: `https://sepolia.base.org`
-- Explorer: [BaseScan Sepolia](https://sepolia.basescan.org/)
-
-## 🤝 Contributing
-
-Contributions are welcome! Please follow these steps:
-
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add some amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
-
-## 📝 License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-## 🔗 Links
-
-- [Base Documentation](https://docs.base.org/)
-- [BaseScan Explorer](https://basescan.org/)
-- [ERC-4337 Specification](https://eips.ethereum.org/EIPS/eip-4337)
-- [Hardhat Documentation](https://hardhat.org/docs)
-
-## ⚠️ Disclaimer
-
-This software is provided "as is" without warranty of any kind. Use at your own risk. Always audit smart contracts before deploying to mainnet.
+Beamio Commerce Protocol (BCP) is a set of open-source smart contracts designed to bridge the gap between Web3 asset sovereignty and Web2 commercial usability. It provides the infrastructure for **Tethered Hybrid Accounts** and **Asset-Agnostic Settlements**.
 
 ---
 
-Made with ❤️ for the Base ecosystem
+## Core Features
+
+### 1. Atomic Asset Container
+
+A universal standard for bundling heterogeneous assets (ERC20 + ERC721 + ERC1155) into a single, transferable, and claimable ephemeral contract.
+
+- **Use case:** Social red packets ("Cashcode"), cross-marketing bundles.
+- **Mechanism:** Hash-time lock (HTLC) style distribution; container module for asset deduction order and settlement.
+- **In this repo:** `BeamioContainerModuleV07` (container logic), `BeamioUserCard` (ERC1155 points + membership + redeem).
+
+### 2. Programmable Cascading Payment
+
+A logic layer that allows merchants/developers to define the priority of asset deduction.
+
+- **Logic:** `[Promotional Voucher] → [Stored Value] → [Base Settlement Token (USDC)]`
+- **Atomicity:** Multiple asset deductions and currency conversions in a single transaction.
+- **In this repo:** Implemented via the container module and quote helper (e.g. `BeamioQuoteHelperV07`).
+
+### 3. Tethered Hybrid Account
+
+A standard interface linking an EOA (Controller) with an ERC-4337 Smart Account (Executor) via application-layer delegation, enabling secure pull payments without exposing private keys.
+
+- **In this repo:** `BeamioAccount` (ERC-4337 compatible), `BeamioFactoryPaymasterV07` (AA factory), `BeamioAccountDeployer` (CREATE2 deployer).
+
+---
+
+## Installation & Usage
+
+### Installation
+
+```bash
+git clone https://github.com/beamio-APP/BeamioContract.git
+cd BeamioContract
+npm install
+```
+
+### Environment
+
+```bash
+cp .env.example .env
+# Edit .env: RPC URLs, PRIVATE_KEY, BASESCAN_API_KEY (optional, for verification)
+```
+
+### Compile
+
+```bash
+npm run compile
+```
+
+### Example: Resolving a Tethered Account
+
+```solidity
+// Resolve the ERC-4337 account for an EOA (via factory)
+IBeamioFactoryPaymasterV07 factory = IBeamioFactoryPaymasterV07(AA_FACTORY_ADDRESS);
+address account = factory.beamioAccountOf(creatorEOA);
+// account is the smart account; EOA remains the controller.
+```
+
+### Example: Creating a UserCard (ERC1155) via Factory
+
+```solidity
+// Create a user card bound to an EOA (price in E6, e.g. 1 CAD = 1 token → 1e6)
+IBeamioUserCardFactoryPaymasterV07 cardFactory = IBeamioUserCardFactoryPaymasterV07(CARD_FACTORY_ADDRESS);
+// Only paymaster/owner can call createCardCollectionWithInitCode(cardOwner, currency, priceE6, initCode);
+address card = cardFactory.latestCardOfOwner(cardOwnerEOA);
+```
+
+---
+
+## Repository Structure
+
+```
+├── src/
+│   ├── BeamioAccount/              # Tethered Hybrid Account (ERC-4337)
+│   │   ├── BeamioAccount.sol
+│   │   ├── BeamioAccountDeployer.sol
+│   │   ├── BeamioContainerModuleV07.sol   # Atomic container + cascading payment
+│   │   ├── BeamioFactoryPaymasterV07.sol
+│   │   └── BeamioTypesV07.sol
+│   ├── BeamioUserCard/             # ERC1155 cards, redeem, pricing
+│   │   ├── BeamioUserCard.sol
+│   │   ├── BeamioUserCardFactoryPaymasterV07.sol
+│   │   ├── BeamioUserCardDeployerV07.sol
+│   │   ├── BeamioERC1155Logic.sol
+│   │   ├── BeamioQuoteHelperV07.sol
+│   │   ├── RedeemModule.sol
+│   │   └── ...
+│   └── contracts/                  # Shared (ERC20, ERC721, ERC1155, utils)
+├── scripts/                        # Deployment and tooling
+│   ├── deployUserCardFactory.ts
+│   ├── createUserCardForEOA.ts
+│   ├── deployBeamioAccount.ts
+│   └── ...
+├── deployments/                    # Deployment records and addresses
+│   └── BASE_MAINNET_FACTORIES.md   # Canonical AA & Card factory addresses
+├── hardhat.config.ts
+└── package.json
+```
+
+---
+
+## Deployed Addresses (Base Mainnet)
+
+Canonical infrastructure; do not redeploy. See [deployments/BASE_MAINNET_FACTORIES.md](deployments/BASE_MAINNET_FACTORIES.md) for details.
+
+| Role            | Address |
+|-----------------|--------|
+| AA Factory      | `0xFD48F7a6bBEb0c0C1ff756C38cA7fE7544239767` |
+| Card Factory    | `0x7Ec828BAbA1c58C5021a6E7D29ccDDdB2d8D84bd` |
+
+---
+
+## Contributing
+
+We welcome contributions from the community. Whether it's a bug fix, new feature, or documentation improvement, please open a Pull Request.
+
+1. **Fork** the project  
+2. **Create** your feature branch (`git checkout -b feature/AmazingFeature`)  
+3. **Commit** your changes (`git commit -m 'Add some AmazingFeature'`)  
+4. **Push** to the branch (`git push origin feature/AmazingFeature`)  
+5. **Open** a Pull Request  
+
+---
+
+## Documentation
+
+- [ARCHITECTURE.md](ARCHITECTURE.md) — System architecture and dependencies  
+- [DEPLOY.md](DEPLOY.md) — Deployment instructions  
+- [deployments/BASE_MAINNET_FACTORIES.md](deployments/BASE_MAINNET_FACTORIES.md) — Canonical factory addresses for apps  
+
+---
+
+## License
+
+Distributed under the MIT License. See [LICENSE](LICENSE) for more information.
