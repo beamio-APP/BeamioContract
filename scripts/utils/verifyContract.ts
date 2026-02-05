@@ -1,4 +1,4 @@
-import { run } from "hardhat";
+import { network as networkModule } from "hardhat";
 
 /**
  * 验证合约的通用函数
@@ -9,8 +9,9 @@ export async function verifyContract(
   constructorArguments: any[],
   contractName?: string
 ): Promise<boolean> {
-  const network = await run("network");
-  const networkName = network.name;
+  const { ethers } = await networkModule.connect();
+  const networkInfo = await ethers.provider.getNetwork();
+  const networkName = networkInfo.name;
   
   console.log(`\n开始验证合约 ${contractName || address}...`);
   console.log(`网络: ${networkName}`);
@@ -30,7 +31,10 @@ export async function verifyContract(
     await new Promise(resolve => setTimeout(resolve, 30000));
     
     // 使用 Hardhat verify 插件验证
-    await run("verify:verify", {
+    // 在 Hardhat 3 中，run 需要通过 hre 访问
+    const hre = await import("hardhat");
+    // 使用 hre.run 调用 verify 任务
+    await hre.run("verify:verify", {
       address: address,
       constructorArguments: constructorArguments,
     });

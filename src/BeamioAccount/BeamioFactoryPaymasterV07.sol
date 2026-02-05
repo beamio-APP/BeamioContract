@@ -188,7 +188,14 @@ contract BeamioFactoryPaymasterV07 is IPaymasterV07 {
 	}
 
 	function getAddress(address creator, uint256 index) public view returns (address) {
-		return deployer.getAddress(computeSalt(creator, index), _initCode());
+		// 直接计算地址，避免 Deployer.getAddress 的 ABI 解析问题
+		bytes32 salt = computeSalt(creator, index);
+		bytes memory initCode = _initCode();
+		bytes32 initCodeHash = keccak256(initCode);
+		bytes32 hash = keccak256(
+			abi.encodePacked(bytes1(0xff), address(deployer), salt, initCodeHash)
+		);
+		return address(uint160(uint256(hash)));
 	}
 
 	function beamioAccountOf(address creator) external view returns (address) {

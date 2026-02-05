@@ -52,16 +52,16 @@ contract BeamioQuoteHelperV07 is Ownable {
         return (Math.mulDiv(usdE18, E18, uUSD) + 5e11) / E12;
     }
 
-    /// @notice unitPointPriceInCurrencyE18 (price per 1e6 points, in currency E18) -> usdc6
-    function quoteUnitPointInUSDC6(uint8 cardCurrency, uint256 unitPointPriceInCurrencyE18) external view returns (uint256) {
-        if (unitPointPriceInCurrencyE18 == 0) return 0;
+    /// @notice unitPointPriceInCurrencyE6 (price per 1e6 points, in currency E6，与购买时 1e6 一致) -> usdc6
+    function quoteUnitPointInUSDC6(uint8 cardCurrency, uint256 unitPointPriceInCurrencyE6) external view returns (uint256) {
+        if (unitPointPriceInCurrencyE6 == 0) return 0;
 
         uint256 cUSD = oracle.getRate(cardCurrency);
         uint256 uUSD = oracle.getRate(uint8(BeamioCurrency.USDC));
         if (cUSD == 0 || uUSD == 0) revert QH_OracleError();
 
-        // usdE18 = unitPointPriceInCurrencyE18 * cUSD / 1e18
-        uint256 usdE18 = Math.mulDiv(unitPointPriceInCurrencyE18, cUSD, E18);
+        // usdE18 = unitPointPriceInCurrencyE6 * cUSD / 1e6
+        uint256 usdE18 = Math.mulDiv(unitPointPriceInCurrencyE6, cUSD, 1e6);
 
         // usdc6 = (usdE18 * 1e18 / uUSD + 5e11) / 1e12 (round to nearest)
         return (Math.mulDiv(usdE18, E18, uUSD) + 5e11) / E12;

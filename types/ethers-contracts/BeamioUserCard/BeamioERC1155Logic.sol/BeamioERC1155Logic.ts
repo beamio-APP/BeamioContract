@@ -150,9 +150,9 @@ decodeFunctionResult(functionFragment: 'POINTS_ID', data: BytesLike): Result;
   
 
     export namespace PointsUnitPriceUpdatedEvent {
-      export type InputTuple = [priceInCurrencyE18: BigNumberish];
-      export type OutputTuple = [priceInCurrencyE18: bigint];
-      export interface OutputObject {priceInCurrencyE18: bigint };
+      export type InputTuple = [priceInCurrencyE6: BigNumberish];
+      export type OutputTuple = [priceInCurrencyE6: bigint];
+      export interface OutputObject {priceInCurrencyE6: bigint };
       export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>
       export type Filter = TypedDeferredTopicFilter<Event>
       export type Log = TypedEventLog<Event>

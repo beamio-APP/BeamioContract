@@ -1,7 +1,11 @@
-import { ethers, run } from "hardhat";
+import { network as networkModule } from "hardhat";
 import * as fs from "fs";
 import * as path from "path";
+import { fileURLToPath } from "url";
 import { verifyContract } from "./utils/verifyContract.js";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 /**
  * 完整系统部署脚本
@@ -16,6 +20,7 @@ import { verifyContract } from "./utils/verifyContract.js";
  * 这些合约通常通过 Factory 模式部署，不在本脚本中
  */
 async function main() {
+  const { ethers } = await networkModule.connect();
   const [deployer] = await ethers.getSigners();
   
   console.log("=".repeat(60));
@@ -24,39 +29,62 @@ async function main() {
   console.log("部署账户:", deployer.address);
   console.log("账户余额:", ethers.formatEther(await ethers.provider.getBalance(deployer.address)), "ETH");
   
-  const network = await ethers.provider.getNetwork();
-  console.log("网络:", network.name, "(Chain ID:", network.chainId.toString() + ")");
+  const networkInfo = await ethers.provider.getNetwork();
+  console.log("网络:", networkInfo.name, "(Chain ID:", networkInfo.chainId.toString() + ")");
   
   const deploymentInfo: any = {
-    network: network.name,
-    chainId: network.chainId.toString(),
+    network: networkInfo.name,
+    chainId: networkInfo.chainId.toString(),
     deployer: deployer.address,
     timestamp: new Date().toISOString(),
     contracts: {}
   };
   
   // ============================================================
-  // 1. 部署 BeamioOracle
+  // 1. 部署或使用现有的 BeamioOracle
   // ============================================================
   console.log("\n" + "=".repeat(60));
-  console.log("步骤 1: 部署 BeamioOracle");
+  console.log("步骤 1: BeamioOracle");
   console.log("=".repeat(60));
   
-  const BeamioOracleFactory = await ethers.getContractFactory("BeamioOracle");
-  const oracle = await BeamioOracleFactory.deploy();
-  await oracle.waitForDeployment();
-  const oracleAddress = await oracle.getAddress();
+  const EXISTING_ORACLE_ADDRESS = process.env.EXISTING_ORACLE_ADDRESS || "";
+  let oracleAddress = "";
   
-  console.log("✅ BeamioOracle 部署成功!");
-  console.log("合约地址:", oracleAddress);
-  
-  deploymentInfo.contracts.beamioOracle = {
-    address: oracleAddress,
-    transactionHash: oracle.deploymentTransaction()?.hash
-  };
-  
-  // 自动验证 Oracle
-  await verifyContract(oracleAddress, [], "BeamioOracle");
+  if (EXISTING_ORACLE_ADDRESS) {
+    // 使用现有的 Oracle
+    oracleAddress = EXISTING_ORACLE_ADDRESS;
+    console.log("✅ 使用现有的 BeamioOracle");
+    console.log("合约地址:", oracleAddress);
+    
+    // 验证地址是否有代码
+    const code = await ethers.provider.getCode(oracleAddress);
+    if (code === "0x") {
+      throw new Error(`Oracle 地址 ${oracleAddress} 没有合约代码`);
+    }
+    
+    deploymentInfo.contracts.beamioOracle = {
+      address: oracleAddress,
+      note: "使用已存在的 Oracle 合约"
+    };
+  } else {
+    // 部署新的 Oracle
+    console.log("部署新的 BeamioOracle...");
+    const BeamioOracleFactory = await ethers.getContractFactory("BeamioOracle");
+    const oracle = await BeamioOracleFactory.deploy();
+    await oracle.waitForDeployment();
+    oracleAddress = await oracle.getAddress();
+    
+    console.log("✅ BeamioOracle 部署成功!");
+    console.log("合约地址:", oracleAddress);
+    
+    deploymentInfo.contracts.beamioOracle = {
+      address: oracleAddress,
+      transactionHash: oracle.deploymentTransaction()?.hash
+    };
+    
+    // 自动验证 Oracle
+    await verifyContract(oracleAddress, [], "BeamioOracle");
+  }
   
   // ============================================================
   // 2. 部署 BeamioQuoteHelperV07（需要 Oracle 地址）
@@ -143,7 +171,7 @@ async function main() {
     fs.mkdirSync(deploymentsDir, { recursive: true });
   }
   
-  const deploymentFile = path.join(deploymentsDir, `${network.name}-FullSystem.json`);
+  const deploymentFile = path.join(deploymentsDir, `${networkInfo.name}-FullSystem.json`);
   fs.writeFileSync(deploymentFile, JSON.stringify(deploymentInfo, null, 2));
   
   console.log("\n" + "=".repeat(60));

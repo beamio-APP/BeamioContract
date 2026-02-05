@@ -60,7 +60,6 @@ error QH_OracleError();
 
 // -------- Deployer (DEP_) --------
 error DEP_NotFactory();
-error DEP_FactoryAlreadySet();
 
 // -------- Factory/Paymaster (F_) --------
 error F_InvalidRedeemHash();

@@ -1,12 +1,17 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
 
-library RedeemStorage {
-    // keccak256("beamio.redeem.storage.vNext")
-    bytes32 internal constant SLOT =
-        0x1111111111111111111111111111111111111111111111111111111111111111;
+import "./Errors.sol";
 
-    // ===== 普通 Redeem（一次性）=====
+/* =========================================================
+   RedeemStorage (delegatecall storage in card)
+   - NO magic hex slot: use keccak256("...") constant
+   ========================================================= */
+
+library RedeemStorage {
+    bytes32 internal constant SLOT = keccak256("beamio.usercard.redeem.storage.v1");
+
+    // ===== One-time Redeem =====
     struct Redeem {
         uint128 points6;
         uint32  attr;
@@ -19,20 +24,20 @@ library RedeemStorage {
         uint256[] amounts;
     }
 
-    // ===== 红包池 RedeemPool（可重复使用密码，多用户各领一次）=====
+    // ===== RedeemPool (repeatable password; each user once) =====
     struct PoolContainer {
-        uint32 remaining;     // 该模板剩余份数
+        uint32 remaining;
         uint256[] tokenIds;
         uint256[] amounts;
     }
 
     struct RedeemPool {
         bool   active;
-        uint64 validAfter;    // 0 => immediate
-        uint64 validBefore;   // 0 => forever
+        uint64 validAfter;
+        uint64 validBefore;
 
-        uint32 totalRemaining; // 所有模板总剩余
-        uint32 cursor;         // consume 时从 cursor 往后找 remaining>0（省 gas）
+        uint32 totalRemaining;
+        uint32 cursor;
 
         PoolContainer[] containers;
     }
@@ -40,8 +45,8 @@ library RedeemStorage {
     struct Layout {
         mapping(bytes32 => Redeem) redeems;
 
-        mapping(bytes32 => RedeemPool) pools;                 // poolHash => pool
-        mapping(bytes32 => mapping(address => bool)) claimed; // poolHash => (user => claimedOnce)
+        mapping(bytes32 => RedeemPool) pools;
+        mapping(bytes32 => mapping(address => bool)) claimed;
     }
 
     function layout() internal pure returns (Layout storage l) {
@@ -50,7 +55,20 @@ library RedeemStorage {
     }
 }
 
-contract RedeemModule {
+/* =========================
+   Context interfaces (delegatecall)
+   ========================= */
+
+interface IUserCardCtx {
+    function owner() external view returns (address);
+    function factoryGateway() external view returns (address);
+}
+
+/**
+ * @title BeamioUserCardRedeemModuleVNext
+ * @notice Delegatecall module. Storage lives in the UserCard (via SLOT).
+ */
+contract BeamioUserCardRedeemModuleVNext {
     using RedeemStorage for RedeemStorage.Layout;
 
     // ===== events =====
@@ -63,12 +81,22 @@ contract RedeemModule {
     event RedeemPoolConsumed(bytes32 indexed poolHash, address indexed user, uint256 containerIndex, uint256 bundleLen);
 
     // ==========================================================
+    // access control (card owner OR gateway)
+    // ==========================================================
+    modifier onlyOwnerOrGateway() {
+        address cardOwner = IUserCardCtx(address(this)).owner();
+        address gw = IUserCardCtx(address(this)).factoryGateway();
+        if (msg.sender != cardOwner && msg.sender != gw) revert BM_NotAuthorized();
+        _;
+    }
+
+    // ==========================================================
     // helpers
     // ==========================================================
     function _validateBundle(uint256[] calldata tokenIds, uint256[] calldata amounts) internal pure {
-        require(tokenIds.length == amounts.length, "len mismatch");
-        for (uint256 i = 0; i < tokenIds.length; i++) {
-            require(amounts[i] != 0, "amt=0");
+        if (tokenIds.length != amounts.length) revert UC_InvalidProposal();
+        for (uint256 i = 0; i < amounts.length; i++) {
+            if (amounts[i] == 0) revert UC_AmountZero();
         }
     }
 
@@ -79,18 +107,13 @@ contract RedeemModule {
         return true;
     }
 
-    function _wipeArraysRedeem(RedeemStorage.Redeem storage r) internal {
+    function _wipeRedeemArrays(RedeemStorage.Redeem storage r) internal {
         if (r.tokenIds.length != 0) delete r.tokenIds;
         if (r.amounts.length != 0) delete r.amounts;
     }
 
-    function _wipeArraysContainer(RedeemStorage.PoolContainer storage c) internal {
-        if (c.tokenIds.length != 0) delete c.tokenIds;
-        if (c.amounts.length != 0) delete c.amounts;
-    }
-
     // ==========================================================
-    // 普通 Redeem：create / cancel(string) / consume(string)
+    // One-time Redeem
     // ==========================================================
     function createRedeem(
         bytes32 hash,
@@ -100,15 +123,15 @@ contract RedeemModule {
         uint64 validBefore,
         uint256[] calldata tokenIds,
         uint256[] calldata amounts
-    ) external {
-        require(hash != bytes32(0), "hash=0");
+    ) external onlyOwnerOrGateway {
+        if (hash == bytes32(0)) revert BM_InvalidSecret();
         _validateBundle(tokenIds, amounts);
 
         RedeemStorage.Layout storage l = RedeemStorage.layout();
         RedeemStorage.Redeem storage r = l.redeems[hash];
-        require(!r.active, "exists");
+        if (r.active) revert UC_InvalidProposal();
 
-        _wipeArraysRedeem(r);
+        _wipeRedeemArrays(r);
 
         r.points6 = uint128(points6);
         r.attr = uint32(attr);
@@ -124,32 +147,36 @@ contract RedeemModule {
         emit RedeemCreated(hash, points6, attr, validAfter, validBefore, tokenIds.length);
     }
 
-    // 你当前 cancel 是 string：保留（过期也允许 cancel）
-    function cancelRedeem(string calldata code) external {
-        bytes32 hash = keccak256(bytes(code));
+    function cancelRedeem(string calldata code) external onlyOwnerOrGateway {
+        bytes memory b = bytes(code);
+        if (b.length == 0) revert BM_InvalidSecret();
+        bytes32 hash = keccak256(b);
 
         RedeemStorage.Layout storage l = RedeemStorage.layout();
         RedeemStorage.Redeem storage r = l.redeems[hash];
+        if (!r.active) revert UC_InvalidProposal();
 
-        require(r.active, "inactive");
         r.active = false;
-        _wipeArraysRedeem(r);
+        _wipeRedeemArrays(r);
 
         emit RedeemCancelled(hash);
     }
 
-    // consume：必须在时间窗内，否则不能领取（只能 cancel）
     function consumeRedeem(string calldata code, address to)
         external
         returns (uint256 points6, uint256 attr, uint256[] memory tokenIds, uint256[] memory amounts)
     {
-        bytes32 hash = keccak256(bytes(code));
+        if (to == address(0)) revert BM_ZeroAddress();
+
+        bytes memory b = bytes(code);
+        if (b.length == 0) revert BM_InvalidSecret();
+        bytes32 hash = keccak256(b);
 
         RedeemStorage.Layout storage l = RedeemStorage.layout();
         RedeemStorage.Redeem storage r = l.redeems[hash];
 
-        require(r.active, "invalid redeem");
-        require(_timeOk(r.validAfter, r.validBefore), "time");
+        if (!r.active) revert UC_InvalidProposal();
+        if (!_timeOk(r.validAfter, r.validBefore)) revert UC_InvalidTimeWindow(block.timestamp, r.validAfter, r.validBefore);
 
         r.active = false;
 
@@ -164,17 +191,14 @@ contract RedeemModule {
             amounts[i] = r.amounts[i];
         }
 
-        _wipeArraysRedeem(r);
+        _wipeRedeemArrays(r);
 
         emit RedeemConsumed(hash, to, points6, attr, r.validAfter, r.validBefore, n);
         return (points6, attr, tokenIds, amounts);
     }
 
     // ==========================================================
-    // RedeemPool（三件套）
-    //  - 一个 poolHash 可被多人重复使用
-    //  - 每人只能领一次
-    //  - pool 有容器模板 + 份数，领一次消耗一份
+    // RedeemPool
     // ==========================================================
     function createRedeemPool(
         bytes32 poolHash,
@@ -183,20 +207,18 @@ contract RedeemModule {
         uint256[][] calldata tokenIdsList,
         uint256[][] calldata amountsList,
         uint32[] calldata counts
-    ) external {
-        require(poolHash != bytes32(0), "hash=0");
+    ) external onlyOwnerOrGateway {
+        if (poolHash == bytes32(0)) revert BM_InvalidSecret();
 
         uint256 m = tokenIdsList.length;
-        require(m != 0, "containers=0");
-        require(amountsList.length == m, "len mismatch");
-        require(counts.length == m, "len mismatch");
+        if (m == 0) revert UC_InvalidProposal();
+        if (amountsList.length != m || counts.length != m) revert UC_InvalidProposal();
 
         RedeemStorage.Layout storage l = RedeemStorage.layout();
         RedeemStorage.RedeemPool storage p = l.pools[poolHash];
-        require(!p.active, "exists");
+        if (p.active) revert UC_InvalidProposal();
 
-        // 清理旧数据（如果之前 terminate 后复用同 hash）
-        // 这里直接 delete 整个 pools[poolHash] 最省事
+        // reset whole pool storage for reuse
         delete l.pools[poolHash];
 
         RedeemStorage.RedeemPool storage p2 = l.pools[poolHash];
@@ -209,7 +231,7 @@ contract RedeemModule {
 
         for (uint256 i = 0; i < m; i++) {
             _validateBundle(tokenIdsList[i], amountsList[i]);
-            require(counts[i] != 0, "count=0");
+            if (counts[i] == 0) revert UC_InvalidProposal();
 
             p2.containers.push();
             RedeemStorage.PoolContainer storage c = p2.containers[i];
@@ -224,39 +246,39 @@ contract RedeemModule {
         }
 
         p2.totalRemaining = uint32(total);
-
         emit RedeemPoolCreated(poolHash, validAfter, validBefore, m, total);
     }
 
-    // owner 可随时终止
-    function terminateRedeemPool(bytes32 poolHash) external {
+    function terminateRedeemPool(bytes32 poolHash) external onlyOwnerOrGateway {
         RedeemStorage.Layout storage l = RedeemStorage.layout();
         RedeemStorage.RedeemPool storage p = l.pools[poolHash];
 
-        require(p.active, "inactive");
+        if (!p.active) revert UC_InvalidProposal();
         p.active = false;
 
         emit RedeemPoolTerminated(poolHash);
     }
 
-    // 用户凭密码领取一次：重复使用密码，但每个 user 只能领一次
     function consumeRedeemPool(string calldata code, address user)
         external
         returns (uint256[] memory tokenIds, uint256[] memory amounts)
     {
-        bytes32 poolHash = keccak256(bytes(code));
+        if (user == address(0)) revert BM_ZeroAddress();
+
+        bytes memory b = bytes(code);
+        if (b.length == 0) revert BM_InvalidSecret();
+        bytes32 poolHash = keccak256(b);
 
         RedeemStorage.Layout storage l = RedeemStorage.layout();
         RedeemStorage.RedeemPool storage p = l.pools[poolHash];
 
-        require(p.active, "inactive");
-        require(_timeOk(p.validAfter, p.validBefore), "time");
-        require(p.totalRemaining != 0, "empty");
-        require(!l.claimed[poolHash][user], "claimed");
+        if (!p.active) revert UC_InvalidProposal();
+        if (!_timeOk(p.validAfter, p.validBefore)) revert UC_InvalidTimeWindow(block.timestamp, p.validAfter, p.validBefore);
+        if (p.totalRemaining == 0) revert UC_InvalidProposal();
+        if (l.claimed[poolHash][user]) revert UC_NonceUsed();
 
         l.claimed[poolHash][user] = true;
 
-        // 找一个还有 remaining 的 container
         uint256 m = p.containers.length;
         uint256 idx = p.cursor;
 
@@ -266,19 +288,19 @@ contract RedeemModule {
                 idx = i;
                 break;
             }
-            if (k == m - 1) revert("empty");
+            if (k == m - 1) revert UC_InvalidProposal();
         }
 
         RedeemStorage.PoolContainer storage c = p.containers[idx];
         c.remaining -= 1;
         p.totalRemaining -= 1;
 
-        // 更新 cursor（下次从这里继续找）
         p.cursor = uint32((idx + 1) % m);
 
         uint256 n = c.tokenIds.length;
         tokenIds = new uint256[](n);
         amounts = new uint256[](n);
+
         for (uint256 j = 0; j < n; j++) {
             tokenIds[j] = c.tokenIds[j];
             amounts[j] = c.amounts[j];

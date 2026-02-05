@@ -1,0 +1,27 @@
+{
+  "network": "baseSepolia",
+  "chainId": "84532",
+  "deployer": "0x87cAeD4e51C36a2C2ece3Aaf4ddaC9693d2405E1",
+  "timestamp": "2026-02-05T08:36:23.614Z",
+  "contracts": {
+    "beamioContainerModule": {
+      "address": "0x13A96Bcd6aB010619d1004A1Cb4f5FE149e0F4c4",
+      "transactionHash": "0x392c751938622712f3453f9afaf44476b3dc7391451db300820191a5e9258e5f"
+    },
+    "beamioUserCardPlaceholder": {
+      "address": "0xF1559771a0a695494ff6068B7AB34972BF0Df90e",
+      "transactionHash": "0x056847918fe270c5b3b279c98afcb024aef2f4d061601d1714fbafde1c8eda95",
+      "note": "临时占位符合约，稍后应替换为真正的 BeamioUserCard"
+    },
+    "beamioFactoryPaymaster": {
+      "address": "0xc6162bcD4108b373914c6D06c5C486626C238169",
+      "initialAccountLimit": 100,
+      "deployer": "0xD98E6D80eFE306301515046f58CeB287401373A8",
+      "containerModule": "0x13A96Bcd6aB010619d1004A1Cb4f5FE149e0F4c4",
+      "quoteHelper": "0x9183eCbde2A36B54C8f1d012e013BF1f4Dd5f3E7",
+      "userCard": "0xF1559771a0a695494ff6068B7AB34972BF0Df90e",
+      "usdc": "0x036CbD53842c5426634e7929541eC2318f3dCF7e",
+      "transactionHash": "0xad6c2d2275565d4b2989287d7208120e13fa5b96e18e0dc3f69e2e21ac308667"
+    }
+  }
+}

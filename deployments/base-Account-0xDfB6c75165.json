@@ -1,0 +1,22 @@
+{
+  "network": "base",
+  "chainId": "8453",
+  "eoa": "0xDfB6c751653ae61C80512167a2154A68BCC97f1F",
+  "account": "0x208338C1f3601EDb30447E9968f5F6EeE404cE26",
+  "factory": "0x17DB55F18e004Ea96F4D8362f5496749a423A63c",
+  "deployer": "0x9f2f6c16C5ec6F0dF3b733A38943A1697d4CAC07",
+  "entryPoint": "0x0000000071727De22E5E9d8BAf0edAc6f37da032",
+  "salt": "0x2114611b088fcda4c88fb604dd74d3ce46e0c48e88f1aa75fa0303b704f7df50",
+  "timestamp": "2026-02-05T09:35:00.000Z",
+  "status": "pending",
+  "note": "账户地址已计算，但 Factory.createAccountFor 调用失败。需要进一步排查 Deployer.deploy 或 BeamioAccount.initialize 的问题。",
+  "failedTransactions": [
+    {
+      "hash": "0xe9aba511e065d81954274fab36ba4f2b60991cfafc1bd0b1d3913684be443bb1",
+      "network": "base",
+      "gasUsed": "4923007",
+      "status": "failed",
+      "note": "execution reverted，无日志输出"
+    }
+  ]
+}

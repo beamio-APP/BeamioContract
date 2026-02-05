@@ -1,0 +1,9 @@
+{
+  "network": "base",
+  "chainId": "8453",
+  "contract": "BeamioAccountDeployer",
+  "address": "0x794Fc963dC3F354847356EFdE4FbbF8D4b806959",
+  "deployer": "0x87cAeD4e51C36a2C2ece3Aaf4ddaC9693d2405E1",
+  "timestamp": "2026-02-05T09:48:29.827Z",
+  "transactionHash": "0xf5459ed632e2b55fb41615888713e6bbd11d4f6b026e4fbfd93dec1067888b9f"
+}

@@ -1,0 +1,23 @@
+{
+  "network": "baseSepolia",
+  "chainId": "84532",
+  "deployer": "0x87cAeD4e51C36a2C2ece3Aaf4ddaC9693d2405E1",
+  "timestamp": "2026-02-05T09:20:50.155Z",
+  "contracts": {
+    "beamioFactoryPaymaster": {
+      "address": "0xabc1167197F6D3Be689765A774b1A3A5B4e79D1D",
+      "initialAccountLimit": 100,
+      "deployer": "0xD98E6D80eFE306301515046f58CeB287401373A8",
+      "containerModule": "0x13A96Bcd6aB010619d1004A1Cb4f5FE149e0F4c4",
+      "quoteHelper": "0x9183eCbde2A36B54C8f1d012e013BF1f4Dd5f3E7",
+      "userCard": "0xF1559771a0a695494ff6068B7AB34972BF0Df90e",
+      "usdc": "0x036CbD53842c5426634e7929541eC2318f3dCF7e",
+      "transactionHash": "0xbfb6f08458fadfd310382979fe9531c0b766ee5f7c4a4267c4ab44b225aae7ee",
+      "note": "修复后的 Factory：getAddress 直接计算 CREATE2 地址"
+    },
+    "beamioContainerModule": {
+      "address": "0x13A96Bcd6aB010619d1004A1Cb4f5FE149e0F4c4",
+      "transactionHash": "0x392c751938622712f3453f9afaf44476b3dc7391451db300820191a5e9258e5f"
+    }
+  }
+}

@@ -1,0 +1,28 @@
+{
+  "network": "base",
+  "chainId": "8453",
+  "deployer": "0x87cAeD4e51C36a2C2ece3Aaf4ddaC9693d2405E1",
+  "timestamp": "2026-02-05T08:45:14.576Z",
+  "contracts": {
+    "beamioOracle": {
+      "address": "0xDa4AE8301262BdAaf1bb68EC91259E6C512A9A2B",
+      "note": "使用已存在的 Oracle 合约"
+    },
+    "beamioQuoteHelper": {
+      "address": "0x13AECe9ad12AC4925E5B5E921e566B315bd99d35",
+      "oracle": "0xDa4AE8301262BdAaf1bb68EC91259E6C512A9A2B",
+      "owner": "0x87cAeD4e51C36a2C2ece3Aaf4ddaC9693d2405E1",
+      "transactionHash": "0xcf63fdcb30759e0670c9a93bebf6320d32f1c30e2679afebe0dd2cdd778c42b4"
+    },
+    "beamioAccountDeployer": {
+      "address": "0xBD510029d0a72bE2594c1a5FF0C939d5CDAC4B87",
+      "transactionHash": "0xdfc81b1ceb8eabcc6ad6a345bec3b31c68404a41223b2cc5e93adffa2693bbab"
+    },
+    "beamioAccount": {
+      "address": "0x0e640C7af0b8D69551dd6f9F362C21942d381802",
+      "entryPoint": "0x0000000071727De22E5E9d8BAf0edAc6f37da032",
+      "transactionHash": "0x212bd0ccbaff5b8d1ce42d3c733e61bdfd175a429e581dd92bad119f685a4ae5",
+      "note": "需要调用 initialize() 函数进行初始化"
+    }
+  }
+}

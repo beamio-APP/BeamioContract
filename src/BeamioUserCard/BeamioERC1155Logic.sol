@@ -93,7 +93,7 @@ library BeamioERC1155Logic {
     struct Layout {
         // Pricing
         BeamioCurrency.CurrencyType currency;
-        uint256 pointsUnitPriceInCurrencyE18;
+        uint256 pointsUnitPriceInCurrencyE6;
 
         // Expiry & Redeem
         uint256 expirySeconds;
@@ -139,7 +139,7 @@ library BeamioERC1155Logic {
     // ===== Events (mirrored from BeamioUserCard) =====
     event ExpirySecondsUpdated(uint256 oldSecs, uint256 newSecs);
     event RedeemModuleUpdated(address indexed oldModule, address indexed newModule);
-    event PointsUnitPriceUpdated(uint256 priceInCurrencyE18);
+    event PointsUnitPriceUpdated(uint256 priceInCurrencyE6);
 
     event MemberNFTIssued(address indexed user, uint256 indexed tokenId, uint256 tierIndexOrMax, uint256 minUsdc6, uint256 expiry);
     event MemberNFTUpgraded(address indexed user, uint256 indexed oldActiveTokenId, uint256 indexed newTokenId, uint256 oldTierIndexOrMax, uint256 newTierIndex, uint256 newExpiry);

@@ -31,12 +31,12 @@ interface IBeamioAccountFactoryConfigV2 {
 
 interface IBeamioQuoteHelperV07Like {
 	function quoteCurrencyAmountInUSDC6(uint8 cur, uint256 amount6) external view returns (uint256);
-	function quoteUnitPointInUSDC6(uint8 cardCurrency, uint256 unitPointPriceInCurrencyE18) external view returns (uint256);
+	function quoteUnitPointInUSDC6(uint8 cardCurrency, uint256 unitPointPriceInCurrencyE6) external view returns (uint256);
 }
 
 interface IBeamioUserCardLike {
 	function currency() external view returns (uint8);
-	function pointsUnitPriceInCurrencyE18() external view returns (uint256);
+	function pointsUnitPriceInCurrencyE6() external view returns (uint256);
 }
 
 // ===== MUST match Account client struct layout =====
@@ -564,10 +564,10 @@ contract BeamioContainerModuleV07 {
 				uint256 cardValueUsdc6 = 0;
 				if (has1155 && cardId0Amount6 > 0) {
 					uint8 cardCur = IBeamioUserCardLike(userCard).currency();
-					uint256 unitPriceE18 = IBeamioUserCardLike(userCard).pointsUnitPriceInCurrencyE18();
-					if (unitPriceE18 == 0) revert CM_UnitPriceZero();
+					uint256 unitPriceE6 = IBeamioUserCardLike(userCard).pointsUnitPriceInCurrencyE6();
+					if (unitPriceE6 == 0) revert CM_UnitPriceZero();
 
-					uint256 unitPointUsdc6 = qh.quoteUnitPointInUSDC6(cardCur, unitPriceE18);
+					uint256 unitPointUsdc6 = qh.quoteUnitPointInUSDC6(cardCur, unitPriceE6);
 					cardValueUsdc6 = (cardId0Amount6 * unitPointUsdc6) / 1e6;
 				}
 
@@ -685,9 +685,9 @@ contract BeamioContainerModuleV07 {
 				uint256 cardValueUsdc6 = 0;
 				if (has1155 && cardId0Amount6 > 0) {
 					uint8 cardCur = IBeamioUserCardLike(userCard).currency();
-					uint256 unitPriceE18 = IBeamioUserCardLike(userCard).pointsUnitPriceInCurrencyE18();
-					if (unitPriceE18 == 0) return (false, "unitPrice=0");
-					uint256 unitPointUsdc6 = qh.quoteUnitPointInUSDC6(cardCur, unitPriceE18);
+					uint256 unitPriceE6 = IBeamioUserCardLike(userCard).pointsUnitPriceInCurrencyE6();
+					if (unitPriceE6 == 0) return (false, "unitPrice=0");
+					uint256 unitPointUsdc6 = qh.quoteUnitPointInUSDC6(cardCur, unitPriceE6);
 					cardValueUsdc6 = (cardId0Amount6 * unitPointUsdc6) / 1e6;
 				}
 

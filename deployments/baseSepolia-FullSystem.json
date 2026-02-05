@@ -1,0 +1,28 @@
+{
+  "network": "baseSepolia",
+  "chainId": "84532",
+  "deployer": "0x87cAeD4e51C36a2C2ece3Aaf4ddaC9693d2405E1",
+  "timestamp": "2026-02-05T08:31:55.517Z",
+  "contracts": {
+    "beamioOracle": {
+      "address": "0x20c84933F3fFAcFF1C0b4D713b059377a9EF5fD1",
+      "transactionHash": "0x5b84eb8efd3232da205fdc618f5ff261b6a70e1c02e1d240b1b17f3bdba9fd7f"
+    },
+    "beamioQuoteHelper": {
+      "address": "0x9183eCbde2A36B54C8f1d012e013BF1f4Dd5f3E7",
+      "oracle": "0x20c84933F3fFAcFF1C0b4D713b059377a9EF5fD1",
+      "owner": "0x87cAeD4e51C36a2C2ece3Aaf4ddaC9693d2405E1",
+      "transactionHash": "0x009092ae3bd31e5828a7b977c7593946e58e79b2c31a540202056c6b1069c908"
+    },
+    "beamioAccountDeployer": {
+      "address": "0xD98E6D80eFE306301515046f58CeB287401373A8",
+      "transactionHash": "0x260bce8123dd5b827cfb1acbe28da4d3606b05cdac13faa48c6cfc0085efda27"
+    },
+    "beamioAccount": {
+      "address": "0x7a0C245A5162EBdB51a4DEF09EF5aF40afD2AcF5",
+      "entryPoint": "0x0000000071727De22E5E9d8BAf0edAc6f37da032",
+      "transactionHash": "0xaf02f7b3eb8d2668f62b6dbea1d2870e1978309aad7ed51ff383ec8b86fb6aea",
+      "note": "需要调用 initialize() 函数进行初始化"
+    }
+  }
+}

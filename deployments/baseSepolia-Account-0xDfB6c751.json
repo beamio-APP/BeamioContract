@@ -1,0 +1,11 @@
+{
+  "network": "baseSepolia",
+  "chainId": "84532",
+  "eoa": "0xDfB6c751653ae61C80512167a2154A68BCC97f1F",
+  "account": "0xAB4AB39A7fcAC791536F0f343c19fa5313Ea09F6",
+  "factory": "0x102E9FBE87a28BaC10ADbc0E67a2b0385C8Bd0E9",
+  "deployer": "0x5478FABCc76bc1044286764A0115719Ce94F4572",
+  "entryPoint": "0x0000000071727De22E5E9d8BAf0edAc6f37da032",
+  "timestamp": "2026-02-05T09:45:35.299Z",
+  "transactionHash": "0xb4d58d0185adec5036f4e25f518015a29da4ae94d49eb9107ef5b40722b3f219"
+}

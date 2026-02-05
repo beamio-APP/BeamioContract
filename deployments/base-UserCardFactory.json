@@ -1,0 +1,18 @@
+{
+  "network": "base",
+  "chainId": "8453",
+  "deployer": "0x87cAeD4e51C36a2C2ece3Aaf4ddaC9693d2405E1",
+  "timestamp": "2026-02-05T19:44:30.142Z",
+  "contracts": {
+    "beamioUserCardFactoryPaymaster": {
+      "address": "0x7Ec828BAbA1c58C5021a6E7D29ccDDdB2d8D84bd",
+      "usdc": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+      "redeemModule": "0xD20eec1d847765fa9D13743aee3ceA93d1D5CF51",
+      "quoteHelper": "0x291BDb7044B3C31e62Cb07A47fe48d4835954ffF",
+      "deployer": "0x9909Cbb1e70670c066c7BB0488Dbdf32d86e8961",
+      "aaFactory": "0xFD48F7a6bBEb0c0C1ff756C38cA7fE7544239767",
+      "owner": "0x87cAeD4e51C36a2C2ece3Aaf4ddaC9693d2405E1",
+      "transactionHash": "0x89649e9cb67cdfaa8f878266b4bac1411c356e1b841217c1cceb2decb7b94d1b"
+    }
+  }
+}

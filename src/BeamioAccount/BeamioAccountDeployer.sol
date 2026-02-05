@@ -34,7 +34,10 @@ contract BeamioAccountDeployer {
     function deploy(bytes32 salt, bytes calldata initCode) external onlyFactory returns (address addr) {
         require(initCode.length != 0, "empty initCode");
         assembly {
-            addr := create2(0, add(initCode.offset, 0x20), calldataload(initCode.offset), salt)
+            let ptr := mload(0x40)
+            let len := initCode.length
+            calldatacopy(ptr, initCode.offset, len)
+            addr := create2(0, ptr, len, salt)
         }
         require(addr != address(0) && addr.code.length > 0, "deploy failed");
         emit Deployed(addr, salt, keccak256(initCode));

@@ -1,0 +1,9 @@
+{
+  "network": "baseSepolia",
+  "chainId": "84532",
+  "contract": "BeamioAccountDeployer",
+  "address": "0x5478FABCc76bc1044286764A0115719Ce94F4572",
+  "deployer": "0x87cAeD4e51C36a2C2ece3Aaf4ddaC9693d2405E1",
+  "timestamp": "2026-02-05T09:43:29.583Z",
+  "transactionHash": "0xb8fcbe325a69ac92603012f462c8536f909ab9246c706a7542b2b54dc2a06f5e"
+}

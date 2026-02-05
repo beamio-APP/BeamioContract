@@ -1,7 +1,11 @@
-import { ethers } from "hardhat";
+import { network as networkModule } from "hardhat";
 import * as fs from "fs";
 import * as path from "path";
+import { fileURLToPath } from "url";
 import { verifyContract, verifyCreate2Contract } from "./utils/verifyContract.js";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 /**
  * 通过 BeamioAccountDeployer 部署 AA 账号并自动验证
@@ -16,6 +20,7 @@ import { verifyContract, verifyCreate2Contract } from "./utils/verifyContract.js
  * - ACCOUNT_INDEX: 账号索引（用于计算 salt，默认 0）
  */
 async function main() {
+  const { ethers } = await networkModule.connect();
   const [deployer] = await ethers.getSigners();
   
   console.log("部署账户:", deployer.address);
@@ -145,13 +150,15 @@ async function saveDeploymentInfo(
   alreadyDeployed: boolean,
   deployerAddress: string
 ) {
-  const network = await ethers.provider.getNetwork();
+  const { network: networkModule } = await import("hardhat");
+  const { ethers } = await networkModule.connect();
+  const networkInfo = await ethers.provider.getNetwork();
   const [deployer] = await ethers.getSigners();
   const deployerContract = await ethers.getContractAt("BeamioAccountDeployer", deployerAddress);
   
   const deploymentInfo = {
-    network: network.name,
-    chainId: network.chainId.toString(),
+    network: networkInfo.name,
+    chainId: networkInfo.chainId.toString(),
     contract: "BeamioAccount",
     address: address,
     deployer: deployerAddress,
@@ -170,7 +177,7 @@ async function saveDeploymentInfo(
     fs.mkdirSync(deploymentsDir, { recursive: true });
   }
   
-  const networkName = network.name;
+  const networkName = networkInfo.name;
   const index = process.env.ACCOUNT_INDEX || "0";
   const deploymentFile = path.join(
     deploymentsDir,

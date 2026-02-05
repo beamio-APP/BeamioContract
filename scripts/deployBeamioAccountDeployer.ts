@@ -1,9 +1,14 @@
-import { ethers, run } from "hardhat";
+import { network as networkModule } from "hardhat";
 import * as fs from "fs";
 import * as path from "path";
+import { fileURLToPath } from "url";
 import { verifyContract } from "./utils/verifyContract.js";
 
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
 async function main() {
+  const { ethers } = await networkModule.connect();
   const [deployer] = await ethers.getSigners();
   
   console.log("部署账户:", deployer.address);
@@ -22,10 +27,10 @@ async function main() {
   console.log("部署器地址:", deployerAddress);
   
   // 保存部署信息
-  const network = await ethers.provider.getNetwork();
+  const networkInfo = await ethers.provider.getNetwork();
   const deploymentInfo = {
-    network: network.name,
-    chainId: network.chainId.toString(),
+    network: networkInfo.name,
+    chainId: networkInfo.chainId.toString(),
     contract: "BeamioAccountDeployer",
     address: deployerAddress,
     deployer: deployer.address,
@@ -38,7 +43,7 @@ async function main() {
     fs.mkdirSync(deploymentsDir, { recursive: true });
   }
   
-  const deploymentFile = path.join(deploymentsDir, `${network.name}-BeamioAccountDeployer.json`);
+  const deploymentFile = path.join(deploymentsDir, `${networkInfo.name}-BeamioAccountDeployer.json`);
   fs.writeFileSync(deploymentFile, JSON.stringify(deploymentInfo, null, 2));
   
   console.log("\n部署信息已保存到:", deploymentFile);

@@ -3,96 +3,115 @@ pragma solidity ^0.8.20;
 
 import "./BeamioUserCard.sol";
 import "./BeamioCurrency.sol";
+import "./Errors.sol";
 
-error NotAuthorized();
-error ZeroAddress();
-error InvalidRedeemHash();
-error BadDeployedCard();
-error AlreadyRegistered();
-
+/* =========================
+   Quote helper
+   ========================= */
 interface IBeamioQuoteHelper {
     function quoteCurrencyAmountInUSDC6(uint8 cur, uint256 amount6) external view returns (uint256);
-    function quoteUnitPointInUSDC6(uint8 cardCurrency, uint256 unitPointPriceInCurrencyE18) external view returns (uint256);
+    function quoteUnitPointInUSDC6(uint8 cardCurrency, uint256 unitPointPriceInCurrencyE6) external view returns (uint256);
 }
 
+/* =========================
+   Deployer
+   ========================= */
 interface IBeamioDeployerV07 {
     function deploy(bytes calldata initCode) external returns (address);
 }
 
+/**
+ * @title BeamioUserCardFactoryPaymasterV07
+ * @notice Factory / Gateway / Paymaster router for BeamioUserCard
+ * @dev
+ *  - USDC address: injected via constructor (no magic constant)
+ *  - defaultRedeemModule: injected & upgradable by owner
+ *  - aaFactory: injected & upgradable by owner
+ */
 contract BeamioUserCardFactoryPaymasterV07 is IBeamioFactoryOracle {
-    address public constant USDC_TOKEN = 0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913;
+    // ===== immutable chain config =====
+    address public immutable USDC_TOKEN;
 
+    // ===== admin =====
     address public owner;
-    address public defaultRedeemModule;
+    mapping(address => bool) public isPaymaster;
 
+    // ===== modules / helpers =====
+    address public defaultRedeemModule;
     address public quoteHelper;
     address public deployer;
 
-    // AA factory (BeamioFactoryPaymasterV07)
+    // AA factory (BeamioAccountFactory)
     address public _aaFactory;
 
-    mapping(address => bool) public isPaymaster;
-
-    // id issuance
-    uint256 public nextFungibleId = 1;
-    uint256 public nextNftId = 100000000;
+    // ===== id issuance =====
+    uint256 public nextFungibleId;
+    uint256 public nextNftId;
     mapping(address => mapping(uint256 => bool)) public tokenIdIssued;
 
-    // ==========================================================
-    // BeamioUserCard registry
-    // ==========================================================
-
-    // user (owner/merchant) => list of BeamioUserCard
-    mapping(address => address[]) private _beamioUserCards;
-
-    // quick lookup: card => owner
-    mapping(address => address) public beamioUserCardOwner;
-
-    // owner -> cards
+    // ===== registry =====
     mapping(address => address[]) private _cardsOfOwner;
     mapping(address => mapping(address => bool)) public isCardOfOwner;
+    mapping(address => address) public beamioUserCardOwner;
 
     event OwnerChanged(address indexed oldOwner, address indexed newOwner);
     event PaymasterStatusChanged(address indexed account, bool allowed);
+
     event DefaultRedeemModuleUpdated(address indexed oldM, address indexed newM);
     event QuoteHelperChanged(address indexed oldH, address indexed newH);
     event DeployerChanged(address indexed oldD, address indexed newD);
     event AAFactoryChanged(address indexed oldFactory, address indexed newFactory);
 
-    event CardDeployed(address indexed cardOwner, address indexed card, uint8 currency, uint256 price);
+    event CardDeployed(address indexed cardOwner, address indexed card, uint8 currency, uint256 priceE18);
     event CardRegistered(address indexed cardOwner, address indexed card);
     event RedeemExecuted(address indexed card, address indexed user, bytes32 redeemHash);
     event TokenIdIssued(address indexed card, uint256 indexed id, bool isNft);
 
     modifier onlyOwner() {
-        if (msg.sender != owner) revert NotAuthorized();
+        if (msg.sender != owner) revert BM_NotAuthorized();
         _;
     }
 
     modifier onlyPaymaster() {
-        if (!(msg.sender == owner || isPaymaster[msg.sender])) revert NotAuthorized();
+        if (!(msg.sender == owner || isPaymaster[msg.sender])) revert BM_NotAuthorized();
         _;
     }
 
-    constructor(address redeemModule_, address quoteHelper_, address deployer_, address aaFactory_) {
-        if (redeemModule_ == address(0) || quoteHelper_ == address(0) || deployer_ == address(0) || aaFactory_ == address(0)) {
-            revert ZeroAddress();
-        }
+    constructor(
+        address usdcToken_,
+        address redeemModule_,
+        address quoteHelper_,
+        address deployer_,
+        address aaFactory_,
+        address initialOwner
+    ) {
+        if (
+            usdcToken_ == address(0) ||
+            redeemModule_ == address(0) ||
+            quoteHelper_ == address(0) ||
+            deployer_ == address(0) ||
+            aaFactory_ == address(0) ||
+            initialOwner == address(0)
+        ) revert BM_ZeroAddress();
 
-        owner = msg.sender;
-        isPaymaster[msg.sender] = true;
+        USDC_TOKEN = usdcToken_;
+
+        owner = initialOwner;
+        isPaymaster[initialOwner] = true;
 
         defaultRedeemModule = redeemModule_;
         quoteHelper = quoteHelper_;
         deployer = deployer_;
         _aaFactory = aaFactory_;
+
+        // no magic numbers: align with BeamioERC1155Logic constants
+        nextFungibleId = 1;
+        nextNftId = BeamioERC1155Logic.NFT_START_ID;
     }
 
     // ===== IBeamioFactoryOracle =====
-    function USDC() external pure returns (address) { return USDC_TOKEN; }
-
+    function USDC() external view returns (address) { return USDC_TOKEN; }
     function aaFactory() external view returns (address) { return _aaFactory; }
-
     function isTokenIdIssued(address card, uint256 id) external view returns (bool) { return tokenIdIssued[card][id]; }
 
     function quoteCurrencyAmountInUSDC6(uint8 cur, uint256 amount6) external view returns (uint256) {
@@ -101,7 +120,7 @@ contract BeamioUserCardFactoryPaymasterV07 is IBeamioFactoryOracle {
 
     function quoteUnitPointInUSDC6(address card) external view returns (uint256) {
         BeamioUserCard c = BeamioUserCard(card);
-        return IBeamioQuoteHelper(quoteHelper).quoteUnitPointInUSDC6(uint8(c.currency()), c.pointsUnitPriceInCurrencyE18());
+        return IBeamioQuoteHelper(quoteHelper).quoteUnitPointInUSDC6(uint8(c.currency()), c.pointsUnitPriceInCurrencyE6());
     }
 
     // ===== owner->cards view =====
@@ -116,31 +135,31 @@ contract BeamioUserCardFactoryPaymasterV07 is IBeamioFactoryOracle {
 
     // ===== admin =====
     function setQuoteHelper(address h) external onlyOwner {
-        if (h == address(0)) revert ZeroAddress();
+        if (h == address(0)) revert BM_ZeroAddress();
         emit QuoteHelperChanged(quoteHelper, h);
         quoteHelper = h;
     }
 
     function setDeployer(address d) external onlyOwner {
-        if (d == address(0)) revert ZeroAddress();
+        if (d == address(0)) revert BM_ZeroAddress();
         emit DeployerChanged(deployer, d);
         deployer = d;
     }
 
     function setRedeemModule(address m) external onlyOwner {
-        if (m == address(0)) revert ZeroAddress();
+        if (m == address(0)) revert BM_ZeroAddress();
         emit DefaultRedeemModuleUpdated(defaultRedeemModule, m);
         defaultRedeemModule = m;
     }
 
     function setAAFactory(address f) external onlyOwner {
-        if (f == address(0)) revert ZeroAddress();
+        if (f == address(0)) revert BM_ZeroAddress();
         emit AAFactoryChanged(_aaFactory, f);
         _aaFactory = f;
     }
 
     function transferOwner(address newOwner) external onlyOwner {
-        if (newOwner == address(0)) revert ZeroAddress();
+        if (newOwner == address(0)) revert BM_ZeroAddress();
         emit OwnerChanged(owner, newOwner);
         owner = newOwner;
     }
@@ -152,69 +171,58 @@ contract BeamioUserCardFactoryPaymasterV07 is IBeamioFactoryOracle {
 
     // ===== id issuance =====
     function issueTokenId(address card, bool isNft) external onlyPaymaster returns (uint256 id) {
-        if (card == address(0) || card.code.length == 0) revert ZeroAddress();
-        if (BeamioUserCard(card).factoryGateway() != address(this)) revert NotAuthorized();
+        if (card == address(0) || card.code.length == 0) revert BM_ZeroAddress();
+        if (BeamioUserCard(card).factoryGateway() != address(this)) revert BM_NotAuthorized();
 
         id = isNft ? nextNftId++ : nextFungibleId++;
         tokenIdIssued[card][id] = true;
+
         emit TokenIdIssued(card, id, isNft);
     }
 
     // ==========================================================
     // Deploy with initCode (creationCode + abi.encode(args))
-    // args MUST match BeamioUserCard constructor:
-    // (uri, initialOwner, gateway, redeemModule, currency, pointsUnitPriceInCurrencyE18)
     // ==========================================================
     function createCardCollectionWithInitCode(
         address cardOwner,
         uint8 currency,
-        uint256 priceInCurrencyE18,
+        uint256 priceInCurrencyE6,
         bytes calldata initCode
     ) external onlyPaymaster returns (address card) {
-        if (cardOwner == address(0)) revert ZeroAddress();
+        if (cardOwner == address(0)) revert BM_ZeroAddress();
+        if (initCode.length == 0) revert BM_DeployFailed();
 
         card = IBeamioDeployerV07(deployer).deploy(initCode);
+        if (card == address(0) || card.code.length == 0) revert BM_DeployFailed();
 
         // validate
         BeamioUserCard c = BeamioUserCard(card);
-        if (c.factoryGateway() != address(this)) revert BadDeployedCard();
-        if (c.owner() != cardOwner) revert BadDeployedCard();
-        if (uint8(c.currency()) != currency) revert BadDeployedCard();
-        if (c.pointsUnitPriceInCurrencyE18() != priceInCurrencyE18) revert BadDeployedCard();
+        if (c.factoryGateway() != address(this)) revert F_BadDeployedCard();
+        if (c.owner() != cardOwner) revert F_BadDeployedCard();
+        if (uint8(c.currency()) != currency) revert F_BadDeployedCard();
+        if (c.pointsUnitPriceInCurrencyE6() != priceInCurrencyE6) revert F_BadDeployedCard();
 
         _registerCard(cardOwner, card);
-        // ===== NEW: record registry =====
-        _beamioUserCards[cardOwner].push(card);
         beamioUserCardOwner[card] = cardOwner;
-        emit CardDeployed(cardOwner, card, currency, priceInCurrencyE18);
+
+        emit CardDeployed(cardOwner, card, currency, priceInCurrencyE6);
     }
 
     function isBeamioUserCard(address card) external view returns (bool) {
         return beamioUserCardOwner[card] != address(0);
     }
 
-    /**
-    * @notice Get all BeamioUserCard created for a user
-    * @param to user / merchant address
-    */
-    function getBeamioUserCard(address to)
-        external
-        view
-        returns (address[] memory)
-    {
-        return _beamioUserCards[to];
-    }
-
-    /// @notice 如果你“手动部署了 BeamioUserCard”，也可以注册进 Factory 方便查询（可选）
     function registerExistingCard(address cardOwner, address card) external onlyPaymaster {
-        if (cardOwner == address(0) || card == address(0)) revert ZeroAddress();
-        if (isCardOfOwner[cardOwner][card]) revert AlreadyRegistered();
+        if (cardOwner == address(0) || card == address(0)) revert BM_ZeroAddress();
+        if (isCardOfOwner[cardOwner][card]) revert F_AlreadyRegistered();
 
         BeamioUserCard c = BeamioUserCard(card);
-        if (c.factoryGateway() != address(this)) revert BadDeployedCard();
-        if (c.owner() != cardOwner) revert BadDeployedCard();
+        if (c.factoryGateway() != address(this)) revert F_BadDeployedCard();
+        if (c.owner() != cardOwner) revert F_BadDeployedCard();
 
         _registerCard(cardOwner, card);
+        beamioUserCardOwner[card] = cardOwner;
+
         emit CardRegistered(cardOwner, card);
     }
 
@@ -223,15 +231,28 @@ contract BeamioUserCardFactoryPaymasterV07 is IBeamioFactoryOracle {
         _cardsOfOwner[cardOwner].push(card);
     }
 
-    // ===== redeem =====
-    function redeemForUser(address cardAddr, string calldata pwd, address user) external onlyPaymaster {
-        if (user == address(0)) revert ZeroAddress();
-        if (BeamioUserCard(cardAddr).factoryGateway() != address(this)) revert NotAuthorized();
+    // ==========================================================
+    // Paymaster route: consume redeem for user (gas sponsored offchain)
+    // ==========================================================
+    function redeemForUser(address cardAddr, string calldata code, address userEOA) external onlyPaymaster {
+        if (userEOA == address(0)) revert BM_ZeroAddress();
+        if (cardAddr == address(0) || cardAddr.code.length == 0) revert BM_ZeroAddress();
+        if (BeamioUserCard(cardAddr).factoryGateway() != address(this)) revert BM_NotAuthorized();
 
-        // 如果你还想保留“空字符串不允许”
-        if (bytes(pwd).length == 0) revert InvalidRedeemHash();
+        if (bytes(code).length == 0) revert F_InvalidRedeemHash();
 
-        BeamioUserCard(cardAddr).redeemByGateway(pwd, user);
-        emit RedeemExecuted(cardAddr, user, keccak256(bytes(pwd)));
+        BeamioUserCard(cardAddr).redeemByGateway(code, userEOA);
+        emit RedeemExecuted(cardAddr, userEOA, keccak256(bytes(code)));
+    }
+
+    function redeemPoolForUser(address cardAddr, string calldata code, address userEOA) external onlyPaymaster {
+        if (userEOA == address(0)) revert BM_ZeroAddress();
+        if (cardAddr == address(0) || cardAddr.code.length == 0) revert BM_ZeroAddress();
+        if (BeamioUserCard(cardAddr).factoryGateway() != address(this)) revert BM_NotAuthorized();
+
+        if (bytes(code).length == 0) revert F_InvalidRedeemHash();
+
+        BeamioUserCard(cardAddr).redeemPoolByGateway(code, userEOA);
+        emit RedeemExecuted(cardAddr, userEOA, keccak256(bytes(code)));
     }
 }

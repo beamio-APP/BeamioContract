@@ -1,0 +1,12 @@
+{
+  "network": "base",
+  "chainId": "8453",
+  "eoa": "0xEaBF0A98aC208647247eAA25fDD4eB0e67793d61",
+  "userCard": "0x1Dc8c473fc67358357E90636AE8607229d5e9f92",
+  "factory": "0x7Ec828BAbA1c58C5021a6E7D29ccDDdB2d8D84bd",
+  "uri": "https://api.beamio.io/metadata/{id}.json",
+  "currency": 0,
+  "price6": "1000000",
+  "timestamp": "2026-02-05T19:46:25.051Z",
+  "transactionHash": "0xc7c71c3fe55cc1d43e72a9e2e6c28e730ce5514f159c6640ba1cb76b30093437"
+}
