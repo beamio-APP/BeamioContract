@@ -1,0 +1,83 @@
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.20;
+
+/* =========================================================
+   Beamio: unified errors with prefixes
+   Rule: DO NOT redeclare these errors anywhere else.
+   ========================================================= */
+
+// -------- Common --------
+error BM_ZeroAddress();
+error BM_NotAuthorized();
+error BM_CallFailed();
+error BM_InvalidSecret();
+error BM_DeployFailed();
+error UC_TiersNotDecreasing();
+
+// -------- ERC1155 / UserCard (UC_) --------
+error UC_OwnerLocked();
+error UC_NotAdmin();
+error UC_UnauthorizedGateway();
+error UC_AmountZero();
+error UC_InvalidProposal();
+error UC_NonceUsed();
+
+error DEP_NotOwner();
+error DEP_InvalidFactory();
+
+// membership / tiers
+error UC_AlreadyHasValidCard();
+error UC_TierLenMismatch();
+error UC_TierMinZero();
+error UC_TiersNotIncreasing();
+error UC_MustGrow();
+error UC_PriceZero();
+error UC_PointsZero();
+error UC_Slippage();
+error UC_BelowMinThreshold();
+error UC_PointsToNotWhitelisted();
+error UC_SBTNonTransferable();
+error UC_RedeemModuleZero();
+error UC_RedeemDelegateFailed(bytes data);
+error UC_GlobalMisconfigured();
+error UC_NoBeamioAccount();
+
+// faucet
+error UC_FaucetNotEnabled();
+error UC_FaucetExpired();
+error UC_FaucetAmountTooLarge();
+error UC_FaucetMaxExceeded();
+error UC_FaucetConfigInvalid();
+error UC_FaucetGlobalMaxExceeded();
+error UC_FaucetConfigFrozen();
+error UC_FaucetIdNotIssued();
+error UC_FaucetDisabledBecausePriced();
+error UC_PurchaseDisabledBecauseFree();
+error UC_PriceNotConfigured();
+
+// -------- QuoteHelper (QH_) --------
+error QH_OracleError();
+
+// -------- Deployer (DEP_) --------
+error DEP_NotFactory();
+error DEP_FactoryAlreadySet();
+
+// -------- Factory/Paymaster (F_) --------
+error F_InvalidRedeemHash();
+error F_BadDeployedCard();
+error F_AlreadyRegistered();
+
+// -------- GatewayExecutor (GX_) --------
+error GX_SecretUsed();
+
+/**
+UC_ResolveAccountFailed 里把 aaFactory/acct 带出来，外部就能判断是 “aaFactory 配错 / account 未部署 / mapping 不存在”。
+UC_InsufficientBalance 能直接告诉你余额差多少。
+UC_OpenAuthAlreadyUsed 让你能直接定位 nonce 重放。
+ */
+error UC_InvalidTokenId(uint256 got, uint256 expected);
+error UC_InvalidSignature(address recovered, address expected);
+error UC_InvalidTimeWindow(uint256 nowTs, uint256 validAfter, uint256 validBefore);
+error UC_OpenAuthAlreadyUsed(bytes32 key);
+error UC_ResolveAccountFailed(address eoa, address aaFactory, address acct);
+error UC_InsufficientBalance(address fromAccount, uint256 id, uint256 have, uint256 need);

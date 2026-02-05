@@ -1,0 +1,24 @@
+# Hardhat files
+cache/
+artifacts/
+typechain-types/
+
+# Environment variables
+.env
+
+# Node modules
+node_modules/
+
+# Deployment files (可选，如果不想提交部署记录)
+# deployments/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db

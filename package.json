@@ -1,0 +1,26 @@
+{
+  "name": "beamiocontract",
+  "version": "1.0.0",
+  "description": "",
+  "license": "ISC",
+  "author": "",
+  "type": "module",
+  "main": "index.js",
+  "scripts": {
+    "compile": "hardhat compile",
+    "clean": "hardhat clean",
+    "deploy:base": "hardhat run scripts/deployBeamioAccount.ts --network base",
+    "deploy:base-sepolia": "hardhat run scripts/deployBeamioAccount.ts --network baseSepolia",
+    "deploy:deployer:base": "hardhat run scripts/deployBeamioAccountDeployer.ts --network base",
+    "deploy:deployer:base-sepolia": "hardhat run scripts/deployBeamioAccountDeployer.ts --network baseSepolia",
+    "deploy:aa:base": "hardhat run scripts/deployAAAccountViaDeployer.ts --network base",
+    "deploy:aa:base-sepolia": "hardhat run scripts/deployAAAccountViaDeployer.ts --network baseSepolia",
+    "verify": "hardhat verify",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "devDependencies": {
+    "@nomicfoundation/hardhat-toolbox-mocha-ethers": "^3.0.2",
+    "dotenv": "^17.2.3",
+    "hardhat": "^3.1.6"
+  }
+}
