@@ -19,6 +19,19 @@
      - `BASE_RPC_URL`: Base 主网 RPC URL（默认已配置）
      - `BASESCAN_API_KEY`: BaseScan API Key（用于合约验证，可选）
 
+## 架构说明
+
+### BeamioAccount vs BeamioUserCard
+
+**重要**: BeamioAccount 和 BeamioUserCard 是两个独立的系统：
+
+- **BeamioAccount**: ERC-4337 Account Abstraction，**不依赖** BeamioOracle
+- **BeamioUserCard**: ERC-1155 用户卡系统，**需要** BeamioOracle 获取汇率
+
+BeamioAccount 的构造函数只需要 `EntryPoint` 地址，不需要 Oracle。Oracle 是 UserCard 系统通过 Gateway 访问的。
+
+详细架构说明请查看 [ARCHITECTURE.md](./ARCHITECTURE.md)
+
 ## 部署步骤
 
 ### 1. 编译合约
@@ -45,7 +58,25 @@ npm run deploy:base-sepolia
 npx hardhat run scripts/deployBeamioAccount.ts --network baseSepolia
 ```
 
-#### 方式 B: 通过 BeamioAccountDeployer 部署（CREATE2 部署）
+#### 方式 B: 部署完整系统（包括 Oracle）
+
+如果需要使用 BeamioUserCard 功能，需要先部署 Oracle：
+
+```bash
+# Base 主网
+npm run deploy:full:base
+
+# Base Sepolia 测试网
+npm run deploy:full:base-sepolia
+```
+
+这会部署：
+- BeamioOracle（汇率预言机）
+- BeamioQuoteHelperV07（报价辅助，依赖 Oracle）
+- BeamioAccountDeployer（CREATE2 部署器）
+- BeamioAccount（AA 账号）
+
+#### 方式 C: 通过 BeamioAccountDeployer 部署（CREATE2 部署）
 
 这种方式可以预先计算合约地址，适合批量部署 AA 账号。
 

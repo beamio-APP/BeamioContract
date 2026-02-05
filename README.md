@@ -232,11 +232,11 @@ npm run compile
 # Clean artifacts and cache
 npm run clean
 
-# Deploy to Base Mainnet
+# Deploy BeamioAccount only (no Oracle needed)
 npm run deploy:base
 
-# Deploy to Base Sepolia
-npm run deploy:base-sepolia
+# Deploy full system (includes Oracle)
+npm run deploy:full:base
 
 # Deploy deployer contract
 npm run deploy:deployer:base
@@ -282,8 +282,17 @@ This address is consistent across all chains.
 
 ## 📚 Documentation
 
+- [Architecture Guide](./ARCHITECTURE.md) - System architecture and dependency explanation
 - [Deployment Guide](./DEPLOY.md) - Detailed deployment instructions
 - [Deployment & Verification Guide](./README_DEPLOYMENT.md) - Complete deployment and verification guide
+
+### Why BeamioAccount doesn't need Oracle?
+
+**BeamioAccount** and **BeamioUserCard** are two independent systems:
+- **BeamioAccount**: ERC-4337 Account Abstraction - only needs EntryPoint (no Oracle required)
+- **BeamioUserCard**: ERC-1155 card system - needs Oracle for exchange rates (accessed via Gateway)
+
+See [ARCHITECTURE.md](./ARCHITECTURE.md) for detailed explanation.
 
 ## 🌐 Network Information
 
