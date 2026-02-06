@@ -6,7 +6,7 @@ export const BASE_MAINNET_CHAIN_ID = 8453
 
 export const BASE_MAINNET_FACTORIES = {
   /** AA 账户工厂 (BeamioFactoryPaymasterV07) */
-  AA_FACTORY: '0x9d81bca5473AA3C060Ea7D0763C7dCa0F442e4dF',
+  AA_FACTORY: '0x4811fe90Bb3b3C5dE6491c5Efb90E19756F2C318',
   /** UserCard 工厂 (BeamioUserCardFactoryPaymasterV07) */
   CARD_FACTORY: '0x7Ec828BAbA1c58C5021a6E7D29ccDDdB2d8D84bd',
 } as const

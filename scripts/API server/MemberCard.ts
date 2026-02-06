@@ -27,7 +27,19 @@ export type ICurrency = 'CAD' | 'USD' | 'JPY' | 'CNY' | 'USDC' | 'HKD' | 'EUR' |
 const memberCardBeamioFactoryPaymasterV1 = '0x05e6a8f53b096f44928670C431F78e1F75E232bA'
 
 const BeamioUserCardFactoryPaymasterV2 = '0x7Ec828BAbA1c58C5021a6E7D29ccDDdB2d8D84bd'
-const BeamioAAAccountFactoryPaymaster = '0xFD48F7a6bBEb0c0C1ff756C38cA7fE7544239767'
+// 与 config/base-addresses 一致（优先读 config/base-addresses.json，重部署脚本会同步写入）
+let BeamioAAAccountFactoryPaymaster: string
+try {
+	const addr = require('../../config/base-addresses.json')
+	BeamioAAAccountFactoryPaymaster = addr.AA_FACTORY
+} catch {
+	try {
+		BeamioAAAccountFactoryPaymaster = require('../../config/base-addresses').BASE_MAINNET_FACTORIES.AA_FACTORY
+	} catch {
+		BeamioAAAccountFactoryPaymaster = '0xFD48F7a6bBEb0c0C1ff756C38cA7fE7544239767'
+	}
+}
+if (!BeamioAAAccountFactoryPaymaster) BeamioAAAccountFactoryPaymaster = '0xFD48F7a6bBEb0c0C1ff756C38cA7fE7544239767'
 const BeamioOracle = '0xDa4AE8301262BdAaf1bb68EC91259E6C512A9A2B'
 const beamioConetAddress = '0xCE8e2Cda88FfE2c99bc88D9471A3CBD08F519FEd'
 const BeamioUserCardGatewayAddress = '0x5b24729E66f13BaB19F763f7aE7A35C881D3d858'
@@ -1029,7 +1041,8 @@ async function setTier(ownerPk: string, cardAddr: string) {
 
 const CCSACardAddressOld = '0xfB804b423d27968336263c0CEF581Fbcd51D93B9'.toLowerCase()
 
-const CCSACardAddressNew = '0x71e36b58fc9a3fecdff5a40d6d44a47d6c3b973e'.toLowerCase()
+/** 新部署的 CCSA 卡（1 CAD = 1 token），与 deployments/base-UserCard-0xEaBF0A98.json 一致 */
+const CCSACardAddressNew = '0x1Dc8c473fc67358357E90636AE8607229d5e9f92'.toLowerCase()
 
 type PayMe = {
 	currency: ICurrency

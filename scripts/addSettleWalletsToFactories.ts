@@ -35,9 +35,10 @@ try {
 	process.exit(1)
 }
 
-// Base Mainnet 固定地址（从 deployments/BASE_MAINNET_FACTORIES.md）
-const BeamioUserCardFactoryPaymasterV2 = '0x7Ec828BAbA1c58C5021a6E7D29ccDDdB2d8D84bd'
-const BeamioAAAccountFactoryPaymaster = '0xFD48F7a6bBEb0c0C1ff756C38cA7fE7544239767'
+// Base Mainnet：与 config/base-addresses.ts 一致
+import { BASE_MAINNET_FACTORIES } from '../config/base-addresses'
+const BeamioUserCardFactoryPaymasterV2 = BASE_MAINNET_FACTORIES.CARD_FACTORY
+const BeamioAAAccountFactoryPaymaster = BASE_MAINNET_FACTORIES.AA_FACTORY
 
 async function main() {
 	console.log(Colors.cyan('='.repeat(70)))
