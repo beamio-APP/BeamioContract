@@ -218,6 +218,10 @@ contract BeamioAccount is ERC1155Holder, IAccountV07, IERC1271 {
 		emit ThresholdPolicyUpdated(keccak256(abi.encode(thresholdManagers)), threshold);
 	}
 
+	// 在 BeamioAccount.sol 里加更细的错误
+	error PMD_TooShort(uint256 len);
+	error PMD_BadPaymaster(address got, address expected);
+
 	// =========================================================
 	// ERC-4337 validateUserOp (thresholdManagers multisig)
 	// =========================================================
@@ -228,25 +232,28 @@ contract BeamioAccount is ERC1155Holder, IAccountV07, IERC1271 {
 	) external override onlyEntryPoint returns (uint256 validationData) {
 		// bind paymaster to factory (recommended)
 		if (factory != address(0)) {
-			if (userOp.paymasterAndData.length < 20) revert PaymasterNotAllowed();
-
-			address pm;
 			bytes calldata pnd = userOp.paymasterAndData;
 
-			// ✅ bytes calldata 的 .offset 已经是 data 起点，不要 +32
+			// EntryPoint v0.7 要求 paymasterAndData 至少 20 + 16 + 16 = 52
+			// 但你这里“绑定校验”只需要 20 字节也行；建议直接要求 20 或 52（二选一）
+			if (pnd.length < 20) revert PMD_TooShort(pnd.length);
+
+			address pm;
 			assembly {
+				// pnd.offset 是 bytes data 起点，直接读 32 bytes，取高 20 bytes
 				pm := shr(96, calldataload(pnd.offset))
 			}
 
-			if (pm != factory) revert PaymasterNotAllowed();
+			if (pm != factory) revert PMD_BadPaymaster(pm, factory);
+
+			// 可选：Debug event
+			// emit DebugPaymaster(pm, factory, pnd.length);
 		}
 
-		// AA23 的核心：这里返回 1 就会触发 EntryPoint 的 AA23
 		if (!_checkThresholdManagersEthSign(userOpHash, userOp.signature)) {
 			return 1;
 		}
 
-		// pay missing funds to EntryPoint
 		if (missingAccountFunds > 0) {
 			(bool ok, ) = payable(address(entryPoint)).call{value: missingAccountFunds}("");
 			ok;
@@ -267,6 +274,7 @@ contract BeamioAccount is ERC1155Holder, IAccountV07, IERC1271 {
 		address lastSigner = address(0);
 		uint256 okCount = 0;
 
+		// ✅ bytes calldata：sigs.offset 直接是 data 起点，不要 +32
 		for (uint256 i = 0; i < n; i++) {
 			uint256 off = i * 65;
 
@@ -274,19 +282,18 @@ contract BeamioAccount is ERC1155Holder, IAccountV07, IERC1271 {
 			bytes32 s;
 			uint8 v;
 
-			// ✅ bytes calldata 的 .offset 已经是 data 起点，不要 +32
 			assembly {
 				r := calldataload(add(sigs.offset, off))
 				s := calldataload(add(sigs.offset, add(off, 32)))
 				v := byte(0, calldataload(add(sigs.offset, add(off, 64))))
 			}
 
-			// ✅ 兼容 v=0/1（有些签名库会给 0/1）
+			// ✅ 兼容 v=0/1
 			if (v < 27) v += 27;
 
 			address signer = ECDSA.recover(ethHash, v, r, s);
 
-			// ✅ 强制签名地址严格递增，防重复/乱序（你要求 sorted）
+			// ✅ 要求签名地址严格递增（多签排序）
 			if (signer <= lastSigner) return false;
 			lastSigner = signer;
 
