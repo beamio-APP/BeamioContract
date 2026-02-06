@@ -7,7 +7,8 @@ dotenv.config()
 export default defineConfig({
   plugins: [hardhatToolboxMochaEthers],
   paths: {
-    // 合约目录，相对包含 hardhat.config 的项目根解析
+    // 合约目录，只包含 BeamioAccount 和 contracts（排除 x402sdk 和 SilentPassUI）
+    // 注意：BeamioAccount.sol 使用相对路径 ../contracts/ 引用 contracts 目录
     sources: "src",
   },
   solidity: {

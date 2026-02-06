@@ -2,7 +2,7 @@
   "network": "base",
   "chainId": "8453",
   "deployer": "0x87cAeD4e51C36a2C2ece3Aaf4ddaC9693d2405E1",
-  "timestamp": "2026-02-05T08:51:17.736Z",
+  "timestamp": "2026-02-06T06:35:28.449Z",
   "contracts": {
     "beamioContainerModule": {
       "address": "0xB0F4824519995A2c501D13A624fDBcbBEa0DEC57",
@@ -14,14 +14,15 @@
       "note": "临时占位符合约，稍后应替换为真正的 BeamioUserCard"
     },
     "beamioFactoryPaymaster": {
-      "address": "0xa6B61e49A754567638891580C617D6912268674f",
+      "address": "0x9d81bca5473AA3C060Ea7D0763C7dCa0F442e4dF",
       "initialAccountLimit": 100,
-      "deployer": "0xBD510029d0a72bE2594c1a5FF0C939d5CDAC4B87",
+      "deployer": "0xeE1d1F514Cd67A887358AdDC18B617E5d4D25eE2",
       "containerModule": "0xB0F4824519995A2c501D13A624fDBcbBEa0DEC57",
       "quoteHelper": "0x13AECe9ad12AC4925E5B5E921e566B315bd99d35",
       "userCard": "0xD5e6F2d09ae64a48Eb4b0Fa4Bd3e584F61D8d66d",
       "usdc": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
-      "transactionHash": "0xbfc235d76fa22368990fc6bc7db7227003d15d83ca3e42de125e461f07962b4a"
+      "transactionHash": "0xbffc1a69df79d1e268c4706e13d22348aefc889e57bafb9afcd284f66cabc0c2",
+      "note": "Redeployed with fixed BeamioAccount (paymaster/signature parsing)"
     }
   }
 }
