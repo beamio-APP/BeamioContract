@@ -231,29 +231,28 @@ contract BeamioAccount is ERC1155Holder, IAccountV07, IERC1271 {
 		uint256 missingAccountFunds
 	) external override onlyEntryPoint returns (uint256 validationData) {
 		// bind paymaster to factory (recommended)
-		if (factory != address(0)) {
+		// ✅ bind paymaster to factory（仅当用户确实带了 paymasterAndData 时才校验）
+		if (factory != address(0) && userOp.paymasterAndData.length > 0) {
 			bytes calldata pnd = userOp.paymasterAndData;
 
-			// EntryPoint v0.7 要求 paymasterAndData 至少 20 + 16 + 16 = 52
-			// 但你这里“绑定校验”只需要 20 字节也行；建议直接要求 20 或 52（二选一）
+			// v0.7 EntryPoint 如果真用 paymaster，通常 >= 52（20+16+16）
+			// 但你的 AA 只关心前 20 bytes 地址；这里至少保证能取出地址。
 			if (pnd.length < 20) revert PMD_TooShort(pnd.length);
 
 			address pm;
 			assembly {
-				// pnd.offset 是 bytes data 起点，直接读 32 bytes，取高 20 bytes
 				pm := shr(96, calldataload(pnd.offset))
 			}
 
 			if (pm != factory) revert PMD_BadPaymaster(pm, factory);
-
-			// 可选：Debug event
-			// emit DebugPaymaster(pm, factory, pnd.length);
 		}
 
+		// ✅ signature check（AA23 的根因通常在这里）
 		if (!_checkThresholdManagersEthSign(userOpHash, userOp.signature)) {
-			return 1;
+			return 1; // SIG_VALIDATION_FAILED => EntryPoint: AA23 reverted
 		}
 
+		// pay missing prefund to EntryPoint
 		if (missingAccountFunds > 0) {
 			(bool ok, ) = payable(address(entryPoint)).call{value: missingAccountFunds}("");
 			ok;
@@ -274,7 +273,6 @@ contract BeamioAccount is ERC1155Holder, IAccountV07, IERC1271 {
 		address lastSigner = address(0);
 		uint256 okCount = 0;
 
-		// ✅ bytes calldata：sigs.offset 直接是 data 起点，不要 +32
 		for (uint256 i = 0; i < n; i++) {
 			uint256 off = i * 65;
 
@@ -282,18 +280,19 @@ contract BeamioAccount is ERC1155Holder, IAccountV07, IERC1271 {
 			bytes32 s;
 			uint8 v;
 
+			// ✅ bytes calldata: sigs.offset 就是 data 起点
 			assembly {
 				r := calldataload(add(sigs.offset, off))
 				s := calldataload(add(sigs.offset, add(off, 32)))
 				v := byte(0, calldataload(add(sigs.offset, add(off, 64))))
 			}
 
-			// ✅ 兼容 v=0/1
+			// ✅ 兼容 0/1 与 27/28
 			if (v < 27) v += 27;
 
 			address signer = ECDSA.recover(ethHash, v, r, s);
 
-			// ✅ 要求签名地址严格递增（多签排序）
+			// ✅ 多签严格升序（去重 + 防重放组合）
 			if (signer <= lastSigner) return false;
 			lastSigner = signer;
 
@@ -302,7 +301,6 @@ contract BeamioAccount is ERC1155Holder, IAccountV07, IERC1271 {
 				if (okCount >= threshold) return true;
 			}
 		}
-
 		return false;
 	}
 
