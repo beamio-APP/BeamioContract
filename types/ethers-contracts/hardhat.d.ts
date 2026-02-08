@@ -11,8 +11,8 @@ import * as Contracts from "./index.js";
 declare module "@nomicfoundation/hardhat-ethers/types" {
   interface HardhatEthersHelpers extends HardhatEthersHelpersBase {
   getContractFactory(name: 'BeamioAccount', signerOrOptions?: ethers.Signer | FactoryOptions): Promise<Contracts.BeamioAccount__factory>
+getContractFactory(name: 'IBeamioAccountFactoryConfigV2', signerOrOptions?: ethers.Signer | FactoryOptions): Promise<Contracts.IBeamioAccountFactoryConfigV2__factory>
 getContractFactory(name: 'IBeamioContainerModuleV07', signerOrOptions?: ethers.Signer | FactoryOptions): Promise<Contracts.IBeamioContainerModuleV07__factory>
-getContractFactory(name: 'IERC20ReadLike', signerOrOptions?: ethers.Signer | FactoryOptions): Promise<Contracts.IERC20ReadLike__factory>
 getContractFactory(name: 'BeamioAccountDeployer', signerOrOptions?: ethers.Signer | FactoryOptions): Promise<Contracts.BeamioAccountDeployer__factory>
 getContractFactory(name: 'BeamioContainerModuleV07', signerOrOptions?: ethers.Signer | FactoryOptions): Promise<Contracts.BeamioContainerModuleV07__factory>
 getContractFactory(name: 'IBeamioAccountFactoryConfigV2', signerOrOptions?: ethers.Signer | FactoryOptions): Promise<Contracts.IBeamioAccountFactoryConfigV2__factory>
@@ -44,6 +44,19 @@ getContractFactory(name: 'IBeamioQuoteHelper', signerOrOptions?: ethers.Signer |
 getContractFactory(name: 'BeamioUserCardPlaceholder', signerOrOptions?: ethers.Signer | FactoryOptions): Promise<Contracts.BeamioUserCardPlaceholder__factory>
 getContractFactory(name: 'BeamioUserCardRedeemModuleVNext', signerOrOptions?: ethers.Signer | FactoryOptions): Promise<Contracts.BeamioUserCardRedeemModuleVNext__factory>
 getContractFactory(name: 'IUserCardCtx', signerOrOptions?: ethers.Signer | FactoryOptions): Promise<Contracts.IUserCardCtx__factory>
+getContractFactory(name: 'BeamioIndexerDiamond', signerOrOptions?: ethers.Signer | FactoryOptions): Promise<Contracts.BeamioIndexerDiamond__factory>
+getContractFactory(name: 'ActionFacet', signerOrOptions?: ethers.Signer | FactoryOptions): Promise<Contracts.ActionFacet__factory>
+getContractFactory(name: 'AdminFacet', signerOrOptions?: ethers.Signer | FactoryOptions): Promise<Contracts.AdminFacet__factory>
+getContractFactory(name: 'CatalogFacet', signerOrOptions?: ethers.Signer | FactoryOptions): Promise<Contracts.CatalogFacet__factory>
+getContractFactory(name: 'DiamondCutFacet', signerOrOptions?: ethers.Signer | FactoryOptions): Promise<Contracts.DiamondCutFacet__factory>
+getContractFactory(name: 'DiamondLoupeFacet', signerOrOptions?: ethers.Signer | FactoryOptions): Promise<Contracts.DiamondLoupeFacet__factory>
+getContractFactory(name: 'OwnershipFacet', signerOrOptions?: ethers.Signer | FactoryOptions): Promise<Contracts.OwnershipFacet__factory>
+getContractFactory(name: 'StatsFacet', signerOrOptions?: ethers.Signer | FactoryOptions): Promise<Contracts.StatsFacet__factory>
+getContractFactory(name: 'TaskFacet', signerOrOptions?: ethers.Signer | FactoryOptions): Promise<Contracts.TaskFacet__factory>
+getContractFactory(name: 'IDiamondCut', signerOrOptions?: ethers.Signer | FactoryOptions): Promise<Contracts.IDiamondCut__factory>
+getContractFactory(name: 'IDiamondLoupe', signerOrOptions?: ethers.Signer | FactoryOptions): Promise<Contracts.IDiamondLoupe__factory>
+getContractFactory(name: 'IERC165', signerOrOptions?: ethers.Signer | FactoryOptions): Promise<Contracts.IERC165__factory>
+getContractFactory(name: 'LibDiamond', signerOrOptions?: ethers.Signer | FactoryOptions): Promise<Contracts.LibDiamond__factory>
 getContractFactory(name: 'AccessControl', signerOrOptions?: ethers.Signer | FactoryOptions): Promise<Contracts.AccessControl__factory>
 getContractFactory(name: 'IAccessControl', signerOrOptions?: ethers.Signer | FactoryOptions): Promise<Contracts.IAccessControl__factory>
 getContractFactory(name: 'Ownable', signerOrOptions?: ethers.Signer | FactoryOptions): Promise<Contracts.Ownable__factory>
@@ -83,8 +96,8 @@ getContractFactory(name: 'Lock', signerOrOptions?: ethers.Signer | FactoryOption
 getContractFactory(name: 'Lock', signerOrOptions?: ethers.Signer | FactoryOptions): Promise<Contracts.Lock__factory>
 
   getContractAt(name: 'BeamioAccount', address: string | ethers.Addressable, signer?: ethers.Signer): Promise<Contracts.BeamioAccount>
+getContractAt(name: 'IBeamioAccountFactoryConfigV2', address: string | ethers.Addressable, signer?: ethers.Signer): Promise<Contracts.IBeamioAccountFactoryConfigV2>
 getContractAt(name: 'IBeamioContainerModuleV07', address: string | ethers.Addressable, signer?: ethers.Signer): Promise<Contracts.IBeamioContainerModuleV07>
-getContractAt(name: 'IERC20ReadLike', address: string | ethers.Addressable, signer?: ethers.Signer): Promise<Contracts.IERC20ReadLike>
 getContractAt(name: 'BeamioAccountDeployer', address: string | ethers.Addressable, signer?: ethers.Signer): Promise<Contracts.BeamioAccountDeployer>
 getContractAt(name: 'BeamioContainerModuleV07', address: string | ethers.Addressable, signer?: ethers.Signer): Promise<Contracts.BeamioContainerModuleV07>
 getContractAt(name: 'IBeamioAccountFactoryConfigV2', address: string | ethers.Addressable, signer?: ethers.Signer): Promise<Contracts.IBeamioAccountFactoryConfigV2>
@@ -116,6 +129,19 @@ getContractAt(name: 'IBeamioQuoteHelper', address: string | ethers.Addressable, 
 getContractAt(name: 'BeamioUserCardPlaceholder', address: string | ethers.Addressable, signer?: ethers.Signer): Promise<Contracts.BeamioUserCardPlaceholder>
 getContractAt(name: 'BeamioUserCardRedeemModuleVNext', address: string | ethers.Addressable, signer?: ethers.Signer): Promise<Contracts.BeamioUserCardRedeemModuleVNext>
 getContractAt(name: 'IUserCardCtx', address: string | ethers.Addressable, signer?: ethers.Signer): Promise<Contracts.IUserCardCtx>
+getContractAt(name: 'BeamioIndexerDiamond', address: string | ethers.Addressable, signer?: ethers.Signer): Promise<Contracts.BeamioIndexerDiamond>
+getContractAt(name: 'ActionFacet', address: string | ethers.Addressable, signer?: ethers.Signer): Promise<Contracts.ActionFacet>
+getContractAt(name: 'AdminFacet', address: string | ethers.Addressable, signer?: ethers.Signer): Promise<Contracts.AdminFacet>
+getContractAt(name: 'CatalogFacet', address: string | ethers.Addressable, signer?: ethers.Signer): Promise<Contracts.CatalogFacet>
+getContractAt(name: 'DiamondCutFacet', address: string | ethers.Addressable, signer?: ethers.Signer): Promise<Contracts.DiamondCutFacet>
+getContractAt(name: 'DiamondLoupeFacet', address: string | ethers.Addressable, signer?: ethers.Signer): Promise<Contracts.DiamondLoupeFacet>
+getContractAt(name: 'OwnershipFacet', address: string | ethers.Addressable, signer?: ethers.Signer): Promise<Contracts.OwnershipFacet>
+getContractAt(name: 'StatsFacet', address: string | ethers.Addressable, signer?: ethers.Signer): Promise<Contracts.StatsFacet>
+getContractAt(name: 'TaskFacet', address: string | ethers.Addressable, signer?: ethers.Signer): Promise<Contracts.TaskFacet>
+getContractAt(name: 'IDiamondCut', address: string | ethers.Addressable, signer?: ethers.Signer): Promise<Contracts.IDiamondCut>
+getContractAt(name: 'IDiamondLoupe', address: string | ethers.Addressable, signer?: ethers.Signer): Promise<Contracts.IDiamondLoupe>
+getContractAt(name: 'IERC165', address: string | ethers.Addressable, signer?: ethers.Signer): Promise<Contracts.IERC165>
+getContractAt(name: 'LibDiamond', address: string | ethers.Addressable, signer?: ethers.Signer): Promise<Contracts.LibDiamond>
 getContractAt(name: 'AccessControl', address: string | ethers.Addressable, signer?: ethers.Signer): Promise<Contracts.AccessControl>
 getContractAt(name: 'IAccessControl', address: string | ethers.Addressable, signer?: ethers.Signer): Promise<Contracts.IAccessControl>
 getContractAt(name: 'Ownable', address: string | ethers.Addressable, signer?: ethers.Signer): Promise<Contracts.Ownable>
@@ -155,8 +181,8 @@ getContractAt(name: 'Lock', address: string | ethers.Addressable, signer?: ether
 getContractAt(name: 'Lock', address: string | ethers.Addressable, signer?: ethers.Signer): Promise<Contracts.Lock>
 
   deployContract(name: 'BeamioAccount', signerOrOptions?: ethers.Signer | DeployContractOptions): Promise<Contracts.BeamioAccount>
+deployContract(name: 'IBeamioAccountFactoryConfigV2', signerOrOptions?: ethers.Signer | DeployContractOptions): Promise<Contracts.IBeamioAccountFactoryConfigV2>
 deployContract(name: 'IBeamioContainerModuleV07', signerOrOptions?: ethers.Signer | DeployContractOptions): Promise<Contracts.IBeamioContainerModuleV07>
-deployContract(name: 'IERC20ReadLike', signerOrOptions?: ethers.Signer | DeployContractOptions): Promise<Contracts.IERC20ReadLike>
 deployContract(name: 'BeamioAccountDeployer', signerOrOptions?: ethers.Signer | DeployContractOptions): Promise<Contracts.BeamioAccountDeployer>
 deployContract(name: 'BeamioContainerModuleV07', signerOrOptions?: ethers.Signer | DeployContractOptions): Promise<Contracts.BeamioContainerModuleV07>
 deployContract(name: 'IBeamioAccountFactoryConfigV2', signerOrOptions?: ethers.Signer | DeployContractOptions): Promise<Contracts.IBeamioAccountFactoryConfigV2>
@@ -188,6 +214,19 @@ deployContract(name: 'IBeamioQuoteHelper', signerOrOptions?: ethers.Signer | Dep
 deployContract(name: 'BeamioUserCardPlaceholder', signerOrOptions?: ethers.Signer | DeployContractOptions): Promise<Contracts.BeamioUserCardPlaceholder>
 deployContract(name: 'BeamioUserCardRedeemModuleVNext', signerOrOptions?: ethers.Signer | DeployContractOptions): Promise<Contracts.BeamioUserCardRedeemModuleVNext>
 deployContract(name: 'IUserCardCtx', signerOrOptions?: ethers.Signer | DeployContractOptions): Promise<Contracts.IUserCardCtx>
+deployContract(name: 'BeamioIndexerDiamond', signerOrOptions?: ethers.Signer | DeployContractOptions): Promise<Contracts.BeamioIndexerDiamond>
+deployContract(name: 'ActionFacet', signerOrOptions?: ethers.Signer | DeployContractOptions): Promise<Contracts.ActionFacet>
+deployContract(name: 'AdminFacet', signerOrOptions?: ethers.Signer | DeployContractOptions): Promise<Contracts.AdminFacet>
+deployContract(name: 'CatalogFacet', signerOrOptions?: ethers.Signer | DeployContractOptions): Promise<Contracts.CatalogFacet>
+deployContract(name: 'DiamondCutFacet', signerOrOptions?: ethers.Signer | DeployContractOptions): Promise<Contracts.DiamondCutFacet>
+deployContract(name: 'DiamondLoupeFacet', signerOrOptions?: ethers.Signer | DeployContractOptions): Promise<Contracts.DiamondLoupeFacet>
+deployContract(name: 'OwnershipFacet', signerOrOptions?: ethers.Signer | DeployContractOptions): Promise<Contracts.OwnershipFacet>
+deployContract(name: 'StatsFacet', signerOrOptions?: ethers.Signer | DeployContractOptions): Promise<Contracts.StatsFacet>
+deployContract(name: 'TaskFacet', signerOrOptions?: ethers.Signer | DeployContractOptions): Promise<Contracts.TaskFacet>
+deployContract(name: 'IDiamondCut', signerOrOptions?: ethers.Signer | DeployContractOptions): Promise<Contracts.IDiamondCut>
+deployContract(name: 'IDiamondLoupe', signerOrOptions?: ethers.Signer | DeployContractOptions): Promise<Contracts.IDiamondLoupe>
+deployContract(name: 'IERC165', signerOrOptions?: ethers.Signer | DeployContractOptions): Promise<Contracts.IERC165>
+deployContract(name: 'LibDiamond', signerOrOptions?: ethers.Signer | DeployContractOptions): Promise<Contracts.LibDiamond>
 deployContract(name: 'AccessControl', signerOrOptions?: ethers.Signer | DeployContractOptions): Promise<Contracts.AccessControl>
 deployContract(name: 'IAccessControl', signerOrOptions?: ethers.Signer | DeployContractOptions): Promise<Contracts.IAccessControl>
 deployContract(name: 'Ownable', signerOrOptions?: ethers.Signer | DeployContractOptions): Promise<Contracts.Ownable>
@@ -227,8 +266,8 @@ deployContract(name: 'Lock', signerOrOptions?: ethers.Signer | DeployContractOpt
 deployContract(name: 'Lock', signerOrOptions?: ethers.Signer | DeployContractOptions): Promise<Contracts.Lock>
 
   deployContract(name: 'BeamioAccount', args: any[], signerOrOptions?: ethers.Signer | DeployContractOptions): Promise<Contracts.BeamioAccount>
+deployContract(name: 'IBeamioAccountFactoryConfigV2', args: any[], signerOrOptions?: ethers.Signer | DeployContractOptions): Promise<Contracts.IBeamioAccountFactoryConfigV2>
 deployContract(name: 'IBeamioContainerModuleV07', args: any[], signerOrOptions?: ethers.Signer | DeployContractOptions): Promise<Contracts.IBeamioContainerModuleV07>
-deployContract(name: 'IERC20ReadLike', args: any[], signerOrOptions?: ethers.Signer | DeployContractOptions): Promise<Contracts.IERC20ReadLike>
 deployContract(name: 'BeamioAccountDeployer', args: any[], signerOrOptions?: ethers.Signer | DeployContractOptions): Promise<Contracts.BeamioAccountDeployer>
 deployContract(name: 'BeamioContainerModuleV07', args: any[], signerOrOptions?: ethers.Signer | DeployContractOptions): Promise<Contracts.BeamioContainerModuleV07>
 deployContract(name: 'IBeamioAccountFactoryConfigV2', args: any[], signerOrOptions?: ethers.Signer | DeployContractOptions): Promise<Contracts.IBeamioAccountFactoryConfigV2>
@@ -260,6 +299,19 @@ deployContract(name: 'IBeamioQuoteHelper', args: any[], signerOrOptions?: ethers
 deployContract(name: 'BeamioUserCardPlaceholder', args: any[], signerOrOptions?: ethers.Signer | DeployContractOptions): Promise<Contracts.BeamioUserCardPlaceholder>
 deployContract(name: 'BeamioUserCardRedeemModuleVNext', args: any[], signerOrOptions?: ethers.Signer | DeployContractOptions): Promise<Contracts.BeamioUserCardRedeemModuleVNext>
 deployContract(name: 'IUserCardCtx', args: any[], signerOrOptions?: ethers.Signer | DeployContractOptions): Promise<Contracts.IUserCardCtx>
+deployContract(name: 'BeamioIndexerDiamond', args: any[], signerOrOptions?: ethers.Signer | DeployContractOptions): Promise<Contracts.BeamioIndexerDiamond>
+deployContract(name: 'ActionFacet', args: any[], signerOrOptions?: ethers.Signer | DeployContractOptions): Promise<Contracts.ActionFacet>
+deployContract(name: 'AdminFacet', args: any[], signerOrOptions?: ethers.Signer | DeployContractOptions): Promise<Contracts.AdminFacet>
+deployContract(name: 'CatalogFacet', args: any[], signerOrOptions?: ethers.Signer | DeployContractOptions): Promise<Contracts.CatalogFacet>
+deployContract(name: 'DiamondCutFacet', args: any[], signerOrOptions?: ethers.Signer | DeployContractOptions): Promise<Contracts.DiamondCutFacet>
+deployContract(name: 'DiamondLoupeFacet', args: any[], signerOrOptions?: ethers.Signer | DeployContractOptions): Promise<Contracts.DiamondLoupeFacet>
+deployContract(name: 'OwnershipFacet', args: any[], signerOrOptions?: ethers.Signer | DeployContractOptions): Promise<Contracts.OwnershipFacet>
+deployContract(name: 'StatsFacet', args: any[], signerOrOptions?: ethers.Signer | DeployContractOptions): Promise<Contracts.StatsFacet>
+deployContract(name: 'TaskFacet', args: any[], signerOrOptions?: ethers.Signer | DeployContractOptions): Promise<Contracts.TaskFacet>
+deployContract(name: 'IDiamondCut', args: any[], signerOrOptions?: ethers.Signer | DeployContractOptions): Promise<Contracts.IDiamondCut>
+deployContract(name: 'IDiamondLoupe', args: any[], signerOrOptions?: ethers.Signer | DeployContractOptions): Promise<Contracts.IDiamondLoupe>
+deployContract(name: 'IERC165', args: any[], signerOrOptions?: ethers.Signer | DeployContractOptions): Promise<Contracts.IERC165>
+deployContract(name: 'LibDiamond', args: any[], signerOrOptions?: ethers.Signer | DeployContractOptions): Promise<Contracts.LibDiamond>
 deployContract(name: 'AccessControl', args: any[], signerOrOptions?: ethers.Signer | DeployContractOptions): Promise<Contracts.AccessControl>
 deployContract(name: 'IAccessControl', args: any[], signerOrOptions?: ethers.Signer | DeployContractOptions): Promise<Contracts.IAccessControl>
 deployContract(name: 'Ownable', args: any[], signerOrOptions?: ethers.Signer | DeployContractOptions): Promise<Contracts.Ownable>

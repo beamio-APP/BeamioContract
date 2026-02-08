@@ -9,7 +9,7 @@
       "note": "使用已存在的 Oracle 合约"
     },
     "beamioQuoteHelper": {
-      "address": "0x13AECe9ad12AC4925E5B5E921e566B315bd99d35",
+      "address": "0x50953EB5190ee7dabb0eA86a96364A540a834059",
       "oracle": "0xDa4AE8301262BdAaf1bb68EC91259E6C512A9A2B",
       "owner": "0x87cAeD4e51C36a2C2ece3Aaf4ddaC9693d2405E1",
       "transactionHash": "0xcf63fdcb30759e0670c9a93bebf6320d32f1c30e2679afebe0dd2cdd778c42b4"

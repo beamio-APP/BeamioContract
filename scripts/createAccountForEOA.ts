@@ -46,19 +46,29 @@ async function main() {
   
   if (!factoryAddress) {
     try {
-      const factoryFile = path.join(deploymentsDir, `${networkInfo.name}-FactoryAndModule.json`);
-      if (fs.existsSync(factoryFile)) {
-        const factoryData = JSON.parse(fs.readFileSync(factoryFile, "utf-8"));
-        if (factoryData.contracts?.beamioFactoryPaymaster?.address) {
-          factoryAddress = factoryData.contracts.beamioFactoryPaymaster.address;
-          console.log("✅ 从部署记录读取 Factory 地址:", factoryAddress);
+      const fullFile = path.join(deploymentsDir, `${networkInfo.name}-FullAccountAndUserCard.json`);
+      if (fs.existsSync(fullFile)) {
+        const fullData = JSON.parse(fs.readFileSync(fullFile, "utf-8"));
+        if (fullData.contracts?.beamioFactoryPaymaster?.address) {
+          factoryAddress = fullData.contracts.beamioFactoryPaymaster.address;
+          console.log("✅ 从 FullAccountAndUserCard 读取 Factory 地址:", factoryAddress);
+        }
+      }
+      if (!factoryAddress) {
+        const factoryFile = path.join(deploymentsDir, `${networkInfo.name}-FactoryAndModule.json`);
+        if (fs.existsSync(factoryFile)) {
+          const factoryData = JSON.parse(fs.readFileSync(factoryFile, "utf-8"));
+          if (factoryData.contracts?.beamioFactoryPaymaster?.address) {
+            factoryAddress = factoryData.contracts.beamioFactoryPaymaster.address;
+            console.log("✅ 从 FactoryAndModule 读取 Factory 地址:", factoryAddress);
+          }
         }
       }
     } catch (error) {
       // 忽略错误
     }
   }
-  
+
   if (!factoryAddress) {
     throw new Error("未找到 Factory 地址，请设置 FACTORY_ADDRESS 环境变量");
   }
@@ -177,12 +187,13 @@ async function main() {
   console.log("=".repeat(60));
   
   let accountAddress: string;
-  
+  let receipt: ethers.TransactionReceipt | null = null;
+
   if (TARGET_EOA.toLowerCase() === signer.address.toLowerCase()) {
     // 如果目标 EOA 就是部署账户，使用 createAccount()
     console.log("目标 EOA 是部署账户，使用 createAccount()...");
     const tx = await factory.createAccount();
-    const receipt = await tx.wait();
+    receipt = await tx.wait();
     accountAddress = await factory.beamioAccountOf(signer.address);
     console.log("✅ 账户创建成功!");
     console.log("交易哈希:", receipt?.hash);
@@ -200,25 +211,25 @@ async function main() {
     try {
       console.log("调用 factory.createAccountFor()...");
       const tx = await factory.createAccountFor(TARGET_EOA);
-      const receipt = await tx.wait();
+      receipt = await tx.wait();
     
-    // 从事件中获取账户地址
-    const events = receipt?.logs.filter((log: any) => {
-      try {
-        const parsed = factory.interface.parseLog(log);
-        return parsed?.name === "AccountCreated";
-      } catch {
-        return false;
+      // 从事件中获取账户地址
+      const events = receipt?.logs.filter((log: any) => {
+        try {
+          const parsed = factory.interface.parseLog(log);
+          return parsed?.name === "AccountCreated";
+        } catch {
+          return false;
+        }
+      });
+    
+      if (events && events.length > 0) {
+        const parsed = factory.interface.parseLog(events[0]);
+        accountAddress = parsed?.args.account;
+      } else {
+        // 如果没有事件，查询主要账户
+        accountAddress = await factory.beamioAccountOf(TARGET_EOA);
       }
-    });
-    
-    if (events && events.length > 0) {
-      const parsed = factory.interface.parseLog(events[0]);
-      accountAddress = parsed?.args.account;
-    } else {
-      // 如果没有事件，查询主要账户
-      accountAddress = await factory.beamioAccountOf(TARGET_EOA);
-    }
     
       console.log("✅ 账户创建成功!");
       console.log("交易哈希:", receipt?.hash);

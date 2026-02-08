@@ -6,9 +6,9 @@ export const BASE_MAINNET_CHAIN_ID = 8453
 
 export const BASE_MAINNET_FACTORIES = {
   /** AA 账户工厂 (BeamioFactoryPaymasterV07) */
-  AA_FACTORY: '0x4811fe90Bb3b3C5dE6491c5Efb90E19756F2C318',
+  AA_FACTORY: '0xD4759c85684e47A02223152b85C25D2E5cD2E738',
   /** UserCard 工厂 (BeamioUserCardFactoryPaymasterV07) */
-  CARD_FACTORY: '0x7Ec828BAbA1c58C5021a6E7D29ccDDdB2d8D84bd',
+  CARD_FACTORY: '0x73e3b722Eb55C92Fe73DEC01c064a5C677079E03',
 } as const
 
 /** 按链聚合，便于多链扩展 */

@@ -26,7 +26,8 @@ export type ICurrency = 'CAD' | 'USD' | 'JPY' | 'CNY' | 'USDC' | 'HKD' | 'EUR' |
 
 const memberCardBeamioFactoryPaymasterV1 = '0x05e6a8f53b096f44928670C431F78e1F75E232bA'
 
-const BeamioUserCardFactoryPaymasterV2 = '0x7Ec828BAbA1c58C5021a6E7D29ccDDdB2d8D84bd'
+const { BASE_CARD_FACTORY, BASE_CCSA_CARD_ADDRESS } = require('../../src/x402sdk/src/chainAddresses')
+const BeamioUserCardFactoryPaymasterV2 = BASE_CARD_FACTORY
 // 与 config/base-addresses 一致（优先读 config/base-addresses.json，重部署脚本会同步写入）
 let BeamioAAAccountFactoryPaymaster: string
 try {
@@ -42,7 +43,8 @@ try {
 if (!BeamioAAAccountFactoryPaymaster) BeamioAAAccountFactoryPaymaster = '0xFD48F7a6bBEb0c0C1ff756C38cA7fE7544239767'
 const BeamioOracle = '0xDa4AE8301262BdAaf1bb68EC91259E6C512A9A2B'
 const beamioConetAddress = '0xCE8e2Cda88FfE2c99bc88D9471A3CBD08F519FEd'
-const BeamioUserCardGatewayAddress = '0x5b24729E66f13BaB19F763f7aE7A35C881D3d858'
+/** UserCard gateway = AA Factory（与 config/base-addresses AA_FACTORY 一致） */
+const BeamioUserCardGatewayAddress = '0xD4759c85684e47A02223152b85C25D2E5cD2E738'
 
 const BeamioTaskIndexerAddress = '0x083AE5AC063a55dBA769Ba71Cd301d5FC5896D5b'
 const DIAMOND = BeamioTaskIndexerAddress
@@ -1041,8 +1043,8 @@ async function setTier(ownerPk: string, cardAddr: string) {
 
 const CCSACardAddressOld = '0xfB804b423d27968336263c0CEF581Fbcd51D93B9'.toLowerCase()
 
-/** 新部署的 CCSA 卡（1 CAD = 1 token），与 deployments/base-UserCard-0xEaBF0A98.json 一致 */
-const CCSACardAddressNew = '0x1Dc8c473fc67358357E90636AE8607229d5e9f92'.toLowerCase()
+/** 新部署的 CCSA 卡（与 src/x402sdk/src/chainAddresses.ts BASE_CCSA_CARD_ADDRESS 一致） */
+const CCSACardAddressNew = BASE_CCSA_CARD_ADDRESS.toLowerCase()
 
 type PayMe = {
 	currency: ICurrency
@@ -1116,7 +1118,7 @@ export const purchasingCardProcess = async () => {
 			card.getOwnership(accountAddress),
 			card.owner(),
 			card.currency(),
-			quotePointsForUSDC_raw(cardAddress, BigInt(usdcAmount))
+			quotePointsForUSDC_raw(cardAddress, BigInt(usdcAmount), SC.baseFactoryPaymaster)
 		])
 
 		const isMember = (nfts?.length > 0) && (pointsBalance > 0n)
@@ -1535,15 +1537,14 @@ export const quoteUSDCForPoints = async (
 	  throw new Error("points6 must be > 0");
 	}
   
-	// 2️⃣ quote 总价（USDC 6 decimals）
-	const usdc6: bigint = await factory.quotePointsInUSDC6(cardAddress, points6);
-	if (usdc6 === 0n) {
-	  throw new Error("quote=0 (oracle not configured or card invalid)");
-	}
-  
-	// 3️⃣ 单价（1 token = 1e6 points）
+	// 2️⃣ 单价（1e6 points 对应 USDC6）；合约仅有 quoteUnitPointInUSDC6(card)，无 quotePointsInUSDC6
 	const unitPriceUSDC6: bigint =
 	  await factory.quoteUnitPointInUSDC6(cardAddress);
+	if (unitPriceUSDC6 === 0n) {
+	  throw new Error("quote=0 (oracle not configured or card invalid). Ensure BeamioOracle has CAD rate (e.g. updateRate(0, 1e18)) and card is from this factory.");
+	}
+	// 3️⃣ 总价 USDC6 = points6 * unitPriceUSDC6 / 1e6
+	const usdc6: bigint = (points6 * unitPriceUSDC6) / POINTS_ONE;
   
 	const ret = {
 	  // 原始输入
@@ -1598,21 +1599,34 @@ export const quotePointsForUSDC = async (
 
 export const quotePointsForUSDC_raw = async (
 		cardAddress: string,
-		usdc6: bigint // 已经是 raw USDC（6 decimals）
+		usdc6: bigint, // 已经是 raw USDC（6 decimals）
+		factoryOverride?: ethers.Contract
 	) => {
-		const factory = Settle_ContractPool[0].baseFactoryPaymaster;
+		const factory = factoryOverride ?? Settle_ContractPool[0]?.baseFactoryPaymaster;
+		if (!factory) throw new Error("quotePointsForUSDC_raw: no factory (pool empty or not inited)");
 	
 		if (usdc6 <= 0n) {
 		throw new Error("usdc6 must be > 0");
-		}
+	}
 	
 		// 1️⃣ 拿单价：1e6 points 需要多少 USDC6
 		const unitPriceUSDC6: bigint =
 		await factory.quoteUnitPointInUSDC6(cardAddress);
 	
 		if (unitPriceUSDC6 === 0n) {
-		throw new Error("unitPriceUSDC6=0 (oracle not configured?)");
+		let hint = "unitPriceUSDC6=0 (oracle not configured?)";
+		const provider = (factory as any).runner?.provider ?? (factory as any).provider;
+		if (provider) {
+			try {
+				const card = new ethers.Contract(cardAddress, BeamioUserCardABI, provider);
+				const [currency, priceE6] = await Promise.all([card.currency(), card.pointsUnitPriceInCurrencyE6()]);
+				if (priceE6 === 0n) hint = "unitPriceUSDC6=0: card has pointsUnitPriceInCurrencyE6=0 (card not configured?)";
+				else if (Number(currency) === 0) hint = "unitPriceUSDC6=0. For CAD cards ensure Oracle has CAD rate: npm run set:oracle-cad:base. Card currency id=0, priceE6=" + String(priceE6);
+				else hint = "unitPriceUSDC6=0. Card currency id=" + String(currency) + ", priceE6=" + String(priceE6) + ". Ensure Oracle has rate for this currency.";
+			} catch (_) { /* keep default hint */ }
 		}
+		throw new Error(hint);
+	}
 	
 		// 2️⃣ 完全对齐合约里的计算公式
 		// pointsOut6 = usdcAmount6 * 1e6 / unitPriceUSDC6

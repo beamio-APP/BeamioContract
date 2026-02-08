@@ -12,7 +12,7 @@
 | 项目 | 值 |
 |------|-----|
 | **合约** | BeamioFactoryPaymasterV07 |
-| **地址** | 见 `config/base-addresses.ts`（当前为 `0xB8AB5fdD3f5097b2A0887fe9Ab2B605b0a546BD1`） |
+| **地址** | 见 `config/base-addresses.ts`（当前为 `0xD4759c85684e47A02223152b85C25D2E5cD2E738`） |
 | **网络** | Base Mainnet (Chain ID: 8453) |
 
 **重部署 AA Factory：** `npm run redeploy:aa-factory:base`。完成后需由 Card Factory owner 执行 `npm run set:card-factory-aa:base`（或链上调用 `setAAFactory(新地址)`）。
@@ -26,7 +26,7 @@
 | 项目 | 值 |
 |------|-----|
 | **合约** | BeamioUserCardFactoryPaymasterV07 |
-| **地址** | `0x7Ec828BAbA1c58C5021a6E7D29ccDDdB2d8D84bd` |
+| **地址** | 见 `config/base-addresses.ts`（当前为 `0x73e3b722Eb55C92Fe73DEC01c064a5C677079E03`） |
 | **网络** | Base Mainnet (Chain ID: 8453) |
 
 ---
@@ -39,9 +39,9 @@ export const BASE_MAINNET_CHAIN_ID = 8453;
 
 export const BASE_MAINNET_FACTORIES = {
   /** AA 账户工厂 (BeamioFactoryPaymasterV07) */
-  AA_FACTORY: '0xB8AB5fdD3f5097b2A0887fe9Ab2B605b0a546BD1',
+  AA_FACTORY: '0xD4759c85684e47A02223152b85C25D2E5cD2E738',
   /** UserCard 工厂 (BeamioUserCardFactoryPaymasterV07) */
-  CARD_FACTORY: '0x7Ec828BAbA1c58C5021a6E7D29ccDDdB2d8D84bd',
+  CARD_FACTORY: '0x73e3b722Eb55C92Fe73DEC01c064a5C677079E03',
 } as const;
 ```
 
@@ -49,8 +49,8 @@ export const BASE_MAINNET_FACTORIES = {
 {
   "base": {
     "chainId": 8453,
-    "aaFactory": "0xB8AB5fdD3f5097b2A0887fe9Ab2B605b0a546BD1",
-    "cardFactory": "0x7Ec828BAbA1c58C5021a6E7D29ccDDdB2d8D84bd"
+    "aaFactory": "0xD4759c85684e47A02223152b85C25D2E5cD2E738",
+    "cardFactory": "0x73e3b722Eb55C92Fe73DEC01c064a5C677079E03"
   }
 }
 ```
@@ -59,8 +59,8 @@ export const BASE_MAINNET_FACTORIES = {
 
 ## 区块浏览器
 
-- AA Factory: https://basescan.org/address/0xB8AB5fdD3f5097b2A0887fe9Ab2B605b0a546BD1  
-- Card Factory: https://basescan.org/address/0x7Ec828BAbA1c58C5021a6E7D29ccDDdB2d8D84bd  
+- AA Factory: https://basescan.org/address/0xD4759c85684e47A02223152b85C25D2E5cD2E738  
+- Card Factory: https://basescan.org/address/0x73e3b722Eb55C92Fe73DEC01c064a5C677079E03  
 
 ---
 

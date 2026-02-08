@@ -2,14 +2,22 @@
 pragma solidity ^0.8.20;
 
 // BeamioAccount.sol (Route A)
-// - Account delegatecall -> BeamioContainerModuleV07
+// - Account delegatecall -> BeamioContainerModuleV07 (address comes from FactoryPaymasterV07)
 // - Module state (nonces / reserves / redeem / pool) lives in Account storage via fixed-slot layout
-// - Emits only once (in Module)
+// - Emits core events here; container events emitted in Module ONLY
 
 import "./BeamioTypesV07.sol";
 import "../contracts/utils/cryptography/ECDSA.sol";
 import "../contracts/utils/cryptography/MessageHashUtils.sol";
 import "../contracts/token/ERC1155/utils/ERC1155Holder.sol";
+
+
+interface IBeamioAccountFactoryConfigV2 {
+  function containerModule() external view returns (address);
+  function quoteHelper() external view returns (address);
+  function beamioUserCard() external view returns (address);
+  function USDC() external view returns (address);
+}
 
 interface IBeamioContainerModuleV07 {
 	// MUST match layout used by client and module
@@ -31,11 +39,10 @@ interface IBeamioContainerModuleV07 {
 		bytes calldata sig
 	) external;
 
-	// open relayed (no-to signature)
+	// open relayed (no-to signature)  ✅ token 参数已移除（按你最新规则）
 	function containerMainRelayedOpen(
 		address to,
 		ContainerItem[] calldata items,
-		address token,
 		uint8 currencyType,
 		uint256 maxAmount,
 		uint256 nonce_,
@@ -46,7 +53,6 @@ interface IBeamioContainerModuleV07 {
 	function simulateOpenContainer(
 		address to,
 		ContainerItem[] calldata items,
-		address token,
 		uint8 currencyType,
 		uint256 maxAmount,
 		uint256 nonce_,
@@ -91,11 +97,6 @@ interface IBeamioContainerModuleV07 {
 	function openRelayedNonce() external view returns (uint256);
 }
 
-interface IERC20ReadLike {
-	function balanceOf(address a) external view returns (uint256);
-	function allowance(address a, address spender) external view returns (uint256);
-}
-
 contract BeamioAccount is ERC1155Holder, IAccountV07, IERC1271 {
 	using ECDSA for bytes32;
 	using MessageHashUtils for bytes32;
@@ -105,7 +106,6 @@ contract BeamioAccount is ERC1155Holder, IAccountV07, IERC1271 {
 	// =========================================================
 	address public owner;                 // immutable after initialize (no changeOwner)
 	address public factory;               // privileged relay caller + paymaster binding
-	address public containerModule;       // delegatecall target
 	IEntryPointV07 public immutable entryPoint;
 
 	// =========================================================
@@ -119,11 +119,10 @@ contract BeamioAccount is ERC1155Holder, IAccountV07, IERC1271 {
 	bool private initialized;
 
 	// =========================================================
-	// Events (core only; container events emitted in module ONLY)
+	// Events
 	// =========================================================
-	event Initialized(address indexed owner, address indexed factory, address indexed module, address entryPoint);
+	event Initialized(address indexed owner, address indexed factory, address entryPoint);
 	event FactoryUpdated(address indexed oldFactory, address indexed newFactory);
-	event ModuleUpdated(address indexed oldModule, address indexed newModule);
 	event ThresholdPolicyUpdated(bytes32 indexed managersHash, uint256 threshold);
 
 	modifier onlyOwnerDirect() {
@@ -152,13 +151,11 @@ contract BeamioAccount is ERC1155Holder, IAccountV07, IERC1271 {
 		address _owner,
 		address[] calldata managersSorted,
 		uint256 _threshold,
-		address _factory,
-		address _module
+		address _factory
 	) external {
 		if (initialized) revert AlreadyInitialized();
 		if (_owner == address(0)) revert ZeroAddress();
 		if (_factory == address(0) || _factory.code.length == 0) revert ZeroAddress();
-		if (_module == address(0) || _module.code.length == 0) revert ZeroAddress();
 
 		if (managersSorted.length == 0) revert NotAuthorized();
 		if (managersSorted[0] != _owner) revert NotAuthorized();
@@ -167,11 +164,9 @@ contract BeamioAccount is ERC1155Holder, IAccountV07, IERC1271 {
 		initialized = true;
 		owner = _owner;
 		factory = _factory;
-		containerModule = _module;
 
-		emit Initialized(_owner, _factory, _module, address(entryPoint));
+		emit Initialized(_owner, _factory, address(entryPoint));
 		emit FactoryUpdated(address(0), _factory);
-		emit ModuleUpdated(address(0), _module);
 
 		_setThresholdManagersInternal(managersSorted, _threshold);
 	}
@@ -180,13 +175,6 @@ contract BeamioAccount is ERC1155Holder, IAccountV07, IERC1271 {
 		if (newFactory == address(0) || newFactory.code.length == 0) revert ZeroAddress();
 		emit FactoryUpdated(factory, newFactory);
 		factory = newFactory;
-	}
-
-	/// @notice allow factory to rotate module (optional)
-	function setModule(address newModule) external onlyFactory {
-		if (newModule == address(0) || newModule.code.length == 0) revert ZeroAddress();
-		emit ModuleUpdated(containerModule, newModule);
-		containerModule = newModule;
 	}
 
 	/// @notice Update AA policy (must be executed via AA path: EntryPoint -> execute calling this)
@@ -231,28 +219,21 @@ contract BeamioAccount is ERC1155Holder, IAccountV07, IERC1271 {
 		uint256 missingAccountFunds
 	) external override onlyEntryPoint returns (uint256 validationData) {
 		// bind paymaster to factory (recommended)
-		// ✅ bind paymaster to factory（仅当用户确实带了 paymasterAndData 时才校验）
 		if (factory != address(0) && userOp.paymasterAndData.length > 0) {
 			bytes calldata pnd = userOp.paymasterAndData;
-
-			// v0.7 EntryPoint 如果真用 paymaster，通常 >= 52（20+16+16）
-			// 但你的 AA 只关心前 20 bytes 地址；这里至少保证能取出地址。
 			if (pnd.length < 20) revert PMD_TooShort(pnd.length);
 
 			address pm;
 			assembly {
 				pm := shr(96, calldataload(pnd.offset))
 			}
-
 			if (pm != factory) revert PMD_BadPaymaster(pm, factory);
 		}
 
-		// ✅ signature check（AA23 的根因通常在这里）
 		if (!_checkThresholdManagersEthSign(userOpHash, userOp.signature)) {
-			return 1; // SIG_VALIDATION_FAILED => EntryPoint: AA23 reverted
+			return 1; // SIG_VALIDATION_FAILED
 		}
 
-		// pay missing prefund to EntryPoint
 		if (missingAccountFunds > 0) {
 			(bool ok, ) = payable(address(entryPoint)).call{value: missingAccountFunds}("");
 			ok;
@@ -280,19 +261,16 @@ contract BeamioAccount is ERC1155Holder, IAccountV07, IERC1271 {
 			bytes32 s;
 			uint8 v;
 
-			// ✅ bytes calldata: sigs.offset 就是 data 起点
 			assembly {
 				r := calldataload(add(sigs.offset, off))
 				s := calldataload(add(sigs.offset, add(off, 32)))
 				v := byte(0, calldataload(add(sigs.offset, add(off, 64))))
 			}
 
-			// ✅ 兼容 0/1 与 27/28
 			if (v < 27) v += 27;
 
 			address signer = ECDSA.recover(ethHash, v, r, s);
 
-			// ✅ 多签严格升序（去重 + 防重放组合）
 			if (signer <= lastSigner) return false;
 			lastSigner = signer;
 
@@ -339,12 +317,20 @@ contract BeamioAccount is ERC1155Holder, IAccountV07, IERC1271 {
 	}
 
 	// =========================================================
+	// Module resolution (GLOBAL from Factory)
+	// =========================================================
+	function _module() internal view returns (address m) {
+		address f = factory;
+		if (f == address(0) || f.code.length == 0) revert ZeroAddress();
+		m = IBeamioAccountFactoryConfigV2(f).containerModule();
+		if (m == address(0) || m.code.length == 0) revert ZeroAddress();
+	}
+
+	// =========================================================
 	// Delegatecall dispatch to Module (container / redeem / pool)
 	// =========================================================
 	function _delegate(bytes memory cdata) internal returns (bytes memory ret) {
-		address m = containerModule;
-		if (m == address(0) || m.code.length == 0) revert ZeroAddress();
-
+		address m = _module();
 		(bool ok, bytes memory out) = m.delegatecall(cdata);
 		if (!ok) {
 			assembly {
@@ -355,12 +341,8 @@ contract BeamioAccount is ERC1155Holder, IAccountV07, IERC1271 {
 	}
 
 	function _staticDelegate(bytes memory cdata) internal view returns (bytes memory ret) {
-		address m = containerModule;
-		if (m == address(0) || m.code.length == 0) revert ZeroAddress();
-
+		address m = _module();
 		(bool ok, bytes memory out) = m.staticcall(abi.encodePacked(cdata, address(this)));
-		// NOTE: we cannot staticcall delegatecall; so module exposes a "view facade" via staticcall,
-		// and module will treat appended address(this) as context (see Module implementation).
 		if (!ok) {
 			assembly {
 				revert(add(out, 0x20), mload(out))
@@ -383,11 +365,10 @@ contract BeamioAccount is ERC1155Holder, IAccountV07, IERC1271 {
 		));
 	}
 
-	// --- open relayed container (no-to signature; 1x nonce; module enforces all rules) ---
+	// --- open relayed container (no-to signature; module enforces all rules) ---
 	function containerMainRelayedOpen(
 		address to,
 		IBeamioContainerModuleV07.ContainerItem[] calldata items,
-		address token,
 		uint8 currencyType,
 		uint256 maxAmount,
 		uint256 nonce_,
@@ -396,7 +377,7 @@ contract BeamioAccount is ERC1155Holder, IAccountV07, IERC1271 {
 	) external onlyFactory {
 		_delegate(abi.encodeWithSelector(
 			IBeamioContainerModuleV07.containerMainRelayedOpen.selector,
-			to, items, token, currencyType, maxAmount, nonce_, deadline_, sig
+			to, items, currencyType, maxAmount, nonce_, deadline_, sig
 		));
 	}
 
@@ -404,7 +385,6 @@ contract BeamioAccount is ERC1155Holder, IAccountV07, IERC1271 {
 	function simulateOpenContainer(
 		address to,
 		IBeamioContainerModuleV07.ContainerItem[] calldata items,
-		address token,
 		uint8 currencyType,
 		uint256 maxAmount,
 		uint256 nonce_,
@@ -413,7 +393,7 @@ contract BeamioAccount is ERC1155Holder, IAccountV07, IERC1271 {
 	) external view returns (bool ok, string memory reason) {
 		bytes memory out = _staticDelegate(abi.encodeWithSelector(
 			IBeamioContainerModuleV07.simulateOpenContainer.selector,
-			to, items, token, currencyType, maxAmount, nonce_, deadline_, sig
+			to, items, currencyType, maxAmount, nonce_, deadline_, sig
 		));
 		return abi.decode(out, (bool, string));
 	}

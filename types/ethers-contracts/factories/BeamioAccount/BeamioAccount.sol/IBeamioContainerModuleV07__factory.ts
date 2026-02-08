@@ -132,11 +132,6 @@
         "type": "tuple[]"
       },
       {
-        "internalType": "address",
-        "name": "token",
-        "type": "address"
-      },
-      {
         "internalType": "uint8",
         "name": "currencyType",
         "type": "uint8"
@@ -414,11 +409,6 @@
         "internalType": "struct IBeamioContainerModuleV07.ContainerItem[]",
         "name": "items",
         "type": "tuple[]"
-      },
-      {
-        "internalType": "address",
-        "name": "token",
-        "type": "address"
       },
       {
         "internalType": "uint8",

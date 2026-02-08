@@ -3,5 +3,6 @@
 /* eslint-disable */
 export * as beamioAccount from './BeamioAccount/index.js';
 export * as beamioUserCard from './BeamioUserCard/index.js';
+export * as coNetIndexTaskdiamond from './CoNETIndexTaskdiamond/index.js';
 export * as contracts from './contracts/index.js';
 export * as x402Sdk from './x402sdk/index.js';

@@ -48,7 +48,7 @@ encodeFunctionData(functionFragment: 'quoteHelper', values?: undefined): string;
 encodeFunctionData(functionFragment: 'relayCancelFaucetPool', values: [AddressLike, BytesLike]): string;
 encodeFunctionData(functionFragment: 'relayCancelRedeem', values: [AddressLike, BytesLike]): string;
 encodeFunctionData(functionFragment: 'relayContainerMainRelayed', values: [AddressLike, AddressLike, IBeamioContainerModuleV07.ContainerItemStruct[], BigNumberish, BigNumberish, BytesLike]): string;
-encodeFunctionData(functionFragment: 'relayContainerMainRelayedOpen', values: [AddressLike, AddressLike, IBeamioContainerModuleV07.ContainerItemStruct[], AddressLike, BigNumberish, BigNumberish, BigNumberish, BigNumberish, BytesLike]): string;
+encodeFunctionData(functionFragment: 'relayContainerMainRelayedOpen', values: [AddressLike, AddressLike, IBeamioContainerModuleV07.ContainerItemStruct[], BigNumberish, BigNumberish, BigNumberish, BigNumberish, BytesLike]): string;
 encodeFunctionData(functionFragment: 'relayCreateFaucetPool', values: [AddressLike, BytesLike, BigNumberish, BigNumberish, IBeamioContainerModuleV07.ContainerItemStruct[]]): string;
 encodeFunctionData(functionFragment: 'relayCreateRedeem', values: [AddressLike, BytesLike, AddressLike, IBeamioContainerModuleV07.ContainerItemStruct[], BigNumberish]): string;
 encodeFunctionData(functionFragment: 'relayFaucetRedeemPool', values: [AddressLike, string, AddressLike, AddressLike, IBeamioContainerModuleV07.ContainerItemStruct[]]): string;
@@ -59,7 +59,7 @@ encodeFunctionData(functionFragment: 'setModule', values: [AddressLike]): string
 encodeFunctionData(functionFragment: 'setQuoteHelper', values: [AddressLike]): string;
 encodeFunctionData(functionFragment: 'setUSDC', values: [AddressLike]): string;
 encodeFunctionData(functionFragment: 'setUserCard', values: [AddressLike]): string;
-encodeFunctionData(functionFragment: 'simulateRelayOpen', values: [AddressLike, AddressLike, IBeamioContainerModuleV07.ContainerItemStruct[], AddressLike, BigNumberish, BigNumberish, BigNumberish, BigNumberish, BytesLike]): string;
+encodeFunctionData(functionFragment: 'simulateRelayOpen', values: [AddressLike, AddressLike, IBeamioContainerModuleV07.ContainerItemStruct[], BigNumberish, BigNumberish, BigNumberish, BigNumberish, BytesLike]): string;
 encodeFunctionData(functionFragment: 'transferAdmin', values: [AddressLike]): string;
 encodeFunctionData(functionFragment: 'updateDeployer', values: [AddressLike]): string;
 encodeFunctionData(functionFragment: 'validatePaymasterUserOp', values: [PackedUserOperationStruct, BytesLike, BigNumberish]): string;
@@ -425,7 +425,7 @@ decodeFunctionResult(functionFragment: 'withdrawTo', data: BytesLike): Result;
 
     
     relayContainerMainRelayedOpen: TypedContractMethod<
-      [account: AddressLike, to: AddressLike, items: IBeamioContainerModuleV07.ContainerItemStruct[], token: AddressLike, currencyType: BigNumberish, maxAmount: BigNumberish, nonce_: BigNumberish, deadline_: BigNumberish, sig: BytesLike, ],
+      [account: AddressLike, to: AddressLike, items: IBeamioContainerModuleV07.ContainerItemStruct[], currencyType: BigNumberish, maxAmount: BigNumberish, nonce_: BigNumberish, deadline_: BigNumberish, sig: BytesLike, ],
       [void],
       'nonpayable'
     >
@@ -513,7 +513,7 @@ decodeFunctionResult(functionFragment: 'withdrawTo', data: BytesLike): Result;
 
     
     simulateRelayOpen: TypedContractMethod<
-      [account: AddressLike, to: AddressLike, items: IBeamioContainerModuleV07.ContainerItemStruct[], token: AddressLike, currencyType: BigNumberish, maxAmount: BigNumberish, nonce_: BigNumberish, deadline_: BigNumberish, sig: BytesLike, ],
+      [account: AddressLike, to: AddressLike, items: IBeamioContainerModuleV07.ContainerItemStruct[], currencyType: BigNumberish, maxAmount: BigNumberish, nonce_: BigNumberish, deadline_: BigNumberish, sig: BytesLike, ],
       [[boolean, string] & {ok: boolean, reason: string }],
       'view'
     >
@@ -685,7 +685,7 @@ getFunction(nameOrSignature: 'relayContainerMainRelayed'): TypedContractMethod<
       'nonpayable'
     >;
 getFunction(nameOrSignature: 'relayContainerMainRelayedOpen'): TypedContractMethod<
-      [account: AddressLike, to: AddressLike, items: IBeamioContainerModuleV07.ContainerItemStruct[], token: AddressLike, currencyType: BigNumberish, maxAmount: BigNumberish, nonce_: BigNumberish, deadline_: BigNumberish, sig: BytesLike, ],
+      [account: AddressLike, to: AddressLike, items: IBeamioContainerModuleV07.ContainerItemStruct[], currencyType: BigNumberish, maxAmount: BigNumberish, nonce_: BigNumberish, deadline_: BigNumberish, sig: BytesLike, ],
       [void],
       'nonpayable'
     >;
@@ -740,7 +740,7 @@ getFunction(nameOrSignature: 'setUserCard'): TypedContractMethod<
       'nonpayable'
     >;
 getFunction(nameOrSignature: 'simulateRelayOpen'): TypedContractMethod<
-      [account: AddressLike, to: AddressLike, items: IBeamioContainerModuleV07.ContainerItemStruct[], token: AddressLike, currencyType: BigNumberish, maxAmount: BigNumberish, nonce_: BigNumberish, deadline_: BigNumberish, sig: BytesLike, ],
+      [account: AddressLike, to: AddressLike, items: IBeamioContainerModuleV07.ContainerItemStruct[], currencyType: BigNumberish, maxAmount: BigNumberish, nonce_: BigNumberish, deadline_: BigNumberish, sig: BytesLike, ],
       [[boolean, string] & {ok: boolean, reason: string }],
       'view'
     >;

@@ -2,5 +2,5 @@
 /* tslint:disable */
 /* eslint-disable */
 export { BeamioAccount__factory } from './BeamioAccount__factory.js';
+export { IBeamioAccountFactoryConfigV2__factory } from './IBeamioAccountFactoryConfigV2__factory.js';
 export { IBeamioContainerModuleV07__factory } from './IBeamioContainerModuleV07__factory.js';
-export { IERC20ReadLike__factory } from './IERC20ReadLike__factory.js';

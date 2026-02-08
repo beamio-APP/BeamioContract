@@ -9,15 +9,16 @@ const __dirname = path.dirname(__filename);
 
 /**
  * 完整系统部署脚本
- * 
- * 部署顺序：
- * 1. BeamioOracle - 汇率预言机
- * 2. BeamioQuoteHelperV07 - 报价辅助合约（依赖 Oracle）
+ *
+ * BeamioOracle 与 BeamioQuoteHelperV07 禁止重新部署，仅从 EXISTING_* 或 base-FullAccountAndUserCard.json 读取已有地址。
+ *
+ * 部署/使用顺序：
+ * 1. BeamioOracle - 仅使用已有地址（禁止部署）
+ * 2. BeamioQuoteHelperV07 - 仅使用已有地址（禁止部署）
  * 3. BeamioAccountDeployer - CREATE2 部署器
- * 4. BeamioAccount - AA 账号合约（可选，如果需要直接部署）
- * 
- * 注意：BeamioUserCard 和 BeamioUserCardFactoryPaymasterV07 需要额外的配置
- * 这些合约通常通过 Factory 模式部署，不在本脚本中
+ * 4. BeamioAccount - AA 账号合约（可选）
+ *
+ * 注意：BeamioUserCard / BeamioUserCardFactoryPaymasterV07 通过其他脚本部署。
  */
 async function main() {
   const { ethers } = await networkModule.connect();
@@ -39,78 +40,55 @@ async function main() {
     timestamp: new Date().toISOString(),
     contracts: {}
   };
-  
+  const deploymentsDir = path.join(__dirname, "..", "deployments");
+
   // ============================================================
-  // 1. 部署或使用现有的 BeamioOracle
+  // 1. BeamioOracle（禁止重新部署，仅使用已有地址）
   // ============================================================
   console.log("\n" + "=".repeat(60));
-  console.log("步骤 1: BeamioOracle");
+  console.log("步骤 1: BeamioOracle（仅使用已有地址，禁止重新部署）");
   console.log("=".repeat(60));
-  
-  const EXISTING_ORACLE_ADDRESS = process.env.EXISTING_ORACLE_ADDRESS || "";
-  let oracleAddress = "";
-  
-  if (EXISTING_ORACLE_ADDRESS) {
-    // 使用现有的 Oracle
-    oracleAddress = EXISTING_ORACLE_ADDRESS;
-    console.log("✅ 使用现有的 BeamioOracle");
-    console.log("合约地址:", oracleAddress);
-    
-    // 验证地址是否有代码
-    const code = await ethers.provider.getCode(oracleAddress);
-    if (code === "0x") {
-      throw new Error(`Oracle 地址 ${oracleAddress} 没有合约代码`);
-    }
-    
-    deploymentInfo.contracts.beamioOracle = {
-      address: oracleAddress,
-      note: "使用已存在的 Oracle 合约"
-    };
-  } else {
-    // 部署新的 Oracle
-    console.log("部署新的 BeamioOracle...");
-    const BeamioOracleFactory = await ethers.getContractFactory("BeamioOracle");
-    const oracle = await BeamioOracleFactory.deploy();
-    await oracle.waitForDeployment();
-    oracleAddress = await oracle.getAddress();
-    
-    console.log("✅ BeamioOracle 部署成功!");
-    console.log("合约地址:", oracleAddress);
-    
-    deploymentInfo.contracts.beamioOracle = {
-      address: oracleAddress,
-      transactionHash: oracle.deploymentTransaction()?.hash
-    };
-    
-    // 自动验证 Oracle
-    await verifyContract(oracleAddress, [], "BeamioOracle");
+
+  let oracleAddress = process.env.EXISTING_ORACLE_ADDRESS || "";
+  if (!oracleAddress && fs.existsSync(path.join(deploymentsDir, `${networkInfo.name}-FullAccountAndUserCard.json`))) {
+    const data = JSON.parse(fs.readFileSync(path.join(deploymentsDir, `${networkInfo.name}-FullAccountAndUserCard.json`), "utf-8");
+    oracleAddress = data.existing?.beamioOracle || "";
   }
-  
+  if (!oracleAddress) {
+    throw new Error(
+      "BeamioOracle 禁止重新部署。请设置 EXISTING_ORACLE_ADDRESS 或确保 deployments/base-FullAccountAndUserCard.json 含 existing.beamioOracle。"
+    );
+  }
+  const codeOracle = await ethers.provider.getCode(oracleAddress);
+  if (codeOracle === "0x") {
+    throw new Error(`Oracle 地址 ${oracleAddress} 没有合约代码`);
+  }
+  console.log("✅ 使用现有 BeamioOracle:", oracleAddress);
+  deploymentInfo.contracts.beamioOracle = { address: oracleAddress, note: "禁止重新部署，使用已有合约" };
+
   // ============================================================
-  // 2. 部署 BeamioQuoteHelperV07（需要 Oracle 地址）
+  // 2. BeamioQuoteHelperV07（禁止重新部署，仅使用已有地址）
   // ============================================================
   console.log("\n" + "=".repeat(60));
-  console.log("步骤 2: 部署 BeamioQuoteHelperV07");
+  console.log("步骤 2: BeamioQuoteHelperV07（仅使用已有地址，禁止重新部署）");
   console.log("=".repeat(60));
-  console.log("Oracle 地址:", oracleAddress);
-  
-  const BeamioQuoteHelperFactory = await ethers.getContractFactory("BeamioQuoteHelperV07");
-  const quoteHelper = await BeamioQuoteHelperFactory.deploy(oracleAddress, deployer.address);
-  await quoteHelper.waitForDeployment();
-  const quoteHelperAddress = await quoteHelper.getAddress();
-  
-  console.log("✅ BeamioQuoteHelperV07 部署成功!");
-  console.log("合约地址:", quoteHelperAddress);
-  
-  deploymentInfo.contracts.beamioQuoteHelper = {
-    address: quoteHelperAddress,
-    oracle: oracleAddress,
-    owner: deployer.address,
-    transactionHash: quoteHelper.deploymentTransaction()?.hash
-  };
-  
-  // 自动验证 QuoteHelper
-  await verifyContract(quoteHelperAddress, [oracleAddress, deployer.address], "BeamioQuoteHelperV07");
+
+  let quoteHelperAddress = process.env.EXISTING_QUOTE_HELPER_ADDRESS || "";
+  if (!quoteHelperAddress && fs.existsSync(path.join(deploymentsDir, `${networkInfo.name}-FullAccountAndUserCard.json`))) {
+    const data = JSON.parse(fs.readFileSync(path.join(deploymentsDir, `${networkInfo.name}-FullAccountAndUserCard.json`), "utf-8");
+    quoteHelperAddress = data.existing?.beamioQuoteHelper || "";
+  }
+  if (!quoteHelperAddress) {
+    throw new Error(
+      "BeamioQuoteHelperV07 禁止重新部署。请设置 EXISTING_QUOTE_HELPER_ADDRESS 或确保 deployments/base-FullAccountAndUserCard.json 含 existing.beamioQuoteHelper。"
+    );
+  }
+  const codeQH = await ethers.provider.getCode(quoteHelperAddress);
+  if (codeQH === "0x") {
+    throw new Error(`QuoteHelper 地址 ${quoteHelperAddress} 没有合约代码`);
+  }
+  console.log("✅ 使用现有 BeamioQuoteHelperV07:", quoteHelperAddress);
+  deploymentInfo.contracts.beamioQuoteHelper = { address: quoteHelperAddress, oracle: oracleAddress, note: "禁止重新部署，使用已有合约" };
   
   // ============================================================
   // 3. 部署 BeamioAccountDeployer
@@ -166,7 +144,6 @@ async function main() {
   // ============================================================
   // 保存部署信息
   // ============================================================
-  const deploymentsDir = path.join(__dirname, "..", "deployments");
   if (!fs.existsSync(deploymentsDir)) {
     fs.mkdirSync(deploymentsDir, { recursive: true });
   }

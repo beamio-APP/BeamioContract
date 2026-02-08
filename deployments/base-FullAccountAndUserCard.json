@@ -1,0 +1,55 @@
+{
+  "network": "base",
+  "chainId": "8453",
+  "deployer": "0x87cAeD4e51C36a2C2ece3Aaf4ddaC9693d2405E1",
+  "timestamp": "2026-02-08T03:22:31.532Z",
+  "existing": {
+    "beamioOracle": "0xDa4AE8301262BdAaf1bb68EC91259E6C512A9A2B",
+    "beamioQuoteHelper": "0x50953EB5190ee7dabb0eA86a96364A540a834059"
+  },
+  "contracts": {
+    "beamioAccountDeployer": {
+      "address": "0x616D8fDf2ee68CdEc414320C7A599bB428Fa37B1",
+      "tx": "0xc987cb83090bd738690b388b5b83825660abd56c72772e1e1c7d225d077f5fd7"
+    },
+    "beamioAccount": {
+      "address": "0xe05FFDaA79573bD8368304f648C3853096A4eDb3",
+      "entryPoint": "0x0000000071727De22E5E9d8BAf0edAc6f37da032",
+      "tx": "0x3f1d7ca27b07edae9d056a326fcf88a8b1611fff6ab3ff4d70401e5a03694d46"
+    },
+    "beamioContainerModule": {
+      "address": "0x91A35C9354D7284a7471099fF0370312863Bfd51",
+      "tx": "0x8d35da988cd3bc69e5f447082afb31a629a3236fdc5df692f0ec13f0566d1ce5"
+    },
+    "beamioUserCardPlaceholder": {
+      "address": "0x6B25695d0Be9C9C9ebe6EAf335971B1489a78C4A",
+      "tx": "0x3059b0231dafc8322072108cbb601d5bffb330900d1ed4756f954c03d028f05a"
+    },
+    "beamioFactoryPaymaster": {
+      "address": "0xD4759c85684e47A02223152b85C25D2E5cD2E738",
+      "deployer": "0x616D8fDf2ee68CdEc414320C7A599bB428Fa37B1",
+      "containerModule": "0x91A35C9354D7284a7471099fF0370312863Bfd51",
+      "quoteHelper": "0x50953EB5190ee7dabb0eA86a96364A540a834059",
+      "userCard": "0x6B25695d0Be9C9C9ebe6EAf335971B1489a78C4A",
+      "usdc": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+      "tx": "0x185632c182ca31a71e55e61dd6335d06b297f13bed8c92428a82d4af0c91739a"
+    },
+    "redeemModule": {
+      "address": "0x90238bff6760De0BDA25fd7b119F911960D080dc",
+      "tx": "0x98b93bb07bf7d522234a613b0022eef744f55a96fb40b4a202cc7cb3dfb7158c"
+    },
+    "beamioUserCardDeployer": {
+      "address": "0xA4f45b6CDAc7746c11e5D56A2e51117525Fd3e86",
+      "tx": "0x9bc20da9ce32136cc21cd3fd1e1ae51327a2ded40d3b30a155cc2689dc55364f"
+    },
+    "beamioUserCardFactoryPaymaster": {
+      "address": "0x73e3b722Eb55C92Fe73DEC01c064a5C677079E03",
+      "usdc": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+      "redeemModule": "0x90238bff6760De0BDA25fd7b119F911960D080dc",
+      "quoteHelper": "0x50953EB5190ee7dabb0eA86a96364A540a834059",
+      "deployer": "0xA4f45b6CDAc7746c11e5D56A2e51117525Fd3e86",
+      "aaFactory": "0xD4759c85684e47A02223152b85C25D2E5cD2E738",
+      "tx": "0x0386edcb62895067e1e041f5706302b0709406ba152efe79bdbc83e527ca994a"
+    }
+  }
+}

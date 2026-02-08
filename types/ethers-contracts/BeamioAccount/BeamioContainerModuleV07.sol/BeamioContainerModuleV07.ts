@@ -17,7 +17,7 @@ import type { TypedContractEvent, TypedDeferredTopicFilter, TypedEventLog, Typed
     encodeFunctionData(functionFragment: 'cancelFaucetPool', values: [BytesLike]): string;
 encodeFunctionData(functionFragment: 'cancelRedeem', values: [BytesLike]): string;
 encodeFunctionData(functionFragment: 'containerMainRelayed', values: [AddressLike, ContainerItemStruct[], BigNumberish, BigNumberish, BytesLike]): string;
-encodeFunctionData(functionFragment: 'containerMainRelayedOpen', values: [AddressLike, ContainerItemStruct[], AddressLike, BigNumberish, BigNumberish, BigNumberish, BigNumberish, BytesLike]): string;
+encodeFunctionData(functionFragment: 'containerMainRelayedOpen', values: [AddressLike, ContainerItemStruct[], BigNumberish, BigNumberish, BigNumberish, BigNumberish, BytesLike]): string;
 encodeFunctionData(functionFragment: 'createFaucetPool', values: [BytesLike, BigNumberish, BigNumberish, ContainerItemStruct[]]): string;
 encodeFunctionData(functionFragment: 'createRedeem', values: [BytesLike, AddressLike, ContainerItemStruct[], BigNumberish]): string;
 encodeFunctionData(functionFragment: 'domainSeparator', values: [AddressLike]): string;
@@ -27,7 +27,7 @@ encodeFunctionData(functionFragment: 'hashItems', values: [ContainerItemStruct[]
 encodeFunctionData(functionFragment: 'openRelayedNonce', values?: undefined): string;
 encodeFunctionData(functionFragment: 'redeem', values: [string, AddressLike]): string;
 encodeFunctionData(functionFragment: 'relayedNonce', values?: undefined): string;
-encodeFunctionData(functionFragment: 'simulateOpenContainer', values: [AddressLike, ContainerItemStruct[], AddressLike, BigNumberish, BigNumberish, BigNumberish, BigNumberish, BytesLike]): string;
+encodeFunctionData(functionFragment: 'simulateOpenContainer', values: [AddressLike, ContainerItemStruct[], BigNumberish, BigNumberish, BigNumberish, BigNumberish, BytesLike]): string;
 
     decodeFunctionResult(functionFragment: 'cancelFaucetPool', data: BytesLike): Result;
 decodeFunctionResult(functionFragment: 'cancelRedeem', data: BytesLike): Result;
@@ -189,7 +189,7 @@ decodeFunctionResult(functionFragment: 'simulateOpenContainer', data: BytesLike)
 
     
     containerMainRelayedOpen: TypedContractMethod<
-      [to: AddressLike, items: ContainerItemStruct[], token: AddressLike, currencyType: BigNumberish, maxAmount: BigNumberish, nonce_: BigNumberish, deadline_: BigNumberish, sig: BytesLike, ],
+      [to: AddressLike, items: ContainerItemStruct[], currencyType: BigNumberish, maxAmount: BigNumberish, nonce_: BigNumberish, deadline_: BigNumberish, sig: BytesLike, ],
       [void],
       'nonpayable'
     >
@@ -269,7 +269,7 @@ decodeFunctionResult(functionFragment: 'simulateOpenContainer', data: BytesLike)
 
     
     simulateOpenContainer: TypedContractMethod<
-      [to: AddressLike, items: ContainerItemStruct[], token: AddressLike, currencyType: BigNumberish, maxAmount: BigNumberish, nonce_: BigNumberish, deadline_: BigNumberish, sig: BytesLike, ],
+      [to: AddressLike, items: ContainerItemStruct[], currencyType: BigNumberish, maxAmount: BigNumberish, nonce_: BigNumberish, deadline_: BigNumberish, sig: BytesLike, ],
       [[boolean, string] & {ok: boolean, reason: string }],
       'view'
     >
@@ -294,7 +294,7 @@ getFunction(nameOrSignature: 'containerMainRelayed'): TypedContractMethod<
       'nonpayable'
     >;
 getFunction(nameOrSignature: 'containerMainRelayedOpen'): TypedContractMethod<
-      [to: AddressLike, items: ContainerItemStruct[], token: AddressLike, currencyType: BigNumberish, maxAmount: BigNumberish, nonce_: BigNumberish, deadline_: BigNumberish, sig: BytesLike, ],
+      [to: AddressLike, items: ContainerItemStruct[], currencyType: BigNumberish, maxAmount: BigNumberish, nonce_: BigNumberish, deadline_: BigNumberish, sig: BytesLike, ],
       [void],
       'nonpayable'
     >;
@@ -344,7 +344,7 @@ getFunction(nameOrSignature: 'relayedNonce'): TypedContractMethod<
       'view'
     >;
 getFunction(nameOrSignature: 'simulateOpenContainer'): TypedContractMethod<
-      [to: AddressLike, items: ContainerItemStruct[], token: AddressLike, currencyType: BigNumberish, maxAmount: BigNumberish, nonce_: BigNumberish, deadline_: BigNumberish, sig: BytesLike, ],
+      [to: AddressLike, items: ContainerItemStruct[], currencyType: BigNumberish, maxAmount: BigNumberish, nonce_: BigNumberish, deadline_: BigNumberish, sig: BytesLike, ],
       [[boolean, string] & {ok: boolean, reason: string }],
       'view'
     >;

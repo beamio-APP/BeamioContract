@@ -5,13 +5,13 @@ pragma solidity ^0.8.20;
 // - Deploy + init BeamioAccount (Route A)
 // - Paymaster v0.7 (simple allow-list for BeamioAccount senders)
 // - Relay entrypoints to BeamioAccount (paymaster pays gas)
-// - Provides config views for module logic: quoteHelper / beamioUserCard / USDC
+// - Provides GLOBAL config views for module logic: containerModule / quoteHelper / beamioUserCard / USDC
 
 import "./BeamioTypesV07.sol";
 import "./BeamioAccountDeployer.sol";
-import "./BeamioAccount.sol";
+import "./BeamioAccount.sol"; // provides IBeamioAccountFactoryConfigV2
 
-contract BeamioFactoryPaymasterV07 is IPaymasterV07 {
+contract BeamioFactoryPaymasterV07 is IPaymasterV07, IBeamioAccountFactoryConfigV2 {
 	IEntryPointV07 public constant ENTRY_POINT =
 		IEntryPointV07(0x0000000071727De22E5E9d8BAf0edAc6f37da032);
 
@@ -31,11 +31,11 @@ contract BeamioFactoryPaymasterV07 is IPaymasterV07 {
 
 	uint256 public accountLimit;
 
-	// ========= module/config =========
-	address public containerModule;
-	address public quoteHelper;
-	address public beamioUserCard;
-	address public USDC;
+	// ========= GLOBAL module/config =========
+	address public override containerModule;
+	address public override quoteHelper;
+	address public override beamioUserCard;
+	address public override USDC;
 
 	// ========= events =========
 	event AccountCreated(address indexed creator, address indexed account, uint256 index, bytes32 salt);
@@ -96,8 +96,9 @@ contract BeamioFactoryPaymasterV07 is IPaymasterV07 {
 		emit USDCUpdated(address(0), usdc_);
 	}
 
-
-	// ===== admin ops =====
+	// =========================================================
+	// Admin ops
+	// =========================================================
 	function transferAdmin(address newAdmin) external onlyAdmin {
 		require(newAdmin != address(0), "zero admin");
 		admin = newAdmin;
@@ -166,7 +167,9 @@ contract BeamioFactoryPaymasterV07 is IPaymasterV07 {
 		}
 	}
 
-	// ===== entrypoint deposit/withdraw =====
+	// =========================================================
+	// Entrypoint deposit/withdraw
+	// =========================================================
 	function deposit() external payable onlyPayMaster {
 		ENTRY_POINT.depositTo{value: msg.value}(address(this));
 	}
@@ -175,26 +178,21 @@ contract BeamioFactoryPaymasterV07 is IPaymasterV07 {
 		ENTRY_POINT.withdrawTo(to, amount);
 	}
 
-	// ===== deterministic address =====
+	// =========================================================
+	// Deterministic address
+	// =========================================================
 	function computeSalt(address creator, uint256 index) public pure returns (bytes32) {
 		return keccak256(abi.encode(creator, index));
 	}
 
 	function _initCode() internal pure returns (bytes memory) {
-		return abi.encodePacked(
-			type(BeamioAccount).creationCode,
-			abi.encode(ENTRY_POINT)
-		);
+		return abi.encodePacked(type(BeamioAccount).creationCode, abi.encode(ENTRY_POINT));
 	}
 
 	function getAddress(address creator, uint256 index) public view returns (address) {
-		// 直接计算地址，避免 Deployer.getAddress 的 ABI 解析问题
 		bytes32 salt = computeSalt(creator, index);
-		bytes memory initCode = _initCode();
-		bytes32 initCodeHash = keccak256(initCode);
-		bytes32 hash = keccak256(
-			abi.encodePacked(bytes1(0xff), address(deployer), salt, initCodeHash)
-		);
+		bytes32 initCodeHash = keccak256(_initCode());
+		bytes32 hash = keccak256(abi.encodePacked(bytes1(0xff), address(deployer), salt, initCodeHash));
 		return address(uint160(uint256(hash)));
 	}
 
@@ -206,7 +204,9 @@ contract BeamioFactoryPaymasterV07 is IPaymasterV07 {
 		return accountsByCreator[msg.sender];
 	}
 
-	// ===== create account (EOA) =====
+	// =========================================================
+	// Create account (EOA)
+	// =========================================================
 	function createAccount() external returns (address account) {
 		address creator = msg.sender;
 		uint256 index = nextIndexOfCreator[creator];
@@ -227,17 +227,11 @@ contract BeamioFactoryPaymasterV07 is IPaymasterV07 {
 		bytes32 salt = computeSalt(creator, index);
 		account = deployer.deploy(salt, _initCode());
 
-		// init: owner is also managers[0], threshold=1
 		address[] memory managers = new address[](1);
 		managers[0] = creator;
 
-		BeamioAccount(payable(account)).initialize(
-			creator,
-			managers,
-			1,
-			address(this),
-			containerModule
-		);
+		// ⚠️ 这里假设你已把 BeamioAccount.initialize 改成不再接收 module
+		BeamioAccount(payable(account)).initialize(creator, managers, 1, address(this));
 
 		isBeamioAccount[account] = true;
 		accountsByCreator[creator].push(account);
@@ -247,7 +241,9 @@ contract BeamioFactoryPaymasterV07 is IPaymasterV07 {
 		return account;
 	}
 
-	// ===== create account for (paymaster) =====
+	// =========================================================
+	// Create account for (paymaster)
+	// =========================================================
 	function createAccountFor(address creator) external onlyPayMaster returns (address account) {
 		require(creator != address(0), "zero creator");
 
@@ -272,13 +268,7 @@ contract BeamioFactoryPaymasterV07 is IPaymasterV07 {
 		address[] memory managers = new address[](1);
 		managers[0] = creator;
 
-		BeamioAccount(payable(account)).initialize(
-			creator,
-			managers,
-			1,
-			address(this),
-			containerModule
-		);
+		BeamioAccount(payable(account)).initialize(creator, managers, 1, address(this));
 
 		isBeamioAccount[account] = true;
 		accountsByCreator[creator].push(account);
@@ -288,15 +278,15 @@ contract BeamioFactoryPaymasterV07 is IPaymasterV07 {
 		return account;
 	}
 
-	// ========= Paymaster (AA v0.7) =========
+	// =========================================================
+	// Paymaster (AA v0.7)
+	// =========================================================
 	function validatePaymasterUserOp(
 		PackedUserOperation calldata userOp,
 		bytes32,
 		uint256
 	) external override view onlyEntryPoint returns (bytes memory context, uint256 validationData) {
-		if (!isBeamioAccount[userOp.sender]) {
-			return ("", 1);
-		}
+		if (!isBeamioAccount[userOp.sender]) return ("", 1);
 		return ("", 0);
 	}
 
@@ -306,10 +296,8 @@ contract BeamioFactoryPaymasterV07 is IPaymasterV07 {
 
 	// =========================================================
 	// Relay entrypoints (factory pays gas)
-	// NOTE: BeamioAccount has receive() so use payable cast
 	// =========================================================
 
-	/// @notice to-bound owner relayed container
 	function relayContainerMainRelayed(
 		address account,
 		address to,
@@ -322,12 +310,11 @@ contract BeamioFactoryPaymasterV07 is IPaymasterV07 {
 		BeamioAccount(payable(account)).containerMainRelayed(to, items, nonce_, deadline_, sig);
 	}
 
-	/// @notice open relayed (no-to signature) submitted via factory only
+	// ✅ token 参数已移除（与你最新 containerMainRelayedOpen 对齐）
 	function relayContainerMainRelayedOpen(
 		address account,
 		address to,
 		IBeamioContainerModuleV07.ContainerItem[] calldata items,
-		address token,
 		uint8 currencyType,
 		uint256 maxAmount,
 		uint256 nonce_,
@@ -335,15 +322,16 @@ contract BeamioFactoryPaymasterV07 is IPaymasterV07 {
 		bytes calldata sig
 	) external onlyPayMaster {
 		require(isBeamioAccount[account], "not beamio account");
-		BeamioAccount(payable(account)).containerMainRelayedOpen(to, items, token, currencyType, maxAmount, nonce_, deadline_, sig);
+		BeamioAccount(payable(account)).containerMainRelayedOpen(
+			to, items, currencyType, maxAmount, nonce_, deadline_, sig
+		);
 	}
 
-	/// @notice view-only simulation for client preflight (eth_call)
+	// ✅ token 参数已移除
 	function simulateRelayOpen(
 		address account,
 		address to,
 		IBeamioContainerModuleV07.ContainerItem[] calldata items,
-		address token,
 		uint8 currencyType,
 		uint256 maxAmount,
 		uint256 nonce_,
@@ -351,7 +339,9 @@ contract BeamioFactoryPaymasterV07 is IPaymasterV07 {
 		bytes calldata sig
 	) external view returns (bool ok, string memory reason) {
 		if (!isBeamioAccount[account]) return (false, "not beamio account");
-		return BeamioAccount(payable(account)).simulateOpenContainer(to, items, token, currencyType, maxAmount, nonce_, deadline_, sig);
+		return BeamioAccount(payable(account)).simulateOpenContainer(
+			to, items, currencyType, maxAmount, nonce_, deadline_, sig
+		);
 	}
 
 	// ===== Redeem relays =====

@@ -18,7 +18,7 @@
       "initialAccountLimit": 100,
       "deployer": "0x0Ae75A3DA679580E2975Ed9DE31d1B5d00c26d65",
       "containerModule": "0xB0F4824519995A2c501D13A624fDBcbBEa0DEC57",
-      "quoteHelper": "0x13AECe9ad12AC4925E5B5E921e566B315bd99d35",
+      "quoteHelper": "0x50953EB5190ee7dabb0eA86a96364A540a834059",
       "userCard": "0xD5e6F2d09ae64a48Eb4b0Fa4Bd3e584F61D8d66d",
       "usdc": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
       "transactionHash": "0xa374a6d615b80348f8889fe113cfd24d4cf84b67aa7dbb24da1265d7319fb04d",

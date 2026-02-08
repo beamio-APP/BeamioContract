@@ -18,15 +18,14 @@ export declare namespace IBeamioContainerModuleV07 {
     }
 
   export interface BeamioAccountInterface extends Interface {
-    getFunction(nameOrSignature: "cancelFaucetPool" | "cancelRedeem" | "containerMainRelayed" | "containerMainRelayedOpen" | "containerModule" | "createFaucetPool" | "createRedeem" | "entryPoint" | "execute" | "executeBatch" | "factory" | "faucetRedeemPool" | "initialize" | "isThresholdManager" | "isValidSignature" | "onERC1155BatchReceived" | "onERC1155Received" | "openRelayedNonce" | "owner" | "redeem" | "relayedNonce" | "setFactory" | "setModule" | "setThresholdPolicy" | "simulateOpenContainer" | "supportsInterface" | "threshold" | "thresholdManagers" | "validateUserOp"): FunctionFragment;
+    getFunction(nameOrSignature: "cancelFaucetPool" | "cancelRedeem" | "containerMainRelayed" | "containerMainRelayedOpen" | "createFaucetPool" | "createRedeem" | "entryPoint" | "execute" | "executeBatch" | "factory" | "faucetRedeemPool" | "initialize" | "isThresholdManager" | "isValidSignature" | "onERC1155BatchReceived" | "onERC1155Received" | "openRelayedNonce" | "owner" | "redeem" | "relayedNonce" | "setFactory" | "setThresholdPolicy" | "simulateOpenContainer" | "supportsInterface" | "threshold" | "thresholdManagers" | "validateUserOp"): FunctionFragment;
 
-    getEvent(nameOrSignatureOrTopic: "FactoryUpdated" | "Initialized" | "ModuleUpdated" | "ThresholdPolicyUpdated"): EventFragment;
+    getEvent(nameOrSignatureOrTopic: "FactoryUpdated" | "Initialized" | "ThresholdPolicyUpdated"): EventFragment;
 
     encodeFunctionData(functionFragment: 'cancelFaucetPool', values: [BytesLike]): string;
 encodeFunctionData(functionFragment: 'cancelRedeem', values: [BytesLike]): string;
 encodeFunctionData(functionFragment: 'containerMainRelayed', values: [AddressLike, IBeamioContainerModuleV07.ContainerItemStruct[], BigNumberish, BigNumberish, BytesLike]): string;
-encodeFunctionData(functionFragment: 'containerMainRelayedOpen', values: [AddressLike, IBeamioContainerModuleV07.ContainerItemStruct[], AddressLike, BigNumberish, BigNumberish, BigNumberish, BigNumberish, BytesLike]): string;
-encodeFunctionData(functionFragment: 'containerModule', values?: undefined): string;
+encodeFunctionData(functionFragment: 'containerMainRelayedOpen', values: [AddressLike, IBeamioContainerModuleV07.ContainerItemStruct[], BigNumberish, BigNumberish, BigNumberish, BigNumberish, BytesLike]): string;
 encodeFunctionData(functionFragment: 'createFaucetPool', values: [BytesLike, BigNumberish, BigNumberish, IBeamioContainerModuleV07.ContainerItemStruct[]]): string;
 encodeFunctionData(functionFragment: 'createRedeem', values: [BytesLike, AddressLike, IBeamioContainerModuleV07.ContainerItemStruct[], BigNumberish]): string;
 encodeFunctionData(functionFragment: 'entryPoint', values?: undefined): string;
@@ -34,7 +33,7 @@ encodeFunctionData(functionFragment: 'execute', values: [AddressLike, BigNumberi
 encodeFunctionData(functionFragment: 'executeBatch', values: [AddressLike[], BigNumberish[], BytesLike[]]): string;
 encodeFunctionData(functionFragment: 'factory', values?: undefined): string;
 encodeFunctionData(functionFragment: 'faucetRedeemPool', values: [string, AddressLike, AddressLike, IBeamioContainerModuleV07.ContainerItemStruct[]]): string;
-encodeFunctionData(functionFragment: 'initialize', values: [AddressLike, AddressLike[], BigNumberish, AddressLike, AddressLike]): string;
+encodeFunctionData(functionFragment: 'initialize', values: [AddressLike, AddressLike[], BigNumberish, AddressLike]): string;
 encodeFunctionData(functionFragment: 'isThresholdManager', values: [AddressLike]): string;
 encodeFunctionData(functionFragment: 'isValidSignature', values: [BytesLike, BytesLike]): string;
 encodeFunctionData(functionFragment: 'onERC1155BatchReceived', values: [AddressLike, AddressLike, BigNumberish[], BigNumberish[], BytesLike]): string;
@@ -44,9 +43,8 @@ encodeFunctionData(functionFragment: 'owner', values?: undefined): string;
 encodeFunctionData(functionFragment: 'redeem', values: [string, AddressLike]): string;
 encodeFunctionData(functionFragment: 'relayedNonce', values?: undefined): string;
 encodeFunctionData(functionFragment: 'setFactory', values: [AddressLike]): string;
-encodeFunctionData(functionFragment: 'setModule', values: [AddressLike]): string;
 encodeFunctionData(functionFragment: 'setThresholdPolicy', values: [AddressLike[], BigNumberish]): string;
-encodeFunctionData(functionFragment: 'simulateOpenContainer', values: [AddressLike, IBeamioContainerModuleV07.ContainerItemStruct[], AddressLike, BigNumberish, BigNumberish, BigNumberish, BigNumberish, BytesLike]): string;
+encodeFunctionData(functionFragment: 'simulateOpenContainer', values: [AddressLike, IBeamioContainerModuleV07.ContainerItemStruct[], BigNumberish, BigNumberish, BigNumberish, BigNumberish, BytesLike]): string;
 encodeFunctionData(functionFragment: 'supportsInterface', values: [BytesLike]): string;
 encodeFunctionData(functionFragment: 'threshold', values?: undefined): string;
 encodeFunctionData(functionFragment: 'thresholdManagers', values: [BigNumberish]): string;
@@ -56,7 +54,6 @@ encodeFunctionData(functionFragment: 'validateUserOp', values: [PackedUserOperat
 decodeFunctionResult(functionFragment: 'cancelRedeem', data: BytesLike): Result;
 decodeFunctionResult(functionFragment: 'containerMainRelayed', data: BytesLike): Result;
 decodeFunctionResult(functionFragment: 'containerMainRelayedOpen', data: BytesLike): Result;
-decodeFunctionResult(functionFragment: 'containerModule', data: BytesLike): Result;
 decodeFunctionResult(functionFragment: 'createFaucetPool', data: BytesLike): Result;
 decodeFunctionResult(functionFragment: 'createRedeem', data: BytesLike): Result;
 decodeFunctionResult(functionFragment: 'entryPoint', data: BytesLike): Result;
@@ -74,7 +71,6 @@ decodeFunctionResult(functionFragment: 'owner', data: BytesLike): Result;
 decodeFunctionResult(functionFragment: 'redeem', data: BytesLike): Result;
 decodeFunctionResult(functionFragment: 'relayedNonce', data: BytesLike): Result;
 decodeFunctionResult(functionFragment: 'setFactory', data: BytesLike): Result;
-decodeFunctionResult(functionFragment: 'setModule', data: BytesLike): Result;
 decodeFunctionResult(functionFragment: 'setThresholdPolicy', data: BytesLike): Result;
 decodeFunctionResult(functionFragment: 'simulateOpenContainer', data: BytesLike): Result;
 decodeFunctionResult(functionFragment: 'supportsInterface', data: BytesLike): Result;
@@ -97,21 +93,9 @@ decodeFunctionResult(functionFragment: 'validateUserOp', data: BytesLike): Resul
   
 
     export namespace InitializedEvent {
-      export type InputTuple = [owner: AddressLike, factory: AddressLike, module: AddressLike, entryPoint: AddressLike];
-      export type OutputTuple = [owner: string, factory: string, module: string, entryPoint: string];
-      export interface OutputObject {owner: string, factory: string, module: string, entryPoint: string };
-      export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>
-      export type Filter = TypedDeferredTopicFilter<Event>
-      export type Log = TypedEventLog<Event>
-      export type LogDescription = TypedLogDescription<Event>
-    }
-
-  
-
-    export namespace ModuleUpdatedEvent {
-      export type InputTuple = [oldModule: AddressLike, newModule: AddressLike];
-      export type OutputTuple = [oldModule: string, newModule: string];
-      export interface OutputObject {oldModule: string, newModule: string };
+      export type InputTuple = [owner: AddressLike, factory: AddressLike, entryPoint: AddressLike];
+      export type OutputTuple = [owner: string, factory: string, entryPoint: string];
+      export interface OutputObject {owner: string, factory: string, entryPoint: string };
       export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>
       export type Filter = TypedDeferredTopicFilter<Event>
       export type Log = TypedEventLog<Event>
@@ -191,17 +175,9 @@ decodeFunctionResult(functionFragment: 'validateUserOp', data: BytesLike): Resul
 
     
     containerMainRelayedOpen: TypedContractMethod<
-      [to: AddressLike, items: IBeamioContainerModuleV07.ContainerItemStruct[], token: AddressLike, currencyType: BigNumberish, maxAmount: BigNumberish, nonce_: BigNumberish, deadline_: BigNumberish, sig: BytesLike, ],
+      [to: AddressLike, items: IBeamioContainerModuleV07.ContainerItemStruct[], currencyType: BigNumberish, maxAmount: BigNumberish, nonce_: BigNumberish, deadline_: BigNumberish, sig: BytesLike, ],
       [void],
       'nonpayable'
-    >
-    
-
-    
-    containerModule: TypedContractMethod<
-      [],
-      [string],
-      'view'
     >
     
 
@@ -263,7 +239,7 @@ decodeFunctionResult(functionFragment: 'validateUserOp', data: BytesLike): Resul
 
     
     initialize: TypedContractMethod<
-      [_owner: AddressLike, managersSorted: AddressLike[], _threshold: BigNumberish, _factory: AddressLike, _module: AddressLike, ],
+      [_owner: AddressLike, managersSorted: AddressLike[], _threshold: BigNumberish, _factory: AddressLike, ],
       [void],
       'nonpayable'
     >
@@ -342,14 +318,6 @@ decodeFunctionResult(functionFragment: 'validateUserOp', data: BytesLike): Resul
     
 
     
-    setModule: TypedContractMethod<
-      [newModule: AddressLike, ],
-      [void],
-      'nonpayable'
-    >
-    
-
-    
     setThresholdPolicy: TypedContractMethod<
       [managersSorted: AddressLike[], newThreshold: BigNumberish, ],
       [void],
@@ -359,7 +327,7 @@ decodeFunctionResult(functionFragment: 'validateUserOp', data: BytesLike): Resul
 
     
     simulateOpenContainer: TypedContractMethod<
-      [to: AddressLike, items: IBeamioContainerModuleV07.ContainerItemStruct[], token: AddressLike, currencyType: BigNumberish, maxAmount: BigNumberish, nonce_: BigNumberish, deadline_: BigNumberish, sig: BytesLike, ],
+      [to: AddressLike, items: IBeamioContainerModuleV07.ContainerItemStruct[], currencyType: BigNumberish, maxAmount: BigNumberish, nonce_: BigNumberish, deadline_: BigNumberish, sig: BytesLike, ],
       [[boolean, string] & {ok: boolean, reason: string }],
       'view'
     >
@@ -416,14 +384,9 @@ getFunction(nameOrSignature: 'containerMainRelayed'): TypedContractMethod<
       'nonpayable'
     >;
 getFunction(nameOrSignature: 'containerMainRelayedOpen'): TypedContractMethod<
-      [to: AddressLike, items: IBeamioContainerModuleV07.ContainerItemStruct[], token: AddressLike, currencyType: BigNumberish, maxAmount: BigNumberish, nonce_: BigNumberish, deadline_: BigNumberish, sig: BytesLike, ],
+      [to: AddressLike, items: IBeamioContainerModuleV07.ContainerItemStruct[], currencyType: BigNumberish, maxAmount: BigNumberish, nonce_: BigNumberish, deadline_: BigNumberish, sig: BytesLike, ],
       [void],
       'nonpayable'
-    >;
-getFunction(nameOrSignature: 'containerModule'): TypedContractMethod<
-      [],
-      [string],
-      'view'
     >;
 getFunction(nameOrSignature: 'createFaucetPool'): TypedContractMethod<
       [passwordHash: BytesLike, totalCount: BigNumberish, expiry: BigNumberish, items: IBeamioContainerModuleV07.ContainerItemStruct[], ],
@@ -461,7 +424,7 @@ getFunction(nameOrSignature: 'faucetRedeemPool'): TypedContractMethod<
       'nonpayable'
     >;
 getFunction(nameOrSignature: 'initialize'): TypedContractMethod<
-      [_owner: AddressLike, managersSorted: AddressLike[], _threshold: BigNumberish, _factory: AddressLike, _module: AddressLike, ],
+      [_owner: AddressLike, managersSorted: AddressLike[], _threshold: BigNumberish, _factory: AddressLike, ],
       [void],
       'nonpayable'
     >;
@@ -510,18 +473,13 @@ getFunction(nameOrSignature: 'setFactory'): TypedContractMethod<
       [void],
       'nonpayable'
     >;
-getFunction(nameOrSignature: 'setModule'): TypedContractMethod<
-      [newModule: AddressLike, ],
-      [void],
-      'nonpayable'
-    >;
 getFunction(nameOrSignature: 'setThresholdPolicy'): TypedContractMethod<
       [managersSorted: AddressLike[], newThreshold: BigNumberish, ],
       [void],
       'nonpayable'
     >;
 getFunction(nameOrSignature: 'simulateOpenContainer'): TypedContractMethod<
-      [to: AddressLike, items: IBeamioContainerModuleV07.ContainerItemStruct[], token: AddressLike, currencyType: BigNumberish, maxAmount: BigNumberish, nonce_: BigNumberish, deadline_: BigNumberish, sig: BytesLike, ],
+      [to: AddressLike, items: IBeamioContainerModuleV07.ContainerItemStruct[], currencyType: BigNumberish, maxAmount: BigNumberish, nonce_: BigNumberish, deadline_: BigNumberish, sig: BytesLike, ],
       [[boolean, string] & {ok: boolean, reason: string }],
       'view'
     >;
@@ -548,7 +506,6 @@ getFunction(nameOrSignature: 'validateUserOp'): TypedContractMethod<
 
     getEvent(key: 'FactoryUpdated'): TypedContractEvent<FactoryUpdatedEvent.InputTuple, FactoryUpdatedEvent.OutputTuple, FactoryUpdatedEvent.OutputObject>;
 getEvent(key: 'Initialized'): TypedContractEvent<InitializedEvent.InputTuple, InitializedEvent.OutputTuple, InitializedEvent.OutputObject>;
-getEvent(key: 'ModuleUpdated'): TypedContractEvent<ModuleUpdatedEvent.InputTuple, ModuleUpdatedEvent.OutputTuple, ModuleUpdatedEvent.OutputObject>;
 getEvent(key: 'ThresholdPolicyUpdated'): TypedContractEvent<ThresholdPolicyUpdatedEvent.InputTuple, ThresholdPolicyUpdatedEvent.OutputTuple, ThresholdPolicyUpdatedEvent.OutputObject>;
 
     filters: {
@@ -557,12 +514,8 @@ getEvent(key: 'ThresholdPolicyUpdated'): TypedContractEvent<ThresholdPolicyUpdat
       FactoryUpdated: TypedContractEvent<FactoryUpdatedEvent.InputTuple, FactoryUpdatedEvent.OutputTuple, FactoryUpdatedEvent.OutputObject>;
     
 
-      'Initialized(address,address,address,address)': TypedContractEvent<InitializedEvent.InputTuple, InitializedEvent.OutputTuple, InitializedEvent.OutputObject>;
+      'Initialized(address,address,address)': TypedContractEvent<InitializedEvent.InputTuple, InitializedEvent.OutputTuple, InitializedEvent.OutputObject>;
       Initialized: TypedContractEvent<InitializedEvent.InputTuple, InitializedEvent.OutputTuple, InitializedEvent.OutputObject>;
-    
-
-      'ModuleUpdated(address,address)': TypedContractEvent<ModuleUpdatedEvent.InputTuple, ModuleUpdatedEvent.OutputTuple, ModuleUpdatedEvent.OutputObject>;
-      ModuleUpdated: TypedContractEvent<ModuleUpdatedEvent.InputTuple, ModuleUpdatedEvent.OutputTuple, ModuleUpdatedEvent.OutputObject>;
     
 
       'ThresholdPolicyUpdated(bytes32,uint256)': TypedContractEvent<ThresholdPolicyUpdatedEvent.InputTuple, ThresholdPolicyUpdatedEvent.OutputTuple, ThresholdPolicyUpdatedEvent.OutputObject>;
