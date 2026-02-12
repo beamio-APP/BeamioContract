@@ -60,6 +60,8 @@ interface IBeamioRedeemModuleVNext {
         returns (uint256[] memory tokenIds, uint256[] memory amounts);
 }
 
+
+
 /* =========================
    OpenAuth
    ========================= */
@@ -74,6 +76,8 @@ struct OpenAuthParams {
     uint256 validBefore;
     bytes32 nonce;
 }
+
+//	https://api.beamio.io/api/metadata
 
 /* =========================================================
    BeamioUserCard

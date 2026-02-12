@@ -61,6 +61,7 @@ async function main() {
     "function currency() view returns (uint8)",
     "function pointsUnitPriceInCurrencyE6() view returns (uint256)",
     "function gateway() view returns (address)",
+    "function transferWhitelistEnabled() view returns (bool)",
   ];
   const factoryAbi = [
     "function quoteHelper() view returns (address)",
@@ -96,6 +97,16 @@ async function main() {
   }
   console.log();
 
+  let transferWhitelistEnabled = false;
+  try {
+    transferWhitelistEnabled = await card.transferWhitelistEnabled();
+  } catch (e: any) {
+    console.log("4. transferWhitelistEnabled(): (call failed)", e?.message || e);
+  }
+  console.log("4. transferWhitelistEnabled():", transferWhitelistEnabled);
+  console.log("   ", transferWhitelistEnabled ? "✅ 开（仅白名单地址可转出）" : "❌ 关（无白名单限制）");
+  console.log();
+
   if (gateway !== ethers.ZeroAddress) {
     const factory = new ethers.Contract(gateway, factoryAbi, ethers.provider);
     const quoteHelperAddr = await factory.quoteHelper();
@@ -110,11 +121,11 @@ async function main() {
       try {
         const r0 = await oracle.getRate(0);
         const r4 = await oracle.getRate(4);
-        console.log("4. Oracle.getRate(CAD=0):", r0.toString(), r0 !== 0n ? "✅" : "❌");
+        console.log("5. Oracle.getRate(CAD=0):", r0.toString(), r0 !== 0n ? "✅" : "❌");
         console.log("   Oracle.getRate(USDC=4):", r4.toString(), r4 !== 0n ? "✅" : "❌");
         if (r0 === 0n || r4 === 0n) console.log("   → 未配置会导致 QuoteHelper revert，部分节点会把 view revert 当作 0，进而触发 UC_PriceZero。");
       } catch (e: any) {
-        console.log("4. Oracle.getRate: revert -", e?.message || e);
+        console.log("5. Oracle.getRate: revert -", e?.message || e);
       }
       console.log();
     }
@@ -123,11 +134,11 @@ async function main() {
     try {
       quoteResult = await factory.quoteUnitPointInUSDC6(CCSA_CARD);
     } catch (e: any) {
-      console.log("5. Factory.quoteUnitPointInUSDC6(卡): revert -", e?.message || e);
+      console.log("6. Factory.quoteUnitPointInUSDC6(卡): revert -", e?.message || e);
       console.log("   （若为 QH_OracleError，表示 Oracle 未配置该 currency 或 USDC 汇率）");
       process.exit(1);
     }
-    console.log("5. Factory.quoteUnitPointInUSDC6(卡):", quoteResult.toString());
+    console.log("6. Factory.quoteUnitPointInUSDC6(卡):", quoteResult.toString());
     if (quoteResult === 0n) {
       console.log("   ❌ 返回 0，购卡会 revert UC_PriceZero()。");
       // 直接调 QuoteHelper(currency=CAD, 1000000)：若返回非 0 说明 Factory 读卡时拿到的是 0
@@ -138,7 +149,7 @@ async function main() {
           qh2.quoteUnitPointInUSDC6(0, 1000000n),
           new Promise<bigint>((_, rej) => setTimeout(() => rej(new Error("timeout")), 8000)),
         ]);
-        console.log("6. QuoteHelper.quoteUnitPointInUSDC6(CAD, 1000000):", direct.toString());
+        console.log("7. QuoteHelper.quoteUnitPointInUSDC6(CAD, 1000000):", direct.toString());
         if (direct !== 0n) {
           console.log("   → 用 (CAD, 1e6) 报价正常，说明 Factory 读卡时 pointsUnitPriceInCurrencyE6 得到的是 0，需由卡 admin 调用 setPointsUnitPrice(1000000) 或检查卡实现与存储布局。");
         } else {
@@ -146,8 +157,8 @@ async function main() {
           console.log("     Factory 传 (0, 1000000) 被读成 price=0 故返回 0。修复：重部署 BeamioQuoteHelperV07（当前参数顺序 cardCurrency, unitPointPriceInCurrencyE6）并在两个 Factory 上 setQuoteHelper(新地址)。");
         }
       } catch (e: any) {
-        if (e?.message === "timeout") console.log("6. QuoteHelper 直接调用超时，已跳过");
-        else console.log("6. QuoteHelper.quoteUnitPointInUSDC6(CAD,1e6):", e?.message || e);
+        if (e?.message === "timeout") console.log("7. QuoteHelper 直接调用超时，已跳过");
+        else console.log("7. QuoteHelper.quoteUnitPointInUSDC6(CAD,1e6):", e?.message || e);
       }
     } else {
       console.log("   ✅ 非 0，链上报价正常");
