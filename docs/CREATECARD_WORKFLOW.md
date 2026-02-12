@@ -56,6 +56,14 @@ npm run set:card-deployer-factory:base
 
 与 `deployments/base-FullAccountAndUserCard.json` 中 `beamioUserCardFactoryPaymaster.address` 一致：`0x73e3b722Eb55C92Fe73DEC01c064a5C677079E03`
 
+### 4. BeamioUserCardArtifact 同步
+
+x402sdk 的 `BeamioUserCardArtifact.json` 用于构建 createCard 的 initCode。若合约修改后未同步，会出现 `missing revert data`。修改 BeamioUserCard.sol 后执行：
+
+```bash
+npm run compile && npm run sync:card-artifact
+```
+
 ## 数据流对照
 
 | 步骤 | createCCSACard (Hardhat) | createCardPoolPress (Server) |
@@ -74,6 +82,7 @@ npm run set:card-deployer-factory:base
 | signer not owner/paymaster | settle_contractAdmin 中某私钥非 factory 登记 owner | 确保 settle_contractAdmin 仅含 factory owner/paymaster 私钥 |
 | UC_GlobalMisconfigured | gateway 无 code | gateway 应为 Factory 地址 |
 | F_BadDeployedCard | 部署后校验失败 | 检查 initCode 参数：uri、gateway、owner、currency、price |
+| missing revert data (artifact 不匹配) | x402sdk 的 BeamioUserCardArtifact 与合约不同步 | 先 `npm run compile`，再 `npm run sync:card-artifact` |
 
 ## 本地验证
 

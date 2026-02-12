@@ -33,6 +33,7 @@
     "set:oracle-cad:base": "hardhat run scripts/setOracleCadRate.ts --network base",
     "check:oracle-quote:base": "hardhat run scripts/checkOracleQuoteHelperChain.ts --network base",
     "check:createcard-deployer:base": "hardhat run scripts/checkCreateCardDeployerConfig.ts --network base",
+    "sync:card-artifact": "cp artifacts/src/BeamioUserCard/BeamioUserCard.sol/BeamioUserCard.json src/x402sdk/src/ABI/BeamioUserCardArtifact.json",
     "deploy:quote-helper-and-set-factories:base": "hardhat run scripts/deployQuoteHelperV07AndSetFactories.ts --network base",
     "verify": "hardhat verify",
     "test": "echo \"Error: no test specified\" && exit 1",
