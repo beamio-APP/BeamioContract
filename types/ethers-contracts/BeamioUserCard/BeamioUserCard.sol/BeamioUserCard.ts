@@ -23,9 +23,9 @@ export declare namespace BeamioUserCard {
     }
 
   export interface BeamioUserCardInterface extends Interface {
-    getFunction(nameOrSignature: "ISSUED_NFT_START_ID" | "NFT_START_ID" | "POINTS_DECIMALS" | "POINTS_ID" | "VERSION" | "_userOwnedNfts" | "activeMembershipId" | "activeTierIndexOrMax" | "addAdmin" | "adminList" | "appendTier" | "approveProposal" | "approveProposalByGateway" | "attributes" | "balanceOf" | "balanceOfBatch" | "buyPointsWith3009Authorization" | "cancelRedeem" | "createProposal" | "createRedeem" | "createRedeemPool" | "currency" | "debugGateway" | "defaultAttrWhenNoTiers" | "deployer" | "expiresAt" | "expirySeconds" | "factoryGateway" | "faucetByGateway" | "faucetClaimed" | "faucetConfig" | "faucetConfigFrozen" | "faucetGlobalMinted" | "faucetPurchaseWith3009AuthorizationByGateway" | "gateway" | "getOwnership" | "getOwnershipByEOA" | "getTierAt" | "getTiersCount" | "isAdmin" | "isApproved" | "isApprovedForAll" | "mintMemberCardByAdmin" | "mintPointsByAdmin" | "openAuthUsed" | "owner" | "pointsUnitPriceInCurrencyE6" | "proposalCount" | "proposals" | "redeemByGateway" | "redeemPoolByGateway" | "renounceOwnership" | "safeBatchTransferFrom" | "safeTransferFrom" | "setApprovalForAll" | "setDefaultAttr" | "setExpirySeconds" | "setFaucetConfig" | "setPointsUnitPrice" | "setTiers" | "setTransferWhitelist" | "setTransferWhitelistEnabled" | "supportsInterface" | "terminateRedeemPool" | "threshold" | "tiers" | "tokenTierIndexOrMax" | "transferOwnership" | "transferWhitelist" | "transferWhitelistEnabled" | "transferWithOpenAuthorizationByGateway" | "uri"): FunctionFragment;
+    getFunction(nameOrSignature: "ISSUED_NFT_START_ID" | "NFT_START_ID" | "POINTS_DECIMALS" | "POINTS_ID" | "VERSION" | "_userOwnedNfts" | "activeMembershipId" | "activeTierIndexOrMax" | "addAdmin" | "adminList" | "appendTier" | "approveProposal" | "approveProposalByGateway" | "attributes" | "balanceOf" | "balanceOfBatch" | "cancelRedeem" | "createProposal" | "createRedeem" | "createRedeemPool" | "currency" | "debugGateway" | "defaultAttrWhenNoTiers" | "deployer" | "expiresAt" | "expirySeconds" | "factoryGateway" | "faucetByGateway" | "faucetClaimed" | "faucetConfig" | "faucetConfigFrozen" | "faucetGlobalMinted" | "gateway" | "getOwnership" | "getOwnershipByEOA" | "getTierAt" | "getTiersCount" | "isAdmin" | "isApproved" | "isApprovedForAll" | "mintFaucetByGateway" | "mintMemberCardByAdmin" | "mintPointsByAdmin" | "mintPointsByGateway" | "owner" | "pointsUnitPriceInCurrencyE6" | "proposalCount" | "proposals" | "redeemByGateway" | "redeemPoolByGateway" | "renounceOwnership" | "safeBatchTransferFrom" | "safeTransferFrom" | "setApprovalForAll" | "setDefaultAttr" | "setExpirySeconds" | "setFaucetConfig" | "setPointsUnitPrice" | "setTiers" | "setTransferWhitelist" | "setTransferWhitelistEnabled" | "supportsInterface" | "terminateRedeemPool" | "threshold" | "tiers" | "tokenTierIndexOrMax" | "transferOwnership" | "transferWhitelist" | "transferWhitelistEnabled" | "uri"): FunctionFragment;
 
-    getEvent(nameOrSignatureOrTopic: "AdminCardMinted" | "AdminPointsMinted" | "ApprovalForAll" | "DefaultAttrUpdated" | "ExpirySecondsUpdated" | "FaucetClaimed" | "FaucetConfigUpdated" | "MemberNFTIssued" | "MemberNFTUpgraded" | "OpenTransferAuthorized" | "OwnershipTransferred" | "PointsPurchasedWithUSDC" | "PointsUnitPriceUpdated" | "ProposalApproved" | "ProposalCreated" | "ProposalExecuted" | "RedeemCancelled" | "RedeemCreated" | "TierAppended" | "TiersUpdated" | "TransferBatch" | "TransferSingle" | "TransferWhitelistEnabledUpdated" | "URI"): EventFragment;
+    getEvent(nameOrSignatureOrTopic: "AdminCardMinted" | "AdminPointsMinted" | "ApprovalForAll" | "DefaultAttrUpdated" | "ExpirySecondsUpdated" | "FaucetClaimed" | "FaucetConfigUpdated" | "MemberNFTIssued" | "MemberNFTUpgraded" | "OwnershipTransferred" | "PointsMintedByGateway" | "PointsPurchasedWithUSDC" | "PointsUnitPriceUpdated" | "ProposalApproved" | "ProposalCreated" | "ProposalExecuted" | "RedeemCancelled" | "RedeemCreated" | "TierAppended" | "TiersUpdated" | "TransferBatch" | "TransferSingle" | "TransferWhitelistEnabledUpdated" | "URI"): EventFragment;
 
     encodeFunctionData(functionFragment: 'ISSUED_NFT_START_ID', values?: undefined): string;
 encodeFunctionData(functionFragment: 'NFT_START_ID', values?: undefined): string;
@@ -43,7 +43,6 @@ encodeFunctionData(functionFragment: 'approveProposalByGateway', values: [BigNum
 encodeFunctionData(functionFragment: 'attributes', values: [BigNumberish]): string;
 encodeFunctionData(functionFragment: 'balanceOf', values: [AddressLike, BigNumberish]): string;
 encodeFunctionData(functionFragment: 'balanceOfBatch', values: [AddressLike[], BigNumberish[]]): string;
-encodeFunctionData(functionFragment: 'buyPointsWith3009Authorization', values: [AddressLike, BigNumberish, BigNumberish, BigNumberish, BytesLike, BytesLike, BigNumberish]): string;
 encodeFunctionData(functionFragment: 'cancelRedeem', values: [string]): string;
 encodeFunctionData(functionFragment: 'createProposal', values: [BytesLike, AddressLike, BigNumberish, BigNumberish, BigNumberish]): string;
 encodeFunctionData(functionFragment: 'createRedeem', values: [BytesLike, BigNumberish, BigNumberish, BigNumberish, BigNumberish, BigNumberish[], BigNumberish[]]): string;
@@ -60,7 +59,6 @@ encodeFunctionData(functionFragment: 'faucetClaimed', values: [BigNumberish, Add
 encodeFunctionData(functionFragment: 'faucetConfig', values: [BigNumberish]): string;
 encodeFunctionData(functionFragment: 'faucetConfigFrozen', values: [BigNumberish]): string;
 encodeFunctionData(functionFragment: 'faucetGlobalMinted', values: [BigNumberish]): string;
-encodeFunctionData(functionFragment: 'faucetPurchaseWith3009AuthorizationByGateway', values: [AddressLike, BigNumberish, BigNumberish, BigNumberish, BigNumberish, BytesLike, BytesLike]): string;
 encodeFunctionData(functionFragment: 'gateway', values?: undefined): string;
 encodeFunctionData(functionFragment: 'getOwnership', values: [AddressLike]): string;
 encodeFunctionData(functionFragment: 'getOwnershipByEOA', values: [AddressLike]): string;
@@ -69,9 +67,10 @@ encodeFunctionData(functionFragment: 'getTiersCount', values?: undefined): strin
 encodeFunctionData(functionFragment: 'isAdmin', values: [AddressLike]): string;
 encodeFunctionData(functionFragment: 'isApproved', values: [BigNumberish, AddressLike]): string;
 encodeFunctionData(functionFragment: 'isApprovedForAll', values: [AddressLike, AddressLike]): string;
+encodeFunctionData(functionFragment: 'mintFaucetByGateway', values: [AddressLike, BigNumberish, BigNumberish]): string;
 encodeFunctionData(functionFragment: 'mintMemberCardByAdmin', values: [AddressLike, BigNumberish]): string;
 encodeFunctionData(functionFragment: 'mintPointsByAdmin', values: [AddressLike, BigNumberish]): string;
-encodeFunctionData(functionFragment: 'openAuthUsed', values: [BytesLike]): string;
+encodeFunctionData(functionFragment: 'mintPointsByGateway', values: [AddressLike, BigNumberish]): string;
 encodeFunctionData(functionFragment: 'owner', values?: undefined): string;
 encodeFunctionData(functionFragment: 'pointsUnitPriceInCurrencyE6', values?: undefined): string;
 encodeFunctionData(functionFragment: 'proposalCount', values?: undefined): string;
@@ -97,7 +96,6 @@ encodeFunctionData(functionFragment: 'tokenTierIndexOrMax', values: [BigNumberis
 encodeFunctionData(functionFragment: 'transferOwnership', values: [AddressLike]): string;
 encodeFunctionData(functionFragment: 'transferWhitelist', values: [AddressLike]): string;
 encodeFunctionData(functionFragment: 'transferWhitelistEnabled', values?: undefined): string;
-encodeFunctionData(functionFragment: 'transferWithOpenAuthorizationByGateway', values: [AddressLike, AddressLike, BigNumberish, BigNumberish, BigNumberish, BigNumberish, BigNumberish, BytesLike, BytesLike]): string;
 encodeFunctionData(functionFragment: 'uri', values: [BigNumberish]): string;
 
     decodeFunctionResult(functionFragment: 'ISSUED_NFT_START_ID', data: BytesLike): Result;
@@ -116,7 +114,6 @@ decodeFunctionResult(functionFragment: 'approveProposalByGateway', data: BytesLi
 decodeFunctionResult(functionFragment: 'attributes', data: BytesLike): Result;
 decodeFunctionResult(functionFragment: 'balanceOf', data: BytesLike): Result;
 decodeFunctionResult(functionFragment: 'balanceOfBatch', data: BytesLike): Result;
-decodeFunctionResult(functionFragment: 'buyPointsWith3009Authorization', data: BytesLike): Result;
 decodeFunctionResult(functionFragment: 'cancelRedeem', data: BytesLike): Result;
 decodeFunctionResult(functionFragment: 'createProposal', data: BytesLike): Result;
 decodeFunctionResult(functionFragment: 'createRedeem', data: BytesLike): Result;
@@ -133,7 +130,6 @@ decodeFunctionResult(functionFragment: 'faucetClaimed', data: BytesLike): Result
 decodeFunctionResult(functionFragment: 'faucetConfig', data: BytesLike): Result;
 decodeFunctionResult(functionFragment: 'faucetConfigFrozen', data: BytesLike): Result;
 decodeFunctionResult(functionFragment: 'faucetGlobalMinted', data: BytesLike): Result;
-decodeFunctionResult(functionFragment: 'faucetPurchaseWith3009AuthorizationByGateway', data: BytesLike): Result;
 decodeFunctionResult(functionFragment: 'gateway', data: BytesLike): Result;
 decodeFunctionResult(functionFragment: 'getOwnership', data: BytesLike): Result;
 decodeFunctionResult(functionFragment: 'getOwnershipByEOA', data: BytesLike): Result;
@@ -142,9 +138,10 @@ decodeFunctionResult(functionFragment: 'getTiersCount', data: BytesLike): Result
 decodeFunctionResult(functionFragment: 'isAdmin', data: BytesLike): Result;
 decodeFunctionResult(functionFragment: 'isApproved', data: BytesLike): Result;
 decodeFunctionResult(functionFragment: 'isApprovedForAll', data: BytesLike): Result;
+decodeFunctionResult(functionFragment: 'mintFaucetByGateway', data: BytesLike): Result;
 decodeFunctionResult(functionFragment: 'mintMemberCardByAdmin', data: BytesLike): Result;
 decodeFunctionResult(functionFragment: 'mintPointsByAdmin', data: BytesLike): Result;
-decodeFunctionResult(functionFragment: 'openAuthUsed', data: BytesLike): Result;
+decodeFunctionResult(functionFragment: 'mintPointsByGateway', data: BytesLike): Result;
 decodeFunctionResult(functionFragment: 'owner', data: BytesLike): Result;
 decodeFunctionResult(functionFragment: 'pointsUnitPriceInCurrencyE6', data: BytesLike): Result;
 decodeFunctionResult(functionFragment: 'proposalCount', data: BytesLike): Result;
@@ -170,7 +167,6 @@ decodeFunctionResult(functionFragment: 'tokenTierIndexOrMax', data: BytesLike): 
 decodeFunctionResult(functionFragment: 'transferOwnership', data: BytesLike): Result;
 decodeFunctionResult(functionFragment: 'transferWhitelist', data: BytesLike): Result;
 decodeFunctionResult(functionFragment: 'transferWhitelistEnabled', data: BytesLike): Result;
-decodeFunctionResult(functionFragment: 'transferWithOpenAuthorizationByGateway', data: BytesLike): Result;
 decodeFunctionResult(functionFragment: 'uri', data: BytesLike): Result;
   }
 
@@ -283,10 +279,10 @@ decodeFunctionResult(functionFragment: 'uri', data: BytesLike): Result;
 
   
 
-    export namespace OpenTransferAuthorizedEvent {
-      export type InputTuple = [fromEOA: AddressLike, fromAccount: AddressLike, id: BigNumberish, amount: BigNumberish, maxAmount: BigNumberish, nonce: BytesLike, toAccount: AddressLike];
-      export type OutputTuple = [fromEOA: string, fromAccount: string, id: bigint, amount: bigint, maxAmount: bigint, nonce: string, toAccount: string];
-      export interface OutputObject {fromEOA: string, fromAccount: string, id: bigint, amount: bigint, maxAmount: bigint, nonce: string, toAccount: string };
+    export namespace OwnershipTransferredEvent {
+      export type InputTuple = [previousOwner: AddressLike, newOwner: AddressLike];
+      export type OutputTuple = [previousOwner: string, newOwner: string];
+      export interface OutputObject {previousOwner: string, newOwner: string };
       export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>
       export type Filter = TypedDeferredTopicFilter<Event>
       export type Log = TypedEventLog<Event>
@@ -295,10 +291,10 @@ decodeFunctionResult(functionFragment: 'uri', data: BytesLike): Result;
 
   
 
-    export namespace OwnershipTransferredEvent {
-      export type InputTuple = [previousOwner: AddressLike, newOwner: AddressLike];
-      export type OutputTuple = [previousOwner: string, newOwner: string];
-      export interface OutputObject {previousOwner: string, newOwner: string };
+    export namespace PointsMintedByGatewayEvent {
+      export type InputTuple = [userEOA: AddressLike, acct: AddressLike, points6: BigNumberish];
+      export type OutputTuple = [userEOA: string, acct: string, points6: bigint];
+      export interface OutputObject {userEOA: string, acct: string, points6: bigint };
       export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>
       export type Filter = TypedDeferredTopicFilter<Event>
       export type Log = TypedEventLog<Event>
@@ -625,14 +621,6 @@ decodeFunctionResult(functionFragment: 'uri', data: BytesLike): Result;
     
 
     
-    buyPointsWith3009Authorization: TypedContractMethod<
-      [fromEOA: AddressLike, usdcAmount6: BigNumberish, validAfter: BigNumberish, validBefore: BigNumberish, nonce: BytesLike, signature: BytesLike, minPointsOut6: BigNumberish, ],
-      [bigint],
-      'nonpayable'
-    >
-    
-
-    
     cancelRedeem: TypedContractMethod<
       [code: string, ],
       [void],
@@ -761,14 +749,6 @@ decodeFunctionResult(functionFragment: 'uri', data: BytesLike): Result;
     
 
     
-    faucetPurchaseWith3009AuthorizationByGateway: TypedContractMethod<
-      [userEOA: AddressLike, id: BigNumberish, amount6: BigNumberish, validAfter: BigNumberish, validBefore: BigNumberish, nonce: BytesLike, signature: BytesLike, ],
-      [void],
-      'nonpayable'
-    >
-    
-
-    
     gateway: TypedContractMethod<
       [],
       [string],
@@ -833,6 +813,14 @@ decodeFunctionResult(functionFragment: 'uri', data: BytesLike): Result;
     
 
     
+    mintFaucetByGateway: TypedContractMethod<
+      [userEOA: AddressLike, id: BigNumberish, amount6: BigNumberish, ],
+      [void],
+      'nonpayable'
+    >
+    
+
+    
     mintMemberCardByAdmin: TypedContractMethod<
       [user: AddressLike, tierIndex: BigNumberish, ],
       [void],
@@ -849,10 +837,10 @@ decodeFunctionResult(functionFragment: 'uri', data: BytesLike): Result;
     
 
     
-    openAuthUsed: TypedContractMethod<
-      [arg0: BytesLike, ],
-      [boolean],
-      'view'
+    mintPointsByGateway: TypedContractMethod<
+      [userEOA: AddressLike, points6: BigNumberish, ],
+      [void],
+      'nonpayable'
     >
     
 
@@ -1057,14 +1045,6 @@ decodeFunctionResult(functionFragment: 'uri', data: BytesLike): Result;
     
 
     
-    transferWithOpenAuthorizationByGateway: TypedContractMethod<
-      [fromEOA: AddressLike, toEOA: AddressLike, id: BigNumberish, amount: BigNumberish, maxAmount: BigNumberish, validAfter: BigNumberish, validBefore: BigNumberish, nonce: BytesLike, sig: BytesLike, ],
-      [void],
-      'nonpayable'
-    >
-    
-
-    
     uri: TypedContractMethod<
       [arg0: BigNumberish, ],
       [string],
@@ -1155,11 +1135,6 @@ getFunction(nameOrSignature: 'balanceOfBatch'): TypedContractMethod<
       [bigint[]],
       'view'
     >;
-getFunction(nameOrSignature: 'buyPointsWith3009Authorization'): TypedContractMethod<
-      [fromEOA: AddressLike, usdcAmount6: BigNumberish, validAfter: BigNumberish, validBefore: BigNumberish, nonce: BytesLike, signature: BytesLike, minPointsOut6: BigNumberish, ],
-      [bigint],
-      'nonpayable'
-    >;
 getFunction(nameOrSignature: 'cancelRedeem'): TypedContractMethod<
       [code: string, ],
       [void],
@@ -1240,11 +1215,6 @@ getFunction(nameOrSignature: 'faucetGlobalMinted'): TypedContractMethod<
       [bigint],
       'view'
     >;
-getFunction(nameOrSignature: 'faucetPurchaseWith3009AuthorizationByGateway'): TypedContractMethod<
-      [userEOA: AddressLike, id: BigNumberish, amount6: BigNumberish, validAfter: BigNumberish, validBefore: BigNumberish, nonce: BytesLike, signature: BytesLike, ],
-      [void],
-      'nonpayable'
-    >;
 getFunction(nameOrSignature: 'gateway'): TypedContractMethod<
       [],
       [string],
@@ -1285,6 +1255,11 @@ getFunction(nameOrSignature: 'isApprovedForAll'): TypedContractMethod<
       [boolean],
       'view'
     >;
+getFunction(nameOrSignature: 'mintFaucetByGateway'): TypedContractMethod<
+      [userEOA: AddressLike, id: BigNumberish, amount6: BigNumberish, ],
+      [void],
+      'nonpayable'
+    >;
 getFunction(nameOrSignature: 'mintMemberCardByAdmin'): TypedContractMethod<
       [user: AddressLike, tierIndex: BigNumberish, ],
       [void],
@@ -1295,10 +1270,10 @@ getFunction(nameOrSignature: 'mintPointsByAdmin'): TypedContractMethod<
       [void],
       'nonpayable'
     >;
-getFunction(nameOrSignature: 'openAuthUsed'): TypedContractMethod<
-      [arg0: BytesLike, ],
-      [boolean],
-      'view'
+getFunction(nameOrSignature: 'mintPointsByGateway'): TypedContractMethod<
+      [userEOA: AddressLike, points6: BigNumberish, ],
+      [void],
+      'nonpayable'
     >;
 getFunction(nameOrSignature: 'owner'): TypedContractMethod<
       [],
@@ -1425,11 +1400,6 @@ getFunction(nameOrSignature: 'transferWhitelistEnabled'): TypedContractMethod<
       [boolean],
       'view'
     >;
-getFunction(nameOrSignature: 'transferWithOpenAuthorizationByGateway'): TypedContractMethod<
-      [fromEOA: AddressLike, toEOA: AddressLike, id: BigNumberish, amount: BigNumberish, maxAmount: BigNumberish, validAfter: BigNumberish, validBefore: BigNumberish, nonce: BytesLike, sig: BytesLike, ],
-      [void],
-      'nonpayable'
-    >;
 getFunction(nameOrSignature: 'uri'): TypedContractMethod<
       [arg0: BigNumberish, ],
       [string],
@@ -1445,8 +1415,8 @@ getEvent(key: 'FaucetClaimed'): TypedContractEvent<FaucetClaimedEvent.InputTuple
 getEvent(key: 'FaucetConfigUpdated'): TypedContractEvent<FaucetConfigUpdatedEvent.InputTuple, FaucetConfigUpdatedEvent.OutputTuple, FaucetConfigUpdatedEvent.OutputObject>;
 getEvent(key: 'MemberNFTIssued'): TypedContractEvent<MemberNFTIssuedEvent.InputTuple, MemberNFTIssuedEvent.OutputTuple, MemberNFTIssuedEvent.OutputObject>;
 getEvent(key: 'MemberNFTUpgraded'): TypedContractEvent<MemberNFTUpgradedEvent.InputTuple, MemberNFTUpgradedEvent.OutputTuple, MemberNFTUpgradedEvent.OutputObject>;
-getEvent(key: 'OpenTransferAuthorized'): TypedContractEvent<OpenTransferAuthorizedEvent.InputTuple, OpenTransferAuthorizedEvent.OutputTuple, OpenTransferAuthorizedEvent.OutputObject>;
 getEvent(key: 'OwnershipTransferred'): TypedContractEvent<OwnershipTransferredEvent.InputTuple, OwnershipTransferredEvent.OutputTuple, OwnershipTransferredEvent.OutputObject>;
+getEvent(key: 'PointsMintedByGateway'): TypedContractEvent<PointsMintedByGatewayEvent.InputTuple, PointsMintedByGatewayEvent.OutputTuple, PointsMintedByGatewayEvent.OutputObject>;
 getEvent(key: 'PointsPurchasedWithUSDC'): TypedContractEvent<PointsPurchasedWithUSDCEvent.InputTuple, PointsPurchasedWithUSDCEvent.OutputTuple, PointsPurchasedWithUSDCEvent.OutputObject>;
 getEvent(key: 'PointsUnitPriceUpdated'): TypedContractEvent<PointsUnitPriceUpdatedEvent.InputTuple, PointsUnitPriceUpdatedEvent.OutputTuple, PointsUnitPriceUpdatedEvent.OutputObject>;
 getEvent(key: 'ProposalApproved'): TypedContractEvent<ProposalApprovedEvent.InputTuple, ProposalApprovedEvent.OutputTuple, ProposalApprovedEvent.OutputObject>;
@@ -1499,12 +1469,12 @@ getEvent(key: 'URI'): TypedContractEvent<URIEvent.InputTuple, URIEvent.OutputTup
       MemberNFTUpgraded: TypedContractEvent<MemberNFTUpgradedEvent.InputTuple, MemberNFTUpgradedEvent.OutputTuple, MemberNFTUpgradedEvent.OutputObject>;
     
 
-      'OpenTransferAuthorized(address,address,uint256,uint256,uint256,bytes32,address)': TypedContractEvent<OpenTransferAuthorizedEvent.InputTuple, OpenTransferAuthorizedEvent.OutputTuple, OpenTransferAuthorizedEvent.OutputObject>;
-      OpenTransferAuthorized: TypedContractEvent<OpenTransferAuthorizedEvent.InputTuple, OpenTransferAuthorizedEvent.OutputTuple, OpenTransferAuthorizedEvent.OutputObject>;
-    
-
       'OwnershipTransferred(address,address)': TypedContractEvent<OwnershipTransferredEvent.InputTuple, OwnershipTransferredEvent.OutputTuple, OwnershipTransferredEvent.OutputObject>;
       OwnershipTransferred: TypedContractEvent<OwnershipTransferredEvent.InputTuple, OwnershipTransferredEvent.OutputTuple, OwnershipTransferredEvent.OutputObject>;
+    
+
+      'PointsMintedByGateway(address,address,uint256)': TypedContractEvent<PointsMintedByGatewayEvent.InputTuple, PointsMintedByGatewayEvent.OutputTuple, PointsMintedByGatewayEvent.OutputObject>;
+      PointsMintedByGateway: TypedContractEvent<PointsMintedByGatewayEvent.InputTuple, PointsMintedByGatewayEvent.OutputTuple, PointsMintedByGatewayEvent.OutputObject>;
     
 
       'PointsPurchasedWithUSDC(address,address,address,uint256,uint256,uint256,bytes32)': TypedContractEvent<PointsPurchasedWithUSDCEvent.InputTuple, PointsPurchasedWithUSDCEvent.OutputTuple, PointsPurchasedWithUSDCEvent.OutputObject>;

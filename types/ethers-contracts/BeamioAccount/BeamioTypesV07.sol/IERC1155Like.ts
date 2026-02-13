@@ -6,14 +6,16 @@ import type { TypedContractEvent, TypedDeferredTopicFilter, TypedEventLog, Typed
   
 
   export interface IERC1155LikeInterface extends Interface {
-    getFunction(nameOrSignature: "safeBatchTransferFrom" | "safeTransferFrom"): FunctionFragment;
+    getFunction(nameOrSignature: "balanceOf" | "safeBatchTransferFrom" | "safeTransferFrom"): FunctionFragment;
 
     
 
-    encodeFunctionData(functionFragment: 'safeBatchTransferFrom', values: [AddressLike, AddressLike, BigNumberish[], BigNumberish[], BytesLike]): string;
+    encodeFunctionData(functionFragment: 'balanceOf', values: [AddressLike, BigNumberish]): string;
+encodeFunctionData(functionFragment: 'safeBatchTransferFrom', values: [AddressLike, AddressLike, BigNumberish[], BigNumberish[], BytesLike]): string;
 encodeFunctionData(functionFragment: 'safeTransferFrom', values: [AddressLike, AddressLike, BigNumberish, BigNumberish, BytesLike]): string;
 
-    decodeFunctionResult(functionFragment: 'safeBatchTransferFrom', data: BytesLike): Result;
+    decodeFunctionResult(functionFragment: 'balanceOf', data: BytesLike): Result;
+decodeFunctionResult(functionFragment: 'safeBatchTransferFrom', data: BytesLike): Result;
 decodeFunctionResult(functionFragment: 'safeTransferFrom', data: BytesLike): Result;
   }
 
@@ -53,6 +55,14 @@ decodeFunctionResult(functionFragment: 'safeTransferFrom', data: BytesLike): Res
 
     
     
+    balanceOf: TypedContractMethod<
+      [account: AddressLike, id: BigNumberish, ],
+      [bigint],
+      'view'
+    >
+    
+
+    
     safeBatchTransferFrom: TypedContractMethod<
       [from: AddressLike, to: AddressLike, ids: BigNumberish[], amounts: BigNumberish[], data: BytesLike, ],
       [void],
@@ -71,7 +81,12 @@ decodeFunctionResult(functionFragment: 'safeTransferFrom', data: BytesLike): Res
 
     getFunction<T extends ContractMethod = ContractMethod>(key: string | FunctionFragment): T;
 
-    getFunction(nameOrSignature: 'safeBatchTransferFrom'): TypedContractMethod<
+    getFunction(nameOrSignature: 'balanceOf'): TypedContractMethod<
+      [account: AddressLike, id: BigNumberish, ],
+      [bigint],
+      'view'
+    >;
+getFunction(nameOrSignature: 'safeBatchTransferFrom'): TypedContractMethod<
       [from: AddressLike, to: AddressLike, ids: BigNumberish[], amounts: BigNumberish[], data: BytesLike, ],
       [void],
       'nonpayable'

@@ -2,4 +2,6 @@
 /* tslint:disable */
 /* eslint-disable */
 export { BeamioQuoteHelperV07__factory } from './BeamioQuoteHelperV07__factory.js';
+export { BeamioQuoteHelperV073__factory } from './BeamioQuoteHelperV073__factory.js';
 export { IBeamioOracle__factory } from './IBeamioOracle__factory.js';
+export { IBeamioOracle3__factory } from './IBeamioOracle3__factory.js';

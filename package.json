@@ -39,7 +39,9 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "redeploy:aa-factory:base": "hardhat run scripts/redeployAAFactoryAndUpdateConfig.ts --network base",
     "set:card-factory-aa:base": "hardhat run scripts/setCardFactoryAAFactory.ts --network base",
-    "update:card-and-aa-admins:base": "hardhat run scripts/updateCardFactoryAndRegisterAAAdmins.ts --network base"
+    "update:card-and-aa-admins:base": "hardhat run scripts/updateCardFactoryAndRegisterAAAdmins.ts --network base",
+    "deploy:indexer-diamond:conet": "hardhat run scripts/deployCoNETIndexerDiamond.ts --network conet",
+    "add:indexer-diamond-admins:conet": "hardhat run scripts/addSettleAdminsToBeamioIndexerDiamond.ts --network conet"
   },
   "dependencies": {
     "colors": "^1.4.0",

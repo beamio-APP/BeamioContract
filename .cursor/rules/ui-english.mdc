@@ -1,0 +1,14 @@
+---
+description: All UI text must be displayed in English
+globs: src/SilentPassUI/**/*.{tsx,ts}
+alwaysApply: false
+---
+
+# UI Language: English Only
+
+All user-facing UI text in this project must be in **English**.
+
+- Labels, buttons, placeholders, hints, error messages, toast content
+- Any string shown to end users in the SilentPassUI app
+
+Do not use Chinese or other languages for UI display. Use English for all visible text.

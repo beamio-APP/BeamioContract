@@ -2,7 +2,12 @@
 /* tslint:disable */
 /* eslint-disable */
 export { BeamioERC1155Logic__factory } from './BeamioERC1155Logic__factory.js';
+export { BeamioERC1155Logic3__factory } from './BeamioERC1155Logic3__factory.js';
 export { IBeamioAccountFactoryV07__factory } from './IBeamioAccountFactoryV07__factory.js';
+export { IBeamioAccountFactoryV073__factory } from './IBeamioAccountFactoryV073__factory.js';
 export { IBeamioFactoryOracle__factory } from './IBeamioFactoryOracle__factory.js';
+export { IBeamioFactoryOracle3__factory } from './IBeamioFactoryOracle3__factory.js';
 export { IERC3009BytesSig__factory } from './IERC3009BytesSig__factory.js';
+export { IERC3009BytesSig3__factory } from './IERC3009BytesSig3__factory.js';
 export { IRedeemModule__factory } from './IRedeemModule__factory.js';
+export { IRedeemModule3__factory } from './IRedeemModule3__factory.js';

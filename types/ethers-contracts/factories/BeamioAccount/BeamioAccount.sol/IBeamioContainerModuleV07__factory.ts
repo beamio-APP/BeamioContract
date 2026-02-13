@@ -9,9 +9,9 @@
   {
     "inputs": [
       {
-        "internalType": "bytes32",
-        "name": "passwordHash",
-        "type": "bytes32"
+        "internalType": "string",
+        "name": "code",
+        "type": "string"
       }
     ],
     "name": "cancelFaucetPool",
@@ -22,9 +22,9 @@
   {
     "inputs": [
       {
-        "internalType": "bytes32",
-        "name": "passwordHash",
-        "type": "bytes32"
+        "internalType": "string",
+        "name": "code",
+        "type": "string"
       }
     ],
     "name": "cancelRedeem",
@@ -337,6 +337,29 @@
         "type": "uint256"
       }
     ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "dest",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "value",
+        "type": "uint256"
+      },
+      {
+        "internalType": "bytes",
+        "name": "func",
+        "type": "bytes"
+      }
+    ],
+    "name": "preExecuteCheck",
+    "outputs": [],
     "stateMutability": "view",
     "type": "function"
   },

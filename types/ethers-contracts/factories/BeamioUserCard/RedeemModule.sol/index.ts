@@ -2,4 +2,6 @@
 /* tslint:disable */
 /* eslint-disable */
 export { BeamioUserCardRedeemModuleVNext__factory } from './BeamioUserCardRedeemModuleVNext__factory.js';
+export { BeamioUserCardRedeemModuleVNext2__factory } from './BeamioUserCardRedeemModuleVNext2__factory.js';
 export { IUserCardCtx__factory } from './IUserCardCtx__factory.js';
+export { IUserCardCtx2__factory } from './IUserCardCtx2__factory.js';

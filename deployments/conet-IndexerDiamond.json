@@ -1,0 +1,17 @@
+{
+  "network": "conet",
+  "chainId": "224400",
+  "deployer": "0x87cAeD4e51C36a2C2ece3Aaf4ddaC9693d2405E1",
+  "timestamp": "2026-02-13T00:47:15.601Z",
+  "diamond": "0x43b25Da1d5516E98D569C1848b84d74B4b8cA6ad",
+  "facets": {
+    "DiamondCutFacet": "0xC97CEbb4DF827cB2D1453A9Df7FEf6dADa1C16Ad",
+    "DiamondLoupeFacet": "0xf75aa30AB10Dbd9c7808409988B57f3a8F526437",
+    "OwnershipFacet": "0xbE1CF54f76BcAb40DC49cDcD7FBA525b9ABDa264",
+    "TaskFacet": "0x2768ab9f3D98C900a5a38D26A0D40fc19DE02b9C",
+    "StatsFacet": "0x8C91cb04707c7E5C80f90634a778bd23C1bA1392",
+    "CatalogFacet": "0x543F0d39Fc2C7308558D2419790A0856fA499423",
+    "ActionFacet": "0x730c1232f15D70C0ebb6B8be23d607baFCed076D",
+    "AdminFacet": "0x540767C2a183871deb22333a271D5e65bF489F22"
+  }
+}

@@ -1,8 +1,23 @@
 import { defineConfig } from "hardhat/config"
 import hardhatToolboxMochaEthers from "@nomicfoundation/hardhat-toolbox-mocha-ethers"
 import * as dotenv from "dotenv"
+import * as fs from "fs"
+import * as path from "path"
+import { homedir } from "os"
 
 dotenv.config()
+
+function getConetAccounts(): string[] {
+  const setupPath = path.join(homedir(), ".master.json")
+  if (!fs.existsSync(setupPath)) return []
+  try {
+    const master = JSON.parse(fs.readFileSync(setupPath, "utf-8"))
+    const key = master?.settle_contractAdmin?.[0]
+    return key ? [key.startsWith("0x") ? key : "0x" + key] : []
+  } catch {
+    return []
+  }
+}
 
 export default defineConfig({
   plugins: [hardhatToolboxMochaEthers],
@@ -35,6 +50,13 @@ export default defineConfig({
       url: process.env.BASE_SEPOLIA_RPC_URL || "https://sepolia.base.org",
       accounts: process.env.PRIVATE_KEY ? [process.env.PRIVATE_KEY] : [],
       chainId: 84532
+    },
+    conet: {
+      type: "http",
+      chainType: "l1",
+      url: "https://mainnet-rpc1.conet.network",
+      accounts: getConetAccounts(),
+      chainId: 224400
     }
   },
   etherscan: {

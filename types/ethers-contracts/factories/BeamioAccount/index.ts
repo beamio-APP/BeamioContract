@@ -3,6 +3,6 @@
 /* eslint-disable */
 export * as beamioAccountSol from './BeamioAccount.sol/index.js';
 export * as beamioContainerModuleV07Sol from './BeamioContainerModuleV07.sol/index.js';
+export * as beamioFactoryPaymasterV07Sol from './BeamioFactoryPaymasterV07.sol/index.js';
 export * as beamioTypesV07Sol from './BeamioTypesV07.sol/index.js';
 export { BeamioAccountDeployer__factory } from './BeamioAccountDeployer__factory.js';
-export { BeamioFactoryPaymasterV07__factory } from './BeamioFactoryPaymasterV07__factory.js';
