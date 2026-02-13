@@ -68,7 +68,7 @@ interface IBeamioContainerModuleV07 {
 		uint64 expiry
 	) external;
 
-	function cancelRedeem(bytes32 passwordHash) external;
+	function cancelRedeem(string calldata code) external;
 
 	function redeem(
 		string calldata password,
@@ -83,7 +83,7 @@ interface IBeamioContainerModuleV07 {
 		ContainerItem[] calldata items
 	) external;
 
-	function cancelFaucetPool(bytes32 passwordHash) external;
+	function cancelFaucetPool(string calldata code) external;
 
 	function faucetRedeemPool(
 		string calldata password,
@@ -95,6 +95,9 @@ interface IBeamioContainerModuleV07 {
 	// nonces views (stored in module-layout)
 	function relayedNonce() external view returns (uint256);
 	function openRelayedNonce() external view returns (uint256);
+
+	// reserve gate: 在 execute 前校验，防止 owner 通过 AA 路径转出被 lock 的资产
+	function preExecuteCheck(address dest, uint256 value, bytes calldata func) external view;
 }
 
 contract BeamioAccount is ERC1155Holder, IAccountV07, IERC1271 {
@@ -297,8 +300,14 @@ contract BeamioAccount is ERC1155Holder, IAccountV07, IERC1271 {
 	// =========================================================
 	function execute(address dest, uint256 value, bytes calldata func) external onlyEntryPoint {
 		if (dest == address(0)) revert ZeroAddress();
-		(bool ok, ) = dest.call{value: value}(func);
-		if (!ok) revert NotAuthorized();
+		_delegate(abi.encodeWithSelector(
+			IBeamioContainerModuleV07.preExecuteCheck.selector,
+			dest, value, func
+		));
+		(bool ok, bytes memory ret) = dest.call{value: value}(func);
+		if (!ok) {
+			assembly { revert(add(ret, 0x20), mload(ret)) }
+		}
 	}
 
 	function executeBatch(
@@ -311,8 +320,14 @@ contract BeamioAccount is ERC1155Holder, IAccountV07, IERC1271 {
 
 		for (uint256 i = 0; i < n; i++) {
 			if (dest[i] == address(0)) revert ZeroAddress();
-			(bool ok, ) = dest[i].call{value: value[i]}(func[i]);
-			if (!ok) revert NotAuthorized();
+			_delegate(abi.encodeWithSelector(
+				IBeamioContainerModuleV07.preExecuteCheck.selector,
+				dest[i], value[i], func[i]
+			));
+			(bool ok, bytes memory ret) = dest[i].call{value: value[i]}(func[i]);
+			if (!ok) {
+				assembly { revert(add(ret, 0x20), mload(ret)) }
+			}
 		}
 	}
 
@@ -398,6 +413,11 @@ contract BeamioAccount is ERC1155Holder, IAccountV07, IERC1271 {
 		return abi.decode(out, (bool, string));
 	}
 
+	/// @notice Factory 代付 gas 时调用，执行 owner 签名的 module calldata（createRedeem、cancelRedeem、createFaucetPool、cancelFaucetPool 等）
+	function executeFromFactory(bytes calldata data) external onlyFactory {
+		_delegate(data);
+	}
+
 	// --- redeem single-use password ---
 	function createRedeem(bytes32 passwordHash, address to, IBeamioContainerModuleV07.ContainerItem[] calldata items, uint64 expiry)
 		external
@@ -409,10 +429,10 @@ contract BeamioAccount is ERC1155Holder, IAccountV07, IERC1271 {
 		));
 	}
 
-	function cancelRedeem(bytes32 passwordHash) external onlyOwnerDirect {
+	function cancelRedeem(string calldata code) external onlyOwnerDirect {
 		_delegate(abi.encodeWithSelector(
 			IBeamioContainerModuleV07.cancelRedeem.selector,
-			passwordHash
+			code
 		));
 	}
 
@@ -434,10 +454,10 @@ contract BeamioAccount is ERC1155Holder, IAccountV07, IERC1271 {
 		));
 	}
 
-	function cancelFaucetPool(bytes32 passwordHash) external onlyOwnerDirect {
+	function cancelFaucetPool(string calldata code) external onlyOwnerDirect {
 		_delegate(abi.encodeWithSelector(
 			IBeamioContainerModuleV07.cancelFaucetPool.selector,
-			passwordHash
+			code
 		));
 	}
 

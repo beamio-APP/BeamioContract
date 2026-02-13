@@ -20,8 +20,17 @@ async function main() {
   let userCardAddress: string;
   let eoa: string;
   let factoryFromFile: string | undefined;
-  
-  if (fs.existsSync(deploymentFile)) {
+
+  // 环境变量优先（便于检查任意用户创建的卡）
+  if (process.env.USER_CARD_ADDRESS && process.env.TARGET_EOA) {
+    userCardAddress = process.env.USER_CARD_ADDRESS;
+    eoa = process.env.TARGET_EOA;
+    factoryFromFile = process.env.USER_CARD_FACTORY_ADDRESS;
+    console.log("从环境变量读取:");
+    console.log("  UserCard:", userCardAddress);
+    console.log("  EOA:", eoa);
+    if (factoryFromFile) console.log("  Factory:", factoryFromFile);
+  } else if (fs.existsSync(deploymentFile)) {
     const deploymentData = JSON.parse(fs.readFileSync(deploymentFile, "utf-8"));
     userCardAddress = deploymentData.userCard;
     eoa = deploymentData.eoa;
@@ -31,13 +40,7 @@ async function main() {
     console.log("  EOA:", eoa);
     if (factoryFromFile) console.log("  Factory:", factoryFromFile);
   } else {
-    // 如果没有部署记录，使用环境变量或命令行参数
-    userCardAddress = process.env.USER_CARD_ADDRESS || "";
-    eoa = process.env.TARGET_EOA || "";
-    
-    if (!userCardAddress) {
-      throw new Error("未找到 UserCard 地址，请设置 USER_CARD_ADDRESS 环境变量");
-    }
+    throw new Error("请设置 USER_CARD_ADDRESS 与 TARGET_EOA 环境变量，或确保 deployments/base-UserCard-*.json 存在");
   }
   
   console.log("\n" + "=".repeat(60));

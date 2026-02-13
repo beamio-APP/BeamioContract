@@ -10,6 +10,8 @@ pragma solidity ^0.8.20;
 import "./BeamioTypesV07.sol";
 import "./BeamioAccountDeployer.sol";
 import "./BeamioAccount.sol"; // provides IBeamioAccountFactoryConfigV2
+import "../contracts/utils/cryptography/ECDSA.sol";
+import "../contracts/utils/cryptography/MessageHashUtils.sol";
 
 contract BeamioFactoryPaymasterV07 is IPaymasterV07, IBeamioAccountFactoryConfigV2 {
 	IEntryPointV07 public constant ENTRY_POINT =
@@ -31,11 +33,21 @@ contract BeamioFactoryPaymasterV07 is IPaymasterV07, IBeamioAccountFactoryConfig
 
 	uint256 public accountLimit;
 
+	// Owner-signed execute: nonce replay protection（通用 executeForOwner）
+	mapping(bytes32 => bool) public usedOwnerExecuteNonces;
+
+	// Redeemer/claimer-signed execute: nonce replay protection（redeem / faucetRedeemPool）
+	mapping(bytes32 => bool) public usedRedeemerExecuteNonces;
+
 	// ========= GLOBAL module/config =========
 	address public override containerModule;
 	address public override quoteHelper;
 	address public override beamioUserCard;
 	address public override USDC;
+
+	// ========= errors =========
+	error RedeemerSignerMismatch(address signer, address expected);
+	error RedeemerToMustEqualClaimer();
 
 	// ========= events =========
 	event AccountCreated(address indexed creator, address indexed account, uint256 index, bytes32 salt);
@@ -94,7 +106,25 @@ contract BeamioFactoryPaymasterV07 is IPaymasterV07, IBeamioAccountFactoryConfig
 		emit QuoteHelperUpdated(address(0), quoteHelper_);
 		emit UserCardUpdated(address(0), userCard_);
 		emit USDCUpdated(address(0), usdc_);
+
+		DOMAIN_SEPARATOR = keccak256(abi.encode(
+			keccak256("EIP712Domain(string name,string version,uint256 chainId,address verifyingContract)"),
+			keccak256(bytes("BeamioAccountFactory")),
+			keccak256(bytes("1")),
+			block.chainid,
+			address(this)
+		));
 	}
+
+	bytes32 public constant EXECUTE_FOR_OWNER_TYPEHASH = keccak256(
+		"ExecuteForOwner(address account,bytes32 dataHash,uint256 deadline,bytes32 nonce)"
+	);
+
+	bytes32 public constant EXECUTE_FOR_REDEEMER_TYPEHASH = keccak256(
+		"ExecuteForRedeemer(address account,bytes32 dataHash,uint256 deadline,bytes32 nonce)"
+	);
+
+	bytes32 public immutable DOMAIN_SEPARATOR;
 
 	// =========================================================
 	// Admin ops
@@ -356,9 +386,9 @@ contract BeamioFactoryPaymasterV07 is IPaymasterV07, IBeamioAccountFactoryConfig
 		BeamioAccount(payable(account)).createRedeem(passwordHash, to, items, expiry);
 	}
 
-	function relayCancelRedeem(address account, bytes32 passwordHash) external onlyPayMaster {
+	function relayCancelRedeem(address account, string calldata code) external onlyPayMaster {
 		require(isBeamioAccount[account], "not beamio account");
-		BeamioAccount(payable(account)).cancelRedeem(passwordHash);
+		BeamioAccount(payable(account)).cancelRedeem(code);
 	}
 
 	function relayRedeem(address account, string calldata password, address to) external onlyPayMaster {
@@ -378,9 +408,9 @@ contract BeamioFactoryPaymasterV07 is IPaymasterV07, IBeamioAccountFactoryConfig
 		BeamioAccount(payable(account)).createFaucetPool(passwordHash, totalCount, expiry, items);
 	}
 
-	function relayCancelFaucetPool(address account, bytes32 passwordHash) external onlyPayMaster {
+	function relayCancelFaucetPool(address account, string calldata code) external onlyPayMaster {
 		require(isBeamioAccount[account], "not beamio account");
-		BeamioAccount(payable(account)).cancelFaucetPool(passwordHash);
+		BeamioAccount(payable(account)).cancelFaucetPool(code);
 	}
 
 	function relayFaucetRedeemPool(
@@ -392,6 +422,95 @@ contract BeamioFactoryPaymasterV07 is IPaymasterV07, IBeamioAccountFactoryConfig
 	) external onlyPayMaster {
 		require(isBeamioAccount[account], "not beamio account");
 		BeamioAccount(payable(account)).faucetRedeemPool(password, claimer, to, items);
+	}
+
+	/// @notice 通用：owner 离线签名授权对 account 的 Container module 任意调用，由 paymaster 代付 gas。支持 createRedeem、cancelRedeem、createFaucetPool、cancelFaucetPool 等。
+	function executeForOwner(
+		address account,
+		bytes calldata data,
+		uint256 deadline,
+		bytes32 nonce,
+		bytes calldata ownerSignature
+	) external onlyPayMaster {
+		require(isBeamioAccount[account], "not beamio account");
+		require(account != address(0) && account.code.length > 0, "bad account");
+		require(data.length > 0, "empty data");
+		require(block.timestamp <= deadline, "expired");
+
+		address accountOwner = BeamioAccount(payable(account)).owner();
+
+		bytes32 structHash = keccak256(abi.encode(
+			EXECUTE_FOR_OWNER_TYPEHASH,
+			account,
+			keccak256(data),
+			deadline,
+			nonce
+		));
+		bytes32 digest = MessageHashUtils.toTypedDataHash(DOMAIN_SEPARATOR, structHash);
+		address signer = ECDSA.recover(digest, ownerSignature);
+		require(signer == accountOwner, "signer not owner");
+
+		bytes32 nonceKey = keccak256(abi.encode(account, nonce));
+		require(!usedOwnerExecuteNonces[nonceKey], "nonce used");
+		usedOwnerExecuteNonces[nonceKey] = true;
+
+		BeamioAccount(payable(account)).executeFromFactory(data);
+	}
+
+	/// @notice redeemer/claimer 离线签名授权执行 redeem 或 faucetRedeemPool，由 paymaster 代付 gas。发起人签名后由后端调用此入口。
+	function executeForRedeemer(
+		address account,
+		bytes calldata data,
+		uint256 deadline,
+		bytes32 nonce,
+		bytes calldata redeemerSignature
+	) external onlyPayMaster {
+		require(isBeamioAccount[account], "not beamio account");
+		require(account != address(0) && account.code.length > 0, "bad account");
+		require(data.length >= 4, "empty data");
+		require(block.timestamp <= deadline, "expired");
+
+		bytes4 selector;
+		assembly {
+			selector := calldataload(data.offset)
+		}
+		require(
+			selector == IBeamioContainerModuleV07.redeem.selector ||
+			selector == IBeamioContainerModuleV07.faucetRedeemPool.selector,
+			"invalid selector"
+		);
+
+		bytes32 structHash = keccak256(abi.encode(
+			EXECUTE_FOR_REDEEMER_TYPEHASH,
+			account,
+			keccak256(data),
+			deadline,
+			nonce
+		));
+		bytes32 digest = MessageHashUtils.toTypedDataHash(DOMAIN_SEPARATOR, structHash);
+		address signer = ECDSA.recover(digest, redeemerSignature);
+		require(signer != address(0), "invalid sig");
+
+		address expectedSigner;
+		if (selector == IBeamioContainerModuleV07.redeem.selector) {
+			(, address to) = abi.decode(data[4:], (string, address));
+			expectedSigner = to;
+		} else {
+			// faucetRedeemPool(string, address claimer, address to, ContainerItem[])
+			(, address claimer, address to,) = abi.decode(
+				data[4:],
+				(string, address, address, IBeamioContainerModuleV07.ContainerItem[])
+			);
+			expectedSigner = claimer;
+			if (to != claimer) revert RedeemerToMustEqualClaimer(); // 禁止代领到第三方
+		}
+		if (signer != expectedSigner) revert RedeemerSignerMismatch(signer, expectedSigner);
+
+		bytes32 nonceKey = keccak256(abi.encode(bytes32(uint256(1)), account, nonce));
+		require(!usedRedeemerExecuteNonces[nonceKey], "nonce used");
+		usedRedeemerExecuteNonces[nonceKey] = true;
+
+		BeamioAccount(payable(account)).executeFromFactory(data);
 	}
 
 	receive() external payable {}

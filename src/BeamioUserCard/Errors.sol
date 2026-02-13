@@ -21,6 +21,7 @@ error UC_UnauthorizedGateway();
 error UC_AmountZero();
 error UC_InvalidProposal();
 error UC_NonceUsed();
+error UC_PoolAlreadyClaimed(bytes32 poolHash, address user);
 
 error DEP_NotOwner();
 error DEP_InvalidFactory();
@@ -72,11 +73,9 @@ error GX_SecretUsed();
 /**
 UC_ResolveAccountFailed 里把 aaFactory/acct 带出来，外部就能判断是 “aaFactory 配错 / account 未部署 / mapping 不存在”。
 UC_InsufficientBalance 能直接告诉你余额差多少。
-UC_OpenAuthAlreadyUsed 让你能直接定位 nonce 重放。
  */
 error UC_InvalidTokenId(uint256 got, uint256 expected);
 error UC_InvalidSignature(address recovered, address expected);
 error UC_InvalidTimeWindow(uint256 nowTs, uint256 validAfter, uint256 validBefore);
-error UC_OpenAuthAlreadyUsed(bytes32 key);
 error UC_ResolveAccountFailed(address eoa, address aaFactory, address acct);
 error UC_InsufficientBalance(address fromAccount, uint256 id, uint256 have, uint256 need);

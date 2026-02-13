@@ -51,7 +51,7 @@ const DIAMOND = BeamioTaskIndexerAddress
 const providerBase = new ethers.JsonRpcProvider(masterSetup.base_endpoint)
 const providerBaseBackup = new ethers.JsonRpcProvider('https://1rpc.io/base')
 const providerBaseBackup1 = new ethers.JsonRpcProvider(masterSetup.base_endpoint)
-const conetEndpoint = 'https://mainnet-rpc.conet.network'
+const conetEndpoint = 'https://mainnet-rpc1.conet.network'
 const providerConet = new ethers.JsonRpcProvider(conetEndpoint)
 let Settle_ContractPool: {
 	baseFactoryPaymaster: ethers.Contract

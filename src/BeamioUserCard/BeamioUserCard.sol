@@ -8,13 +8,11 @@ import "./Errors.sol";
 import "../contracts/token/ERC1155/ERC1155.sol";
 import "../contracts/access/Ownable.sol";
 import "../contracts/utils/ReentrancyGuard.sol";
-import "../contracts/utils/cryptography/ECDSA.sol";
-import "../contracts/utils/cryptography/MessageHashUtils.sol";
 
 /* =========================
    Interfaces
    ========================= */
-// 注意：IERC3009BytesSig, IBeamioFactoryOracle, IBeamioAccountFactoryV07 已在 BeamioERC1155Logic.sol 中定义
+// 注意：IBeamioFactoryOracle, IBeamioAccountFactoryV07 已在 BeamioERC1155Logic.sol 中定义（资金流已移至 Factory）
 
 interface IBeamioGatewayAAFactoryGetter {
     function _aaFactory() external view returns (address);
@@ -62,30 +60,12 @@ interface IBeamioRedeemModuleVNext {
 
 
 
-/* =========================
-   OpenAuth
-   ========================= */
-
-struct OpenAuthParams {
-    address fromEOA;
-    address toEOA;
-    uint256 id;
-    uint256 amount;
-    uint256 maxAmount;
-    uint256 validAfter;
-    uint256 validBefore;
-    bytes32 nonce;
-}
-
-//	https://api.beamio.io/api/metadata
-
 /* =========================================================
    BeamioUserCard
    ========================================================= */
 
 contract BeamioUserCard is ERC1155, Ownable, ReentrancyGuard {
     using BeamioCurrency for *;
-    using ECDSA for bytes32;
 
     // ===== Versioning =====
     uint256 public constant VERSION = 10;
@@ -161,7 +141,8 @@ contract BeamioUserCard is ERC1155, Ownable, ReentrancyGuard {
         emit TransferWhitelistEnabledUpdated(enabled);
     }
 
-    function setTransferWhitelistEnabled(bool enabled) external onlyAdmin {
+    function setTransferWhitelistEnabled(bool enabled) external {
+        _requireOwnerOrGateway();
         _setTransferWhitelistEnabled(enabled);
     }
 
@@ -209,6 +190,7 @@ contract BeamioUserCard is ERC1155, Ownable, ReentrancyGuard {
 
     event AdminCardMinted(address indexed beneficiaryAccount, uint256 indexed tokenId, uint256 attr, uint256 expiry);
     event AdminPointsMinted(address indexed beneficiaryAccount, uint256 points6);
+    event PointsMintedByGateway(address indexed userEOA, address indexed acct, uint256 points6);
 
     // ===== Faucet data =====
     struct FaucetConfig {
@@ -233,19 +215,6 @@ contract BeamioUserCard is ERC1155, Ownable, ReentrancyGuard {
 
     // ===== current index =====
     uint256 private _currentIndex = NFT_START_ID;
-
-    // ===== Open authorization (points transfer) =====
-    mapping(bytes32 => bool) public openAuthUsed;
-
-    event OpenTransferAuthorized(
-        address indexed fromEOA,
-        address indexed fromAccount,
-        uint256 indexed id,
-        uint256 amount,
-        uint256 maxAmount,
-        bytes32 nonce,
-        address toAccount
-    );
 
     // ===== Redeem Events (emitted by card; module also emits its own) =====
     event RedeemCreated(bytes32 indexed hash, uint256 points6, uint256 attr);
@@ -279,12 +248,14 @@ contract BeamioUserCard is ERC1155, Ownable, ReentrancyGuard {
     // ==========================================================
     // Tiers
     // ==========================================================
-    function setDefaultAttr(uint256 attr) external onlyAdmin {
+    function setDefaultAttr(uint256 attr) external {
+        _requireOwnerOrGateway();
         emit DefaultAttrUpdated(defaultAttrWhenNoTiers);
         defaultAttrWhenNoTiers = attr;
     }
 
-    function appendTier(uint256 minUsdc6, uint256 attr) external onlyAdmin {
+    function appendTier(uint256 minUsdc6, uint256 attr) external {
+        _requireOwnerOrGateway();
         if (minUsdc6 == 0) revert UC_TierMinZero();
         if (tiers.length > 0) {
             Tier memory last = tiers[tiers.length - 1];
@@ -296,7 +267,8 @@ contract BeamioUserCard is ERC1155, Ownable, ReentrancyGuard {
         emit TierAppended(idx, minUsdc6, attr);
     }
 
-    function setTiers(Tier[] calldata newTiers) external onlyAdmin {
+    function setTiers(Tier[] calldata newTiers) external {
+        _requireOwnerOrGateway();
         if (newTiers.length == 0) revert UC_TierLenMismatch();
 
         uint256 prev = type(uint256).max;
@@ -318,13 +290,15 @@ contract BeamioUserCard is ERC1155, Ownable, ReentrancyGuard {
     // ==========================================================
     // Pricing
     // ==========================================================
-    function setPointsUnitPrice(uint256 priceInCurrencyE6) external onlyAdmin {
+    function setPointsUnitPrice(uint256 priceInCurrencyE6) external {
+        _requireOwnerOrGateway();
         if (priceInCurrencyE6 == 0) revert UC_PriceZero();
         pointsUnitPriceInCurrencyE6 = priceInCurrencyE6;
         emit PointsUnitPriceUpdated(priceInCurrencyE6);
     }
 
-    function setExpirySeconds(uint256 secs) external onlyAdmin {
+    function setExpirySeconds(uint256 secs) external {
+        _requireOwnerOrGateway();
         emit ExpirySecondsUpdated(expirySeconds, secs);
         expirySeconds = secs;
     }
@@ -404,18 +378,8 @@ contract BeamioUserCard is ERC1155, Ownable, ReentrancyGuard {
         emit FaucetClaimed(id, userEOA, acct, amount, faucetClaimed[id][userEOA]);
     }
 
-    // ==========================================================
-    // Faucet (paid) via ERC-3009
-    // ==========================================================
-    function faucetPurchaseWith3009AuthorizationByGateway(
-        address userEOA,
-        uint256 id,
-        uint256 amount6,
-        uint256 validAfter,
-        uint256 validBefore,
-        bytes32 nonce,
-        bytes calldata signature
-    ) external onlyAuthorizedGateway nonReentrant {
+    /// @notice Gateway mint for paid faucet；资金流由 FactoryPaymaster.purchaseFaucetForUser 处理
+    function mintFaucetByGateway(address userEOA, uint256 id, uint256 amount6) external onlyAuthorizedGateway nonReentrant {
         if (userEOA == address(0)) revert BM_ZeroAddress();
         if (amount6 == 0) revert UC_AmountZero();
 
@@ -429,18 +393,13 @@ contract BeamioUserCard is ERC1155, Ownable, ReentrancyGuard {
         if (faucetClaimed[id][userEOA] + amount6 > cfg.maxPerUser) revert UC_FaucetMaxExceeded();
         if (faucetGlobalMinted[id] + amount6 > cfg.maxGlobal) revert UC_FaucetGlobalMaxExceeded();
 
-        uint256 usdcAmount6 = IBeamioFactoryOracle(factoryGateway()).quoteCurrencyAmountInUSDC6(
-            cfg.currency,
-            (uint256(cfg.priceInCurrency6) * amount6) / POINTS_ONE
-        );
-
-        _executeUSDC3009Transfer(userEOA, usdcAmount6, validAfter, validBefore, nonce, signature);
-
         faucetClaimed[id][userEOA] += amount6;
         faucetGlobalMinted[id] += amount6;
 
         address acct = _toAccount(userEOA);
         _mint(acct, id, amount6, "");
+
+        emit FaucetClaimed(id, userEOA, acct, amount6, faucetClaimed[id][userEOA]);
     }
 
     // ==========================================================
@@ -607,154 +566,25 @@ contract BeamioUserCard is ERC1155, Ownable, ReentrancyGuard {
     }
 
     // ==========================================================
-    // Open authorization transfer (points only)
+    // Gateway mint (no fund flow; used by FactoryPaymaster after USDC collected)
     // ==========================================================
-    function _openAuthKey(address fromEOA, uint256 id, bytes32 nonce) internal pure returns (bytes32) {
-        return keccak256(abi.encodePacked(fromEOA, id, nonce));
-    }
+    /// @notice Gateway 代付 gas 为用户铸 points；资金流由 FactoryPaymaster 处理
+    function mintPointsByGateway(address userEOA, uint256 points6) external onlyAuthorizedGateway nonReentrant {
+        if (userEOA == address(0)) revert BM_ZeroAddress();
+        if (points6 == 0) revert UC_AmountZero();
 
-    function transferWithOpenAuthorizationByGateway(
-        address fromEOA,
-        address toEOA,
-        uint256 id,
-        uint256 amount,
-        uint256 maxAmount,
-        uint256 validAfter,
-        uint256 validBefore,
-        bytes32 nonce,
-        bytes calldata sig
-    ) external onlyAuthorizedGateway nonReentrant {
-        OpenAuthParams memory p = OpenAuthParams({
-            fromEOA: fromEOA,
-            toEOA: toEOA,
-            id: id,
-            amount: amount,
-            maxAmount: maxAmount,
-            validAfter: validAfter,
-            validBefore: validBefore,
-            nonce: nonce
-        });
+        address acct = _toAccount(userEOA);
+        _mint(acct, POINTS_ID, points6, "");
+        _maybeIssueOnlyIfNoneOrExpiredByPointsDelta(acct, points6);
 
-        _transferWithOpenAuth(p, sig);
-    }
-
-    function _transferWithOpenAuth(OpenAuthParams memory p, bytes calldata sig) internal {
-        if (p.fromEOA == address(0) || p.toEOA == address(0)) revert BM_ZeroAddress();
-        if (p.maxAmount == 0) revert UC_AmountZero();
-        if (p.amount == 0 || p.amount > p.maxAmount) revert UC_AmountZero();
-        if (p.id != POINTS_ID) revert UC_InvalidTokenId(p.id, POINTS_ID);
-
-        bytes32 h = MessageHashUtils.toEthSignedMessageHash(
-            keccak256(
-                abi.encode(
-                    "OpenTransfer",
-                    factoryGateway(),
-                    address(this),
-                    block.chainid,
-                    p.fromEOA,
-                    p.id,
-                    p.maxAmount,
-                    p.validAfter,
-                    p.validBefore,
-                    p.nonce
-                )
-            )
-        );
-
-        address recovered = ECDSA.recover(h, sig);
-        if (recovered != p.fromEOA) revert UC_InvalidSignature(recovered, p.fromEOA);
-
-        uint256 nowTs = block.timestamp;
-        if (nowTs < p.validAfter || nowTs > p.validBefore) {
-            revert UC_InvalidTimeWindow(nowTs, p.validAfter, p.validBefore);
-        }
-
-        bytes32 k = _openAuthKey(p.fromEOA, p.id, p.nonce);
-        if (openAuthUsed[k]) revert UC_OpenAuthAlreadyUsed(k);
-        openAuthUsed[k] = true;
-
-        address fromAccount = _resolveAccount(p.fromEOA);
-        address toAccount = _resolveAccount(p.toEOA);
-
-        uint256 bal = balanceOf(fromAccount, p.id);
-        if (bal < p.amount) revert UC_InsufficientBalance(fromAccount, p.id, bal, p.amount);
-
-        _safeTransferFrom(fromAccount, toAccount, p.id, p.amount, "");
-
-        emit OpenTransferAuthorized(p.fromEOA, fromAccount, p.id, p.amount, p.maxAmount, p.nonce, toAccount);
-    }
-
-    // ==========================================================
-    // Buy points with ERC-3009
-    // ==========================================================
-    function buyPointsWith3009Authorization(
-        address fromEOA,
-        uint256 usdcAmount6,
-        uint256 validAfter,
-        uint256 validBefore,
-        bytes32 nonce,
-        bytes calldata signature,
-        uint256 minPointsOut6
-    ) external nonReentrant returns (uint256 pointsOut6) {
-        if (fromEOA == address(0)) revert BM_ZeroAddress();
-        if (usdcAmount6 == 0) revert UC_AmountZero();
-
-        address acct = _toAccount(fromEOA);
-
-        uint256 unitPriceUsdc6 = IBeamioFactoryOracle(factoryGateway()).quoteUnitPointInUSDC6(address(this));
-        if (unitPriceUsdc6 == 0) revert UC_PriceZero();
-
-        pointsOut6 = (usdcAmount6 * POINTS_ONE) / unitPriceUsdc6;
-        if (pointsOut6 == 0) revert UC_PointsZero();
-        if (pointsOut6 < minPointsOut6) revert UC_Slippage();
-
-        _syncActiveToBestValid(acct);
-        bool hasValidCard = _syncAndHasValidCard(acct);
-
-        if (!hasValidCard && tiers.length > 0) {
-            uint256 minReqPoints6 = tiers[tiers.length - 1].minUsdc6;
-            if (pointsOut6 < minReqPoints6) revert UC_BelowMinThreshold();
-        }
-
-        _executeUSDC3009Transfer(fromEOA, usdcAmount6, validAfter, validBefore, nonce, signature);
-        _mint(acct, POINTS_ID, pointsOut6, "");
-
-        if (!hasValidCard) _issueCardByPointsDelta_AssumingNoValidCard(acct, pointsOut6);
-
-        emit PointsPurchasedWithUSDC(
-            fromEOA,
-            acct,
-            IBeamioFactoryOracle(factoryGateway()).USDC(),
-            usdcAmount6,
-            pointsOut6,
-            unitPriceUsdc6,
-            nonce
-        );
-
-        return pointsOut6;
-    }
-
-    function _executeUSDC3009Transfer(
-        address fromEOA,
-        uint256 val,
-        uint256 afterTs,
-        uint256 beforeTs,
-        bytes32 nonce,
-        bytes calldata sig
-    ) internal {
-        address usdc = IBeamioFactoryOracle(factoryGateway()).USDC();
-        if (usdc == address(0)) revert BM_ZeroAddress();
-
-        address merchant = owner();
-        if (merchant == address(0)) revert BM_ZeroAddress();
-
-        IERC3009BytesSig(usdc).transferWithAuthorization(fromEOA, merchant, val, afterTs, beforeTs, nonce, sig);
+        emit PointsMintedByGateway(userEOA, acct, points6);
     }
 
     // ==========================================================
     // Admin minting
     // ==========================================================
-    function mintPointsByAdmin(address user, uint256 points6) external onlyAdmin nonReentrant {
+    function mintPointsByAdmin(address user, uint256 points6) external nonReentrant {
+        _requireOwnerOrGateway();
         if (user == address(0)) revert BM_ZeroAddress();
         if (points6 == 0) revert UC_AmountZero();
 
@@ -775,12 +605,10 @@ contract BeamioUserCard is ERC1155, Ownable, ReentrancyGuard {
         threshold = newThreshold;
     }
 
-    function addAdmin(address newAdmin, uint256 newThreshold) public onlyAdmin {
+    function addAdmin(address newAdmin, uint256 newThreshold) public {
+        _requireOwnerOrGateway();
         _addAdmin(newAdmin, newThreshold);
     }
-
-    // bytes4(keccak256("setTransferWhitelistEnabled(bool)"))
-    bytes4 private constant SEL_SET_WL_ENABLED = bytes4(keccak256("setTransferWhitelistEnabled(bool)"));
 
     function _execute(uint256 id) internal {
         Proposal storage p = proposals[id];
@@ -793,10 +621,8 @@ contract BeamioUserCard is ERC1155, Ownable, ReentrancyGuard {
             _mint(p.target, POINTS_ID, p.v1, "");
         } else if (p.selector == bytes4(keccak256("mintMemberCard(address,uint256)"))) {
             _mintMemberCardInternal(p.target, p.v2);
-        } else if (p.selector == bytes4(keccak256("setTransferWhitelist(address,bool)"))) {
-            _setTransferWhitelist(p.target, p.v1 == 1);
-        } else if (p.selector == SEL_SET_WL_ENABLED) {
-            _setTransferWhitelistEnabled(p.v1 == 1);
+        } else {
+            revert UC_InvalidProposal();
         }
 
         emit ProposalExecuted(id);
@@ -815,8 +641,7 @@ contract BeamioUserCard is ERC1155, Ownable, ReentrancyGuard {
         return id;
     }
 
-    function approveProposalByGateway(uint256 id, address adminSigner) external {
-        if (msg.sender != factoryGateway()) revert UC_UnauthorizedGateway();
+    function approveProposalByGateway(uint256 id, address adminSigner) external onlyAuthorizedGateway {
         if (!isAdmin[adminSigner]) revert UC_NotAdmin();
         _approve(id, adminSigner);
     }
@@ -841,11 +666,13 @@ contract BeamioUserCard is ERC1155, Ownable, ReentrancyGuard {
         transferWhitelist[target] = allowed;
     }
 
-    function setTransferWhitelist(address target, bool allowed) external onlyAdmin {
+    function setTransferWhitelist(address target, bool allowed) external {
+        _requireOwnerOrGateway();
         _setTransferWhitelist(target, allowed);
     }
 
-    function mintMemberCardByAdmin(address user, uint256 tierIndex) external onlyAdmin nonReentrant {
+    function mintMemberCardByAdmin(address user, uint256 tierIndex) external nonReentrant {
+        _requireOwnerOrGateway();
         _mintMemberCardInternal(user, tierIndex);
     }
 
@@ -890,17 +717,15 @@ contract BeamioUserCard is ERC1155, Ownable, ReentrancyGuard {
             }
 
             if (id == POINTS_ID && isRealTransfer) {
+                // 模式1：白名单开启 -> 限制 to
                 if (transferWhitelistEnabled) {
+                    // transferWhitelist[address(0)] == true 表示"白名单全开放"（你原本的语义）
                     if (!transferWhitelist[address(0)]) {
                         if (!transferWhitelist[to]) revert UC_PointsToNotWhitelisted();
                     }
                 }
 
-                address f = IBeamioFactoryOracle(factoryGateway()).aaFactory();
-                if (f == address(0)) revert UC_GlobalMisconfigured();
-
-                if (!IBeamioAccountFactoryV07(f).isBeamioAccount(to)) revert UC_NoBeamioAccount();
-                if (to.code.length == 0) revert UC_NoBeamioAccount();
+                // 模式2：白名单关闭 -> 完全不限制（允许 EOA / 任意合约）
             }
         }
 

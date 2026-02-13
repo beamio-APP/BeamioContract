@@ -5,7 +5,7 @@ import type { BaseContract, BigNumberish, BytesLike, FunctionFragment, Result, I
 import type { TypedContractEvent, TypedDeferredTopicFilter, TypedEventLog, TypedLogDescription, TypedListener, TypedContractMethod } from "../../common.js"
   
 
-  export interface BeamioUserCardFactoryPaymasterV07Interface extends Interface {
+  export interface BeamioUserCardFactoryPaymasterV072Interface extends Interface {
     getFunction(nameOrSignature: "DOMAIN_SEPARATOR" | "EXECUTE_FOR_OWNER_TYPEHASH" | "USDC" | "USDC_TOKEN" | "_aaFactory" | "aaFactory" | "beamioUserCardOwner" | "cardsOfOwner" | "changePaymasterStatus" | "createCardCollectionWithInitCode" | "defaultRedeemModule" | "deployer" | "executeForOwner" | "isBeamioUserCard" | "isCardOfOwner" | "isPaymaster" | "isTokenIdIssued" | "issueTokenId" | "latestCardOfOwner" | "nextFungibleId" | "nextNftId" | "owner" | "quoteCurrencyAmountInUSDC6" | "quoteHelper" | "quoteUnitPointInUSDC6" | "redeemForUser" | "redeemPoolForUser" | "registerExistingCard" | "setAAFactory" | "setDeployer" | "setQuoteHelper" | "setRedeemModule" | "tokenIdIssued" | "transferOwner" | "usedOwnerExecuteNonces"): FunctionFragment;
 
     getEvent(nameOrSignatureOrTopic: "AAFactoryChanged" | "CardDeployed" | "CardRegistered" | "DefaultRedeemModuleUpdated" | "DeployerChanged" | "OwnerChanged" | "PaymasterStatusChanged" | "QuoteHelperChanged" | "RedeemExecuted" | "TokenIdIssued"): EventFragment;
@@ -204,12 +204,12 @@ decodeFunctionResult(functionFragment: 'usedOwnerExecuteNonces', data: BytesLike
 
   
 
-  export interface BeamioUserCardFactoryPaymasterV07 extends BaseContract {
+  export interface BeamioUserCardFactoryPaymasterV072 extends BaseContract {
     
-    connect(runner?: ContractRunner | null): BeamioUserCardFactoryPaymasterV07;
+    connect(runner?: ContractRunner | null): BeamioUserCardFactoryPaymasterV072;
     waitForDeployment(): Promise<this>;
 
-    interface: BeamioUserCardFactoryPaymasterV07Interface;
+    interface: BeamioUserCardFactoryPaymasterV072Interface;
 
     
   queryFilter<TCEvent extends TypedContractEvent>(

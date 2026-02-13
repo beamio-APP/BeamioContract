@@ -3,7 +3,10 @@ pragma solidity ^0.8.20;
 
 import "./BeamioUserCard.sol";
 import "./BeamioCurrency.sol";
+import "./BeamioERC1155Logic.sol";
 import "./Errors.sol";
+import "../contracts/utils/cryptography/ECDSA.sol";
+import "../contracts/utils/cryptography/MessageHashUtils.sol";
 
 /* =========================
    Quote helper
@@ -54,6 +57,9 @@ contract BeamioUserCardFactoryPaymasterV07 is IBeamioFactoryOracle {
     mapping(address => mapping(address => bool)) public isCardOfOwner;
     mapping(address => address) public beamioUserCardOwner;
 
+    // Owner-signed execute: nonce replay protection（通用 executeForOwner）
+    mapping(bytes32 => bool) public usedOwnerExecuteNonces;
+
     event OwnerChanged(address indexed oldOwner, address indexed newOwner);
     event PaymasterStatusChanged(address indexed account, bool allowed);
 
@@ -66,6 +72,14 @@ contract BeamioUserCardFactoryPaymasterV07 is IBeamioFactoryOracle {
     event CardRegistered(address indexed cardOwner, address indexed card);
     event RedeemExecuted(address indexed card, address indexed user, bytes32 redeemHash);
     event TokenIdIssued(address indexed card, uint256 indexed id, bool isNft);
+    event PointsPurchasedForUser(
+        address indexed card,
+        address indexed fromEOA,
+        address indexed cardOwner,
+        uint256 usdcAmount6,
+        uint256 pointsOut6,
+        bytes32 nonce
+    );
 
     modifier onlyOwner() {
         if (msg.sender != owner) revert BM_NotAuthorized();
@@ -107,6 +121,14 @@ contract BeamioUserCardFactoryPaymasterV07 is IBeamioFactoryOracle {
         // no magic numbers: align with BeamioERC1155Logic constants
         nextFungibleId = 1;
         nextNftId = BeamioERC1155Logic.NFT_START_ID;
+
+        DOMAIN_SEPARATOR = keccak256(abi.encode(
+            keccak256("EIP712Domain(string name,string version,uint256 chainId,address verifyingContract)"),
+            keccak256(bytes("BeamioUserCardFactory")),
+            keccak256(bytes("1")),
+            block.chainid,
+            address(this)
+        ));
     }
 
     // ===== IBeamioFactoryOracle =====
@@ -254,5 +276,132 @@ contract BeamioUserCardFactoryPaymasterV07 is IBeamioFactoryOracle {
 
         BeamioUserCard(cardAddr).redeemPoolByGateway(code, userEOA);
         emit RedeemExecuted(cardAddr, userEOA, keccak256(bytes(code)));
+    }
+
+    // ==========================================================
+    // Buy points for user (USDC ERC-3009 -> merchant, then mint points)
+    // 资金流集中入口：用户 USDC 直接到 merchant，gas 由 paymaster 代付
+    // ==========================================================
+    uint256 private constant POINTS_ONE = 1e6;
+
+    function buyPointsForUser(
+        address cardAddr,
+        address fromEOA,
+        uint256 usdcAmount6,
+        uint256 validAfter,
+        uint256 validBefore,
+        bytes32 nonce,
+        bytes calldata signature,
+        uint256 minPointsOut6
+    ) external onlyPaymaster returns (uint256 pointsOut6) {
+        if (fromEOA == address(0)) revert BM_ZeroAddress();
+        if (cardAddr == address(0) || cardAddr.code.length == 0) revert BM_ZeroAddress();
+        if (BeamioUserCard(cardAddr).factoryGateway() != address(this)) revert BM_NotAuthorized();
+        if (usdcAmount6 == 0) revert UC_AmountZero();
+
+        address cardOwner = BeamioUserCard(cardAddr).owner();
+        if (cardOwner == address(0)) revert BM_ZeroAddress();
+
+        uint256 unitPriceUsdc6 = this.quoteUnitPointInUSDC6(cardAddr);
+        if (unitPriceUsdc6 == 0) revert UC_PriceZero();
+
+        pointsOut6 = (usdcAmount6 * POINTS_ONE) / unitPriceUsdc6;
+        if (pointsOut6 == 0) revert UC_PointsZero();
+        if (pointsOut6 < minPointsOut6) revert UC_Slippage();
+
+        // 1) USDC: fromEOA -> cardOwner (merchant)，资金不经过 paymaster/card
+        IERC3009BytesSig(USDC_TOKEN).transferWithAuthorization(
+            fromEOA, cardOwner, usdcAmount6, validAfter, validBefore, nonce, signature
+        );
+
+        // 2) Card: mint points to user's AA account
+        BeamioUserCard(cardAddr).mintPointsByGateway(fromEOA, pointsOut6);
+
+        emit PointsPurchasedForUser(cardAddr, fromEOA, cardOwner, usdcAmount6, pointsOut6, nonce);
+        return pointsOut6;
+    }
+
+    // ==========================================================
+    // Purchase paid faucet for user (USDC ERC-3009 -> merchant, then mint faucet tokens)
+    // ==========================================================
+    function purchaseFaucetForUser(
+        address cardAddr,
+        address userEOA,
+        uint256 id,
+        uint256 amount6,
+        uint256 validAfter,
+        uint256 validBefore,
+        bytes32 nonce,
+        bytes calldata signature
+    ) external onlyPaymaster {
+        if (userEOA == address(0)) revert BM_ZeroAddress();
+        if (cardAddr == address(0) || cardAddr.code.length == 0) revert BM_ZeroAddress();
+        if (BeamioUserCard(cardAddr).factoryGateway() != address(this)) revert BM_NotAuthorized();
+        if (amount6 == 0) revert UC_AmountZero();
+
+        BeamioUserCard card = BeamioUserCard(cardAddr);
+        address cardOwner = card.owner();
+        if (cardOwner == address(0)) revert BM_ZeroAddress();
+
+        (,,,, bool enabled, uint8 currency,, uint128 priceInCurrency6) = card.faucetConfig(id);
+        if (!enabled) revert UC_FaucetNotEnabled();
+        if (priceInCurrency6 == 0) revert UC_PurchaseDisabledBecauseFree();
+
+        uint256 amountInCurrency6 = (uint256(priceInCurrency6) * amount6) / POINTS_ONE;
+        uint256 usdcAmount6 = this.quoteCurrencyAmountInUSDC6(currency, amountInCurrency6);
+
+        // 1) USDC: userEOA -> cardOwner (merchant)
+        IERC3009BytesSig(USDC_TOKEN).transferWithAuthorization(
+            userEOA, cardOwner, usdcAmount6, validAfter, validBefore, nonce, signature
+        );
+
+        // 2) Card: mint faucet tokens to user's AA account
+        card.mintFaucetByGateway(userEOA, id, amount6);
+    }
+
+    bytes32 public constant EXECUTE_FOR_OWNER_TYPEHASH = keccak256(
+        "ExecuteForOwner(address cardAddress,bytes32 dataHash,uint256 deadline,bytes32 nonce)"
+    );
+
+    bytes32 public immutable DOMAIN_SEPARATOR;
+
+    /// @notice 通用：Owner 离线签名授权对 card 的任意调用，由 paymaster 代付 gas 执行。支持 createRedeem、cancelRedeem 等。
+    /// @param data abi.encodeWithSelector(selector, ...args)，如 createRedeem(hash, points6, ...)
+    function executeForOwner(
+        address cardAddr,
+        bytes calldata data,
+        uint256 deadline,
+        bytes32 nonce,
+        bytes calldata ownerSignature
+    ) external onlyPaymaster {
+        if (cardAddr == address(0) || cardAddr.code.length == 0) revert BM_ZeroAddress();
+        if (data.length == 0) revert F_InvalidRedeemHash();
+        if (block.timestamp > deadline) revert UC_InvalidTimeWindow(block.timestamp, 0, deadline);
+        if (BeamioUserCard(cardAddr).factoryGateway() != address(this)) revert BM_NotAuthorized();
+
+        address cardOwner = BeamioUserCard(cardAddr).owner();
+
+        bytes32 structHash = keccak256(abi.encode(
+            EXECUTE_FOR_OWNER_TYPEHASH,
+            cardAddr,
+            keccak256(data),
+            deadline,
+            nonce
+        ));
+        bytes32 digest = MessageHashUtils.toTypedDataHash(DOMAIN_SEPARATOR, structHash);
+        address signer = ECDSA.recover(digest, ownerSignature);
+        if (signer != cardOwner) revert UC_InvalidSignature(signer, cardOwner);
+
+        bytes32 nonceKey = keccak256(abi.encode(cardAddr, nonce));
+        if (usedOwnerExecuteNonces[nonceKey]) revert UC_NonceUsed();
+        usedOwnerExecuteNonces[nonceKey] = true;
+
+        (bool ok, bytes memory revertData) = cardAddr.call(data);
+        if (!ok) {
+            if (revertData.length > 0) {
+                assembly { revert(add(revertData, 32), mload(revertData)) }
+            }
+            revert BM_CallFailed();
+        }
     }
 }

@@ -46,7 +46,7 @@ library RedeemStorage {
         mapping(bytes32 => Redeem) redeems;
 
         mapping(bytes32 => RedeemPool) pools;
-        mapping(bytes32 => mapping(address => bool)) claimed;
+        mapping(bytes32 => mapping(address => bool)) poolClaimed;  // poolHash => user => claimed，每轮新 password 即新 poolHash
     }
 
     function layout() internal pure returns (Layout storage l) {
@@ -275,9 +275,9 @@ contract BeamioUserCardRedeemModuleVNext {
         if (!p.active) revert UC_InvalidProposal();
         if (!_timeOk(p.validAfter, p.validBefore)) revert UC_InvalidTimeWindow(block.timestamp, p.validAfter, p.validBefore);
         if (p.totalRemaining == 0) revert UC_InvalidProposal();
-        if (l.claimed[poolHash][user]) revert UC_NonceUsed();
+        if (l.poolClaimed[poolHash][user]) revert UC_PoolAlreadyClaimed(poolHash, user);
 
-        l.claimed[poolHash][user] = true;
+        l.poolClaimed[poolHash][user] = true;
 
         uint256 m = p.containers.length;
         uint256 idx = p.cursor;

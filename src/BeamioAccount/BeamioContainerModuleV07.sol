@@ -76,7 +76,7 @@ library BeamioContainerStorageV07 {
 
 		mapping(bytes32 => Redeem) redeems; // passwordHash => Redeem
 		mapping(bytes32 => Pool) pools;     // passwordHash => Pool
-		mapping(bytes32 => mapping(address => bool)) poolClaimed; // passwordHash => claimer => claimed
+		mapping(bytes32 => mapping(address => bool)) poolClaimed; // passwordHash => to(recipient) => claimed，每个 to 仅可领取一次
 	}
 
 	function layout() internal pure returns (Layout storage l) {
@@ -121,7 +121,8 @@ contract BeamioContainerModuleV07 {
 	error CM_TokenNotUSDC(address token, address usdc);
 
 	error CM_UnitPriceZero();
-	error CM_ExceedsMax(uint256 totalUsdc6, uint256 maxUsdc6);
+	error CM_ExceedsMaxDetailed(uint256 totalUsdc6, uint256 cardValueUsdc6, uint256 maxUsdc6);
+	error CM_MaxAmountTooSmall(uint256 maxAmount);
 
 	error CM_ReservedERC20Violation(address token, uint256 spend, uint256 bal, uint256 reserved);
 	error CM_Reserved1155Violation(address token, uint256 id, uint256 spend, uint256 bal, uint256 reserved);
@@ -135,6 +136,7 @@ contract BeamioContainerModuleV07 {
 	error RD_AlreadyUsed(bytes32 passwordHash);
 	error RD_Expired(bytes32 passwordHash);
 	error RD_BadPassword();
+	error RD_PresetToMismatch(address to, address presetTo);
 
 	error FP_ZeroPasswordHash();
 	error FP_InvalidTotalCount();
@@ -142,8 +144,23 @@ contract BeamioContainerModuleV07 {
 	error FP_NotFound(bytes32 passwordHash);
 	error FP_Expired(bytes32 passwordHash);
 	error FP_OutOfStock(bytes32 passwordHash);
-	error FP_AlreadyClaimed(bytes32 passwordHash, address claimer);
+	error FP_AlreadyClaimed(bytes32 passwordHash, address to);
+	error FP_ToMustEqualClaimer();
 	error FP_ItemsMismatch();
+
+	error CM_OnlyDelegatecall();
+
+	// ========= onlyDelegatecall =========
+	address private immutable SELF;
+
+	constructor() {
+		SELF = address(this);
+	}
+
+	modifier onlyDelegatecall() {
+		if (address(this) == SELF) revert CM_OnlyDelegatecall();
+		_;
+	}
 
 	// ========= EIP-712 =========
 	bytes32 private constant DOMAIN_TYPEHASH =
@@ -160,13 +177,7 @@ contract BeamioContainerModuleV07 {
 
 	// ========= Context helpers (delegatecall or staticcall facade) =========
 	function _ctxAccount() internal view returns (address acct) {
-		// normal path: delegatecall => address(this) is account
-		// view facade path (staticcall): last 20 bytes is account address
-		if (msg.sender == address(this)) {
-			return address(this);
-		}
-
-		// If called by Account.staticDelegate facade: calldata ends with account address
+		// staticcall facade path: Account.staticDelegate 调用时，calldata 末尾 20 字节为 account 地址
 		if (msg.sig == this.simulateOpenContainer.selector || msg.sig == this.relayedNonce.selector || msg.sig == this.openRelayedNonce.selector) {
 			if (msg.data.length >= 20) {
 				address a;
@@ -177,7 +188,7 @@ contract BeamioContainerModuleV07 {
 			}
 		}
 
-		// fallback: treat as direct (not expected)
+		// delegatecall path: address(this) 即 account
 		return address(this);
 	}
 
@@ -187,10 +198,24 @@ contract BeamioContainerModuleV07 {
 		return abi.decode(ret, (address));
 	}
 
+	/// @notice 用于 simulateOpenContainer，不 revert，失败时返回 (address(0), false)
+	function _ownerSafe(address acct) internal view returns (address o, bool ok) {
+		(bool success, bytes memory ret) = acct.staticcall(abi.encodeWithSignature("owner()"));
+		if (!success || ret.length != 32) return (address(0), false);
+		return (abi.decode(ret, (address)), true);
+	}
+
 	function _factory(address acct) internal view returns (address f) {
 		(bool ok, bytes memory ret) = acct.staticcall(abi.encodeWithSignature("factory()"));
 		if (!ok || ret.length != 32) revert CM_NoFactory();
 		return abi.decode(ret, (address));
+	}
+
+	/// @notice 用于 simulateOpenContainer，不 revert，失败时返回 (address(0), false)
+	function _factorySafe(address acct) internal view returns (address f, bool ok) {
+		(bool success, bytes memory ret) = acct.staticcall(abi.encodeWithSignature("factory()"));
+		if (!success || ret.length != 32) return (address(0), false);
+		return (abi.decode(ret, (address)), true);
 	}
 
 	function domainSeparator(address acct) public view returns (bytes32) {
@@ -281,7 +306,7 @@ contract BeamioContainerModuleV07 {
 			} else if (it.kind == AssetKind.ERC1155) {
 				l.reserved1155[it.asset][it.tokenId] += it.amount;
 			} else {
-				revert Unsupported();
+				revert CM_UnsupportedKind(i);
 			}
 		}
 	}
@@ -298,7 +323,7 @@ contract BeamioContainerModuleV07 {
 			} else if (it.kind == AssetKind.ERC1155) {
 				l.reserved1155[it.asset][it.tokenId] -= it.amount;
 			} else {
-				revert Unsupported();
+				revert CM_UnsupportedKind(i);
 			}
 		}
 	}
@@ -315,12 +340,103 @@ contract BeamioContainerModuleV07 {
 				uint256 r = l.reservedErc20[it.asset];
 				if (bal < r + it.amount) revert CM_ReservedERC20Violation(it.asset, it.amount, bal, r);
 			} else if (it.kind == AssetKind.ERC1155) {
+				uint256 bal = IERC1155Like(it.asset).balanceOf(acct, it.tokenId);
 				uint256 r2 = l.reserved1155[it.asset][it.tokenId];
-				if (r2 != 0) revert CM_Reserved1155Violation(it.asset, it.tokenId, it.amount, 0, r2);
+				if (bal < r2 + it.amount) revert CM_Reserved1155Violation(it.asset, it.tokenId, it.amount, bal, r2);
 			} else {
-				revert Unsupported();
+				revert CM_UnsupportedKind(i);
 			}
 		}
+	}
+
+	/// @notice 用于 simulateOpenContainer，不 revert，失败时返回 (false, reason)
+	function _checkSpendableSafe(address acct, ContainerItem[] calldata items) internal view returns (bool ok, string memory reason) {
+		BeamioContainerStorageV07.Layout storage l = BeamioContainerStorageV07.layout();
+
+		for (uint256 i = 0; i < items.length; i++) {
+			ContainerItem calldata it = items[i];
+			if (it.amount == 0) continue;
+
+			if (it.kind == AssetKind.ERC20) {
+				try IERC20Like(it.asset).balanceOf(acct) returns (uint256 bal) {
+					uint256 r = l.reservedErc20[it.asset];
+					if (bal < r + it.amount) return (false, "reserved erc20");
+				} catch {
+					return (false, "balanceOf failed");
+				}
+			} else if (it.kind == AssetKind.ERC1155) {
+				try IERC1155Like(it.asset).balanceOf(acct, it.tokenId) returns (uint256 bal) {
+					uint256 r2 = l.reserved1155[it.asset][it.tokenId];
+					if (bal < r2 + it.amount) return (false, "reserved 1155");
+				} catch {
+					return (false, "balanceOf1155 failed");
+				}
+			} else {
+				return (false, "unsupported kind");
+			}
+		}
+		return (true, "");
+	}
+
+	/// @notice 在 Account.execute / executeBatch 前调用，校验即将执行的外部调用是否会转出被 reserve 锁定的资产。若会违反 reserve 则 revert。
+	/// @dev 仅校验 ERC20 transfer、transferFrom(from==account)、ERC1155 safeTransferFrom/safeBatchTransferFrom(from==account)。其他调用放行。
+	function preExecuteCheck(address dest, uint256 /* value */, bytes calldata func) external view {
+		address acct = address(this);
+		if (func.length < 4) return;
+
+		bytes4 sel;
+		assembly {
+			sel := calldataload(func.offset)
+		}
+		BeamioContainerStorageV07.Layout storage l = BeamioContainerStorageV07.layout();
+
+		// ERC20 transfer(address to, uint256 amount)
+		if (sel == 0xa9059cbb) {
+			if (func.length < 4 + 32 + 32) return;
+			(, uint256 amount) = abi.decode(func[4:], (address, uint256));
+			uint256 bal = IERC20Like(dest).balanceOf(acct);
+			uint256 r = l.reservedErc20[dest];
+			if (bal < r + amount) revert CM_ReservedERC20Violation(dest, amount, bal, r);
+			return;
+		}
+
+		// ERC20 transferFrom(address from, address to, uint256 amount)
+		if (sel == 0x23b872dd) {
+			if (func.length < 4 + 32 * 3) return;
+			(address from,, uint256 amount) = abi.decode(func[4:], (address, address, uint256));
+			if (from != acct) return; // 非从本账户转出，放行
+			uint256 bal = IERC20Like(dest).balanceOf(acct);
+			uint256 r = l.reservedErc20[dest];
+			if (bal < r + amount) revert CM_ReservedERC20Violation(dest, amount, bal, r);
+			return;
+		}
+
+		// ERC1155 safeTransferFrom(address from, address to, uint256 id, uint256 amount, bytes data)
+		if (sel == 0xf242432a) {
+			if (func.length < 4 + 32*4) return;
+			(address from,, uint256 id, uint256 amount,) = abi.decode(func[4:], (address, address, uint256, uint256, bytes));
+			if (from != acct) return;
+			uint256 bal = IERC1155Like(dest).balanceOf(acct, id);
+			uint256 r = l.reserved1155[dest][id];
+			if (bal < r + amount) revert CM_Reserved1155Violation(dest, id, amount, bal, r);
+			return;
+		}
+
+		// ERC1155 safeBatchTransferFrom(address from, address to, uint256[] ids, uint256[] amounts, bytes data)
+		if (sel == 0x2eb2c2d6) {
+			if (func.length < 4 + 32 * 5) return; // selector + 5 param slots (dynamic array offsets)
+			(address from,, uint256[] memory ids, uint256[] memory amounts,) = abi.decode(func[4:], (address, address, uint256[], uint256[], bytes));
+			if (from != acct) return;
+			for (uint256 i = 0; i < ids.length; i++) {
+				uint256 bal = IERC1155Like(dest).balanceOf(acct, ids[i]);
+				uint256 r = l.reserved1155[dest][ids[i]];
+				uint256 amt = i < amounts.length ? amounts[i] : 0;
+				if (bal < r + amt) revert CM_Reserved1155Violation(dest, ids[i], amt, bal, r);
+			}
+			return;
+		}
+
+		// 非上述转账调用，放行
 	}
 
 	// ========= Internal transfer pipeline =========
@@ -426,7 +542,7 @@ contract BeamioContainerModuleV07 {
 		uint256 nonce_,
 		uint256 deadline_,
 		bytes calldata sig
-	) external {
+	) external onlyDelegatecall {
 		address acct = address(this);
 		BeamioContainerStorageV07.Layout storage l = BeamioContainerStorageV07.layout();
 
@@ -456,11 +572,11 @@ contract BeamioContainerModuleV07 {
 		address to,
 		ContainerItem[] calldata items,
 		uint8 currencyType,
-		uint256 maxAmount,   // 0 => unlimited
+		uint256 maxAmount,   // 0 => unlimited; >0 时必须 E6 精度，如 10*1e6 表示 10 单位
 		uint256 nonce_,
 		uint256 deadline_,
 		bytes calldata sig
-	) external {
+	) external onlyDelegatecall {
 		address acct = address(this);
 		BeamioContainerStorageV07.Layout storage l = BeamioContainerStorageV07.layout();
 
@@ -478,6 +594,7 @@ contract BeamioContainerModuleV07 {
 		address helperAddr = address(0);
 
 		if (maxAmount > 0) {
+			if (maxAmount < 1e4) revert CM_MaxAmountTooSmall(maxAmount); // 强制 E6 精度，避免误传「10=10美元」
 			address f = _factory(acct);
 			helperAddr = IBeamioAccountFactoryConfigV2(f).quoteHelper();
 			usdc = IBeamioAccountFactoryConfigV2(f).USDC();
@@ -488,9 +605,8 @@ contract BeamioContainerModuleV07 {
 			if (userCard == address(0) || userCard.code.length == 0) revert CM_NoUserCard();
 		}
 
-		bool has1155 = false;
 		uint256 totalUsdc6 = 0;
-		uint256 cardId0Amount6 = 0;
+		uint256 cardPoints6 = 0;  // ERC1155 tokenId==0 的 it.amount，须为 points E6（1e6=1 point）
 
 		for (uint256 i = 0; i < items.length; i++) {
 			ContainerItem calldata it = items[i];
@@ -501,7 +617,7 @@ contract BeamioContainerModuleV07 {
 
 				if (maxAmount > 0) {
 					if (it.asset != usdc) revert CM_TokenNotUSDC(it.asset, usdc);
-					totalUsdc6 += it.amount;
+					totalUsdc6 += it.amount;  // USDC 6 decimals
 				}
 				continue;
 			}
@@ -510,8 +626,7 @@ contract BeamioContainerModuleV07 {
 				if (maxAmount > 0) {
 					if (it.asset != userCard) revert CM_ERC1155NotUserCard(i, it.asset, userCard);
 					if (it.tokenId != 0) revert CM_ERC1155TokenIdNotZero(i, it.tokenId);
-					has1155 = true;
-					cardId0Amount6 += it.amount;
+					cardPoints6 += it.amount;
 				}
 				// unlimited: any 1155 ok
 				continue;
@@ -525,17 +640,17 @@ contract BeamioContainerModuleV07 {
 			uint256 maxUsdc6 = qh.quoteCurrencyAmountInUSDC6(currencyType, maxAmount);
 
 			uint256 cardValueUsdc6 = 0;
-			if (has1155 && cardId0Amount6 > 0) {
+			if (cardPoints6 > 0) {
 				uint8 cardCur = IBeamioUserCardLike(userCard).currency();
 				uint256 unitPriceE6 = IBeamioUserCardLike(userCard).pointsUnitPriceInCurrencyE6();
 				if (unitPriceE6 == 0) revert CM_UnitPriceZero();
-
+				// unitPriceE6: 每 1e6 points 的单价(E6)；cardPoints6 为 points E6
 				uint256 unitPointUsdc6 = qh.quoteUnitPointInUSDC6(cardCur, unitPriceE6);
-				cardValueUsdc6 = (cardId0Amount6 * unitPointUsdc6) / 1e6;
+				cardValueUsdc6 = (cardPoints6 * unitPointUsdc6) / 1e6;
 			}
 
 			if (totalUsdc6 + cardValueUsdc6 > maxUsdc6) {
-				revert CM_ExceedsMax(totalUsdc6 + cardValueUsdc6, maxUsdc6);
+				revert CM_ExceedsMaxDetailed(totalUsdc6, cardValueUsdc6, maxUsdc6);
 			}
 		}
 
@@ -573,16 +688,16 @@ contract BeamioContainerModuleV07 {
 		if (sig.length != 65) return (false, "bad sig len");
 		if (items.length == 0) return (false, "empty items");
 
-		// NOTE: keep simulation cheap; we do NOT run _checkSpendable here (it may depend on live balances),
-		// but you can add it if you want exactness.
-
-		_checkSpendable(acct, items);
+		(bool spendOk, string memory spendReason) = _checkSpendableSafe(acct, items);
+		if (!spendOk) return (false, spendReason);
 		address usdc = address(0);
 		address userCard = address(0);
 		address helperAddr = address(0);
 
 		if (maxAmount > 0) {
-			address f = _factory(acct);
+			if (maxAmount < 1e4) return (false, "max amount too small");
+			(address f, bool factoryOk) = _factorySafe(acct);
+			if (!factoryOk) return (false, "no factory");
 			helperAddr = IBeamioAccountFactoryConfigV2(f).quoteHelper();
 			usdc = IBeamioAccountFactoryConfigV2(f).USDC();
 			userCard = IBeamioAccountFactoryConfigV2(f).beamioUserCard();
@@ -592,9 +707,8 @@ contract BeamioContainerModuleV07 {
 			if (userCard == address(0) || userCard.code.length == 0) return (false, "no usercard");
 		}
 
-		bool has1155 = false;
 		uint256 totalUsdc6 = 0;
-		uint256 cardId0Amount6 = 0;
+		uint256 cardPoints6 = 0;
 
 		for (uint256 i = 0; i < items.length; i++) {
 			ContainerItem calldata it = items[i];
@@ -614,8 +728,7 @@ contract BeamioContainerModuleV07 {
 				if (maxAmount > 0) {
 					if (it.asset != userCard) return (false, "1155 not usercard");
 					if (it.tokenId != 0) return (false, "erc1155 tokenId!=0");
-					has1155 = true;
-					cardId0Amount6 += it.amount;
+					cardPoints6 += it.amount;
 				}
 				continue;
 			}
@@ -628,12 +741,12 @@ contract BeamioContainerModuleV07 {
 			uint256 maxUsdc6 = qh.quoteCurrencyAmountInUSDC6(currencyType, maxAmount);
 
 			uint256 cardValueUsdc6 = 0;
-			if (has1155 && cardId0Amount6 > 0) {
+			if (cardPoints6 > 0) {
 				uint8 cardCur = IBeamioUserCardLike(userCard).currency();
 				uint256 unitPriceE6 = IBeamioUserCardLike(userCard).pointsUnitPriceInCurrencyE6();
 				if (unitPriceE6 == 0) return (false, "unitPrice=0");
 				uint256 unitPointUsdc6 = qh.quoteUnitPointInUSDC6(cardCur, unitPriceE6);
-				cardValueUsdc6 = (cardId0Amount6 * unitPointUsdc6) / 1e6;
+				cardValueUsdc6 = (cardPoints6 * unitPointUsdc6) / 1e6;
 			}
 
 			if (totalUsdc6 + cardValueUsdc6 > maxUsdc6) return (false, "exceeds max");
@@ -641,7 +754,8 @@ contract BeamioContainerModuleV07 {
 
 		bytes32 digest = _hashOpenContainerMessage(acct, currencyType, maxAmount, nonce_, deadline_);
 		address signer = ECDSA.recover(digest, sig);
-		address o2 = _owner(acct);
+		(address o2, bool ownerOk) = _ownerSafe(acct);
+		if (!ownerOk) return (false, "owner call failed");
 		if (signer != o2) return (false, "sig not owner");
 
 		return (true, "ok");
@@ -655,7 +769,7 @@ contract BeamioContainerModuleV07 {
 		address to,
 		ContainerItem[] calldata items,
 		uint64 expiry
-	) external {
+	) external onlyDelegatecall {
 		address acct = address(this);
 		if (passwordHash == bytes32(0)) revert RD_ZeroPasswordHash();
 
@@ -681,18 +795,21 @@ contract BeamioContainerModuleV07 {
 		emit RedeemCreated(passwordHash, ih, expiry, to);
 	}
 
-	function cancelRedeem(bytes32 passwordHash) external {
+	function cancelRedeem(string calldata code) external onlyDelegatecall {
+		bytes32 ph = keccak256(bytes(code));
+		if (ph == bytes32(0)) revert RD_BadPassword();
+
 		BeamioContainerStorageV07.Layout storage l = BeamioContainerStorageV07.layout();
-		BeamioContainerStorageV07.Redeem storage r = l.redeems[passwordHash];
-		if (!r.active) revert RD_NotFound(passwordHash);
-		if (r.used) revert RD_AlreadyUsed(passwordHash);
+		BeamioContainerStorageV07.Redeem storage r = l.redeems[ph];
+		if (!r.active) revert RD_NotFound(ph);
+		if (r.used) revert RD_AlreadyUsed(ph);
 
 		ContainerItem[] memory items = abi.decode(r.itemsData, (ContainerItem[]));
 		_reserveSub(items);
 
-		delete l.redeems[passwordHash];
+		delete l.redeems[ph];
 
-		emit RedeemCancelled(passwordHash);
+		emit RedeemCancelled(ph);
 	}
 
 	function _containerMainMem(address to, ContainerItem[] memory items) internal {
@@ -729,7 +846,7 @@ contract BeamioContainerModuleV07 {
 		}
 	}
 
-	function redeem(string calldata password, address to) external {
+	function redeem(string calldata password, address to) external onlyDelegatecall {
 		if (to == address(0)) revert CM_ToZero();
 		bytes32 ph = keccak256(bytes(password));
 		if (ph == bytes32(0)) revert RD_BadPassword();
@@ -738,6 +855,8 @@ contract BeamioContainerModuleV07 {
 		BeamioContainerStorageV07.Redeem storage r = l.redeems[ph];
 		if (!r.active) revert RD_NotFound(ph);
 		if (r.used) revert RD_AlreadyUsed(ph);
+
+		if (r.presetTo != address(0) && to != r.presetTo) revert RD_PresetToMismatch(to, r.presetTo);
 
 		if (r.expiry != 0 && block.timestamp > r.expiry) revert RD_Expired(ph);
 
@@ -762,7 +881,7 @@ contract BeamioContainerModuleV07 {
 		uint32 totalCount,
 		uint64 expiry,
 		ContainerItem[] calldata items
-	) external {
+	) external onlyDelegatecall {
 		if (passwordHash == bytes32(0)) revert FP_ZeroPasswordHash();
 		if (totalCount == 0) revert FP_InvalidTotalCount();
 		if (items.length == 0) revert CM_EmptyItems();
@@ -790,10 +909,13 @@ contract BeamioContainerModuleV07 {
 		emit FaucetPoolCreated(passwordHash, ih, totalCount, expiry);
 	}
 
-	function cancelFaucetPool(bytes32 passwordHash) external {
+	function cancelFaucetPool(string calldata code) external onlyDelegatecall {
+		if (bytes(code).length == 0) revert FP_ZeroPasswordHash();
+		bytes32 ph = keccak256(bytes(code));
+
 		BeamioContainerStorageV07.Layout storage l = BeamioContainerStorageV07.layout();
-		BeamioContainerStorageV07.Pool storage p = l.pools[passwordHash];
-		if (!p.active) revert FP_NotFound(passwordHash);
+		BeamioContainerStorageV07.Pool storage p = l.pools[ph];
+		if (!p.active) revert FP_NotFound(ph);
 
 		ContainerItem[] memory baseItems = abi.decode(p.itemsData, (ContainerItem[]));
 		ContainerItem[] memory scaled = new ContainerItem[](baseItems.length);
@@ -805,9 +927,9 @@ contract BeamioContainerModuleV07 {
 		}
 		_reserveSub(scaled);
 
-		delete l.pools[passwordHash];
+		delete l.pools[ph];
 
-		emit FaucetPoolCancelled(passwordHash);
+		emit FaucetPoolCancelled(ph);
 	}
 
 	function faucetRedeemPool(
@@ -815,9 +937,10 @@ contract BeamioContainerModuleV07 {
 		address claimer,
 		address to,
 		ContainerItem[] calldata items
-	) external {
+	) external onlyDelegatecall {
 		if (claimer == address(0)) revert ZeroAddress();
 		if (to == address(0)) revert CM_ToZero();
+		if (to != claimer) revert FP_ToMustEqualClaimer(); // 禁止代领到第三方
 
 		bytes32 ph = keccak256(bytes(password));
 		BeamioContainerStorageV07.Layout storage l = BeamioContainerStorageV07.layout();
@@ -826,7 +949,7 @@ contract BeamioContainerModuleV07 {
 		if (!p.active) revert FP_NotFound(ph);
 		if (p.expiry != 0 && block.timestamp > p.expiry) revert FP_Expired(ph);
 		if (p.remaining == 0) revert FP_OutOfStock(ph);
-		if (l.poolClaimed[ph][claimer]) revert FP_AlreadyClaimed(ph, claimer);
+		if (l.poolClaimed[ph][to]) revert FP_AlreadyClaimed(ph, to); // 记录 to，每个地址仅可领取一次
 
 		bytes32 ih = hashItems(items);
 		if (ih != p.itemsHash) revert FP_ItemsMismatch();
@@ -834,7 +957,7 @@ contract BeamioContainerModuleV07 {
 		ContainerItem[] memory baseItems = abi.decode(p.itemsData, (ContainerItem[]));
 		_reserveSub(baseItems);
 
-		l.poolClaimed[ph][claimer] = true;
+		l.poolClaimed[ph][to] = true;
 		p.remaining -= 1;
 
 		_containerMain(to, items);

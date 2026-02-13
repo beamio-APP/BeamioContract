@@ -18,7 +18,7 @@ export declare namespace IBeamioContainerModuleV07 {
     }
 
   export interface BeamioAccountInterface extends Interface {
-    getFunction(nameOrSignature: "cancelFaucetPool" | "cancelRedeem" | "containerMainRelayed" | "containerMainRelayedOpen" | "createFaucetPool" | "createRedeem" | "entryPoint" | "execute" | "executeBatch" | "factory" | "faucetRedeemPool" | "initialize" | "isThresholdManager" | "isValidSignature" | "onERC1155BatchReceived" | "onERC1155Received" | "openRelayedNonce" | "owner" | "redeem" | "relayedNonce" | "setFactory" | "setThresholdPolicy" | "simulateOpenContainer" | "supportsInterface" | "threshold" | "thresholdManagers" | "validateUserOp"): FunctionFragment;
+    getFunction(nameOrSignature: "cancelFaucetPool" | "cancelRedeem" | "containerMainRelayed" | "containerMainRelayedOpen" | "createFaucetPool" | "createRedeem" | "entryPoint" | "execute" | "executeBatch" | "executeFromFactory" | "factory" | "faucetRedeemPool" | "initialize" | "isThresholdManager" | "isValidSignature" | "onERC1155BatchReceived" | "onERC1155Received" | "openRelayedNonce" | "owner" | "redeem" | "relayedNonce" | "setFactory" | "setThresholdPolicy" | "simulateOpenContainer" | "supportsInterface" | "threshold" | "thresholdManagers" | "validateUserOp"): FunctionFragment;
 
     getEvent(nameOrSignatureOrTopic: "FactoryUpdated" | "Initialized" | "ThresholdPolicyUpdated"): EventFragment;
 
@@ -31,6 +31,7 @@ encodeFunctionData(functionFragment: 'createRedeem', values: [BytesLike, Address
 encodeFunctionData(functionFragment: 'entryPoint', values?: undefined): string;
 encodeFunctionData(functionFragment: 'execute', values: [AddressLike, BigNumberish, BytesLike]): string;
 encodeFunctionData(functionFragment: 'executeBatch', values: [AddressLike[], BigNumberish[], BytesLike[]]): string;
+encodeFunctionData(functionFragment: 'executeFromFactory', values: [BytesLike]): string;
 encodeFunctionData(functionFragment: 'factory', values?: undefined): string;
 encodeFunctionData(functionFragment: 'faucetRedeemPool', values: [string, AddressLike, AddressLike, IBeamioContainerModuleV07.ContainerItemStruct[]]): string;
 encodeFunctionData(functionFragment: 'initialize', values: [AddressLike, AddressLike[], BigNumberish, AddressLike]): string;
@@ -59,6 +60,7 @@ decodeFunctionResult(functionFragment: 'createRedeem', data: BytesLike): Result;
 decodeFunctionResult(functionFragment: 'entryPoint', data: BytesLike): Result;
 decodeFunctionResult(functionFragment: 'execute', data: BytesLike): Result;
 decodeFunctionResult(functionFragment: 'executeBatch', data: BytesLike): Result;
+decodeFunctionResult(functionFragment: 'executeFromFactory', data: BytesLike): Result;
 decodeFunctionResult(functionFragment: 'factory', data: BytesLike): Result;
 decodeFunctionResult(functionFragment: 'faucetRedeemPool', data: BytesLike): Result;
 decodeFunctionResult(functionFragment: 'initialize', data: BytesLike): Result;
@@ -216,6 +218,14 @@ decodeFunctionResult(functionFragment: 'validateUserOp', data: BytesLike): Resul
     
     executeBatch: TypedContractMethod<
       [dest: AddressLike[], value: BigNumberish[], func: BytesLike[], ],
+      [void],
+      'nonpayable'
+    >
+    
+
+    
+    executeFromFactory: TypedContractMethod<
+      [data: BytesLike, ],
       [void],
       'nonpayable'
     >
@@ -410,6 +420,11 @@ getFunction(nameOrSignature: 'execute'): TypedContractMethod<
     >;
 getFunction(nameOrSignature: 'executeBatch'): TypedContractMethod<
       [dest: AddressLike[], value: BigNumberish[], func: BytesLike[], ],
+      [void],
+      'nonpayable'
+    >;
+getFunction(nameOrSignature: 'executeFromFactory'): TypedContractMethod<
+      [data: BytesLike, ],
       [void],
       'nonpayable'
     >;

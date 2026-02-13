@@ -66,10 +66,16 @@ export type { IBeamioUserCardFactoryPaymasterV07 } from './BeamioUserCard/Beamio
 export { IBeamioUserCardFactoryPaymasterV07__factory } from './factories/BeamioUserCard/BeamioUserCard.sol/IBeamioUserCardFactoryPaymasterV07__factory.js';
 export type { BeamioUserCardDeployerV07 } from './BeamioUserCard/BeamioUserCardDeployerV07.js';
 export { BeamioUserCardDeployerV07__factory } from './factories/BeamioUserCard/BeamioUserCardDeployerV07__factory.js';
+export type { BeamioUserCardFactoryPaymasterV072 } from './BeamioUserCard/BeamioUserCardFactoryPaymasterV07.sol/BeamioUserCardFactoryPaymasterV072.js';
+export { BeamioUserCardFactoryPaymasterV072__factory } from './factories/BeamioUserCard/BeamioUserCardFactoryPaymasterV07.sol/BeamioUserCardFactoryPaymasterV072__factory.js';
 export type { BeamioUserCardFactoryPaymasterV07 } from './BeamioUserCard/BeamioUserCardFactoryPaymasterV07.sol/BeamioUserCardFactoryPaymasterV07.js';
 export { BeamioUserCardFactoryPaymasterV07__factory } from './factories/BeamioUserCard/BeamioUserCardFactoryPaymasterV07.sol/BeamioUserCardFactoryPaymasterV07__factory.js';
+export type { IBeamioDeployerV072 } from './BeamioUserCard/BeamioUserCardFactoryPaymasterV07.sol/IBeamioDeployerV072.js';
+export { IBeamioDeployerV072__factory } from './factories/BeamioUserCard/BeamioUserCardFactoryPaymasterV07.sol/IBeamioDeployerV072__factory.js';
 export type { IBeamioDeployerV07 } from './BeamioUserCard/BeamioUserCardFactoryPaymasterV07.sol/IBeamioDeployerV07.js';
 export { IBeamioDeployerV07__factory } from './factories/BeamioUserCard/BeamioUserCardFactoryPaymasterV07.sol/IBeamioDeployerV07__factory.js';
+export type { IBeamioQuoteHelper2 } from './BeamioUserCard/BeamioUserCardFactoryPaymasterV07.sol/IBeamioQuoteHelper2.js';
+export { IBeamioQuoteHelper2__factory } from './factories/BeamioUserCard/BeamioUserCardFactoryPaymasterV07.sol/IBeamioQuoteHelper2__factory.js';
 export type { IBeamioQuoteHelper } from './BeamioUserCard/BeamioUserCardFactoryPaymasterV07.sol/IBeamioQuoteHelper.js';
 export { IBeamioQuoteHelper__factory } from './factories/BeamioUserCard/BeamioUserCardFactoryPaymasterV07.sol/IBeamioQuoteHelper__factory.js';
 export type { BeamioUserCardPlaceholder } from './BeamioUserCard/BeamioUserCardPlaceholder.js';

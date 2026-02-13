@@ -2,5 +2,8 @@
 /* tslint:disable */
 /* eslint-disable */
 export type { BeamioUserCardFactoryPaymasterV07 } from './BeamioUserCardFactoryPaymasterV07.js';
+export type { BeamioUserCardFactoryPaymasterV072 } from './BeamioUserCardFactoryPaymasterV072.js';
 export type { IBeamioDeployerV07 } from './IBeamioDeployerV07.js';
+export type { IBeamioDeployerV072 } from './IBeamioDeployerV072.js';
 export type { IBeamioQuoteHelper } from './IBeamioQuoteHelper.js';
+export type { IBeamioQuoteHelper2 } from './IBeamioQuoteHelper2.js';

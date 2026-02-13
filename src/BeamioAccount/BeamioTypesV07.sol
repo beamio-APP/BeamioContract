@@ -60,15 +60,10 @@ interface IERC1271 {
 }
 
 interface IERC1155Like {
+	function balanceOf(address account, uint256 id) external view returns (uint256);
 	function safeTransferFrom(address from, address to, uint256 id, uint256 amount, bytes calldata data) external;
 	function safeBatchTransferFrom(address from, address to, uint256[] calldata ids, uint256[] calldata amounts, bytes calldata data) external;
 }
-
-bytes32 constant CONTAINER1155_TYPEHASH =
-    keccak256(
-        "RelayedContainer1155(address token,address to,bytes32 idsHash,bytes32 amountsHash,bytes32 datasHash,uint256 nonce,uint256 deadline)"
-    );
-
 
 interface IERC20Like {
 	function transfer(address to, uint256 amount) external returns (bool);
@@ -78,29 +73,12 @@ interface IERC20Like {
 }
 
 
-struct RelayContainerParams {
-    address to;
-    address[] assets;
-    uint256[] amounts;
-    uint256 deadline;
-}
-
-struct RelayContainer1155Params {
-    address token;
-    address to;
-    uint256[] ids;
-    uint256[] amounts;
-    bytes[] datas;
-    uint256 deadline;
-}
-
     error NotOwner();
     error NotFactory();
     error AlreadyInitialized();
     error ZeroAddress();
     error SigExpired();
     error BadSig();
-    error Unsupported();
 	error LenMismatch();
 
     error NotAuthorized();
