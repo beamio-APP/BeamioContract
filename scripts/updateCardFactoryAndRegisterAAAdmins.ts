@@ -21,13 +21,13 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const CONFIG_PATH = path.join(__dirname, "..", "config", "base-addresses.ts");
 const MASTER_SETUP_PATH = path.join(homedir(), ".master.json");
 
-function getNewAAFactoryAddress(): string {
+function getAddressFromConfig(field: "AA_FACTORY" | "CARD_FACTORY"): string {
   if (!fs.existsSync(CONFIG_PATH)) {
-    throw new Error("未找到 config/base-addresses.ts，请先运行 redeploy:aa-factory:base 或设置 AA_FACTORY");
+    throw new Error("未找到 config/base-addresses.ts");
   }
   const content = fs.readFileSync(CONFIG_PATH, "utf-8");
-  const m = content.match(/AA_FACTORY:\s*['"](0x[a-fA-F0-9]{40})['"]/);
-  if (!m) throw new Error("config/base-addresses.ts 中未解析到 AA_FACTORY");
+  const m = content.match(new RegExp(`${field}:\\s*['"](0x[a-fA-F0-9]{40})['"]`));
+  if (!m) throw new Error(`config/base-addresses.ts 中未解析到 ${field}`);
   return m[1];
 }
 
@@ -46,10 +46,10 @@ function loadMasterSetup(): { settle_contractAdmin: string[]; base_endpoint: str
 }
 
 async function main() {
-  const newAAFactory = process.env.NEW_AA_FACTORY || getNewAAFactoryAddress();
+  const newAAFactory = process.env.NEW_AA_FACTORY || getAddressFromConfig("AA_FACTORY");
   const master = loadMasterSetup();
   const provider = new ethers.JsonRpcProvider(master.base_endpoint);
-  const CARD_FACTORY = process.env.CARD_FACTORY_ADDRESS || "0x7Ec828BAbA1c58C5021a6E7D29ccDDdB2d8D84bd";
+  const CARD_FACTORY = process.env.CARD_FACTORY_ADDRESS || getAddressFromConfig("CARD_FACTORY");
 
   const wallets = master.settle_contractAdmin.map((pk: string) => new ethers.Wallet(pk, provider));
   const addresses = await Promise.all(wallets.map((w) => w.getAddress()));

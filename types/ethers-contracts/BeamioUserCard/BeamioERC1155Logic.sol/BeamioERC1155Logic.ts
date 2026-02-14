@@ -174,9 +174,9 @@ decodeFunctionResult(functionFragment: 'POINTS_ID', data: BytesLike): Result;
   
 
     export namespace TierAppendedEvent {
-      export type InputTuple = [index: BigNumberish, minUsdc6: BigNumberish, attr: BigNumberish];
-      export type OutputTuple = [index: bigint, minUsdc6: bigint, attr: bigint];
-      export interface OutputObject {index: bigint, minUsdc6: bigint, attr: bigint };
+      export type InputTuple = [index: BigNumberish, minUsdc6: BigNumberish, attr: BigNumberish, tierExpirySeconds: BigNumberish];
+      export type OutputTuple = [index: bigint, minUsdc6: bigint, attr: bigint, tierExpirySeconds: bigint];
+      export interface OutputObject {index: bigint, minUsdc6: bigint, attr: bigint, tierExpirySeconds: bigint };
       export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>
       export type Filter = TypedDeferredTopicFilter<Event>
       export type Log = TypedEventLog<Event>
@@ -351,7 +351,7 @@ getEvent(key: 'TiersUpdated'): TypedContractEvent<TiersUpdatedEvent.InputTuple, 
       RedeemModuleUpdated: TypedContractEvent<RedeemModuleUpdatedEvent.InputTuple, RedeemModuleUpdatedEvent.OutputTuple, RedeemModuleUpdatedEvent.OutputObject>;
     
 
-      'TierAppended(uint256,uint256,uint256)': TypedContractEvent<TierAppendedEvent.InputTuple, TierAppendedEvent.OutputTuple, TierAppendedEvent.OutputObject>;
+      'TierAppended(uint256,uint256,uint256,uint256)': TypedContractEvent<TierAppendedEvent.InputTuple, TierAppendedEvent.OutputTuple, TierAppendedEvent.OutputObject>;
       TierAppended: TypedContractEvent<TierAppendedEvent.InputTuple, TierAppendedEvent.OutputTuple, TierAppendedEvent.OutputObject>;
     
 

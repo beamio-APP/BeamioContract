@@ -18,13 +18,14 @@ export declare namespace IBeamioContainerModuleV07 {
     }
 
   export interface BeamioFactoryPaymasterV072Interface extends Interface {
-    getFunction(nameOrSignature: "DOMAIN_SEPARATOR" | "ENTRY_POINT" | "EXECUTE_FOR_OWNER_TYPEHASH" | "USDC" | "accountLimit" | "addPayMaster" | "admin" | "beamioAccountOf" | "beamioUserCard" | "computeSalt" | "containerModule" | "createAccount" | "createAccountFor" | "deployer" | "deposit" | "executeForOwner" | "getAddress" | "getPayMasters" | "isBeamioAccount" | "isPayMaster" | "myBeamioAccounts" | "nextIndexOfCreator" | "payMasters" | "postOp" | "primaryAccountOf" | "quoteHelper" | "relayCancelFaucetPool" | "relayCancelRedeem" | "relayContainerMainRelayed" | "relayContainerMainRelayedOpen" | "relayCreateFaucetPool" | "relayCreateRedeem" | "relayFaucetRedeemPool" | "relayRedeem" | "removePayMaster" | "setAccountLimit" | "setModule" | "setQuoteHelper" | "setUSDC" | "setUserCard" | "simulateRelayOpen" | "transferAdmin" | "updateDeployer" | "usedOwnerExecuteNonces" | "validatePaymasterUserOp" | "withdrawTo"): FunctionFragment;
+    getFunction(nameOrSignature: "DOMAIN_SEPARATOR" | "ENTRY_POINT" | "EXECUTE_FOR_OWNER_TYPEHASH" | "EXECUTE_FOR_REDEEMER_TYPEHASH" | "USDC" | "accountLimit" | "addPayMaster" | "admin" | "beamioAccountOf" | "beamioUserCard" | "computeSalt" | "containerModule" | "createAccount" | "createAccountFor" | "deployer" | "deposit" | "executeForOwner" | "executeForRedeemer" | "getAddress" | "getPayMasters" | "isBeamioAccount" | "isPayMaster" | "myBeamioAccounts" | "nextIndexOfCreator" | "payMasters" | "postOp" | "primaryAccountOf" | "quoteHelper" | "relayCancelFaucetPool" | "relayCancelRedeem" | "relayContainerMainRelayed" | "relayContainerMainRelayedOpen" | "relayCreateFaucetPool" | "relayCreateRedeem" | "relayFaucetRedeemPool" | "relayRedeem" | "removePayMaster" | "setAccountLimit" | "setModule" | "setQuoteHelper" | "setUSDC" | "setUserCard" | "simulateRelayOpen" | "transferAdmin" | "updateDeployer" | "usedOwnerExecuteNonces" | "usedRedeemerExecuteNonces" | "validatePaymasterUserOp" | "withdrawTo"): FunctionFragment;
 
     getEvent(nameOrSignatureOrTopic: "AccountCreated" | "DeployerUpdated" | "ModuleUpdated" | "QuoteHelperUpdated" | "USDCUpdated" | "UserCardUpdated"): EventFragment;
 
     encodeFunctionData(functionFragment: 'DOMAIN_SEPARATOR', values?: undefined): string;
 encodeFunctionData(functionFragment: 'ENTRY_POINT', values?: undefined): string;
 encodeFunctionData(functionFragment: 'EXECUTE_FOR_OWNER_TYPEHASH', values?: undefined): string;
+encodeFunctionData(functionFragment: 'EXECUTE_FOR_REDEEMER_TYPEHASH', values?: undefined): string;
 encodeFunctionData(functionFragment: 'USDC', values?: undefined): string;
 encodeFunctionData(functionFragment: 'accountLimit', values?: undefined): string;
 encodeFunctionData(functionFragment: 'addPayMaster', values: [AddressLike]): string;
@@ -38,6 +39,7 @@ encodeFunctionData(functionFragment: 'createAccountFor', values: [AddressLike]):
 encodeFunctionData(functionFragment: 'deployer', values?: undefined): string;
 encodeFunctionData(functionFragment: 'deposit', values?: undefined): string;
 encodeFunctionData(functionFragment: 'executeForOwner', values: [AddressLike, BytesLike, BigNumberish, BytesLike, BytesLike]): string;
+encodeFunctionData(functionFragment: 'executeForRedeemer', values: [AddressLike, BytesLike, BigNumberish, BytesLike, BytesLike]): string;
 encodeFunctionData(functionFragment: 'getAddress', values: [AddressLike, BigNumberish]): string;
 encodeFunctionData(functionFragment: 'getPayMasters', values?: undefined): string;
 encodeFunctionData(functionFragment: 'isBeamioAccount', values: [AddressLike]): string;
@@ -48,8 +50,8 @@ encodeFunctionData(functionFragment: 'payMasters', values: [BigNumberish]): stri
 encodeFunctionData(functionFragment: 'postOp', values: [BigNumberish, BytesLike, BigNumberish, BigNumberish]): string;
 encodeFunctionData(functionFragment: 'primaryAccountOf', values: [AddressLike]): string;
 encodeFunctionData(functionFragment: 'quoteHelper', values?: undefined): string;
-encodeFunctionData(functionFragment: 'relayCancelFaucetPool', values: [AddressLike, BytesLike]): string;
-encodeFunctionData(functionFragment: 'relayCancelRedeem', values: [AddressLike, BytesLike]): string;
+encodeFunctionData(functionFragment: 'relayCancelFaucetPool', values: [AddressLike, string]): string;
+encodeFunctionData(functionFragment: 'relayCancelRedeem', values: [AddressLike, string]): string;
 encodeFunctionData(functionFragment: 'relayContainerMainRelayed', values: [AddressLike, AddressLike, IBeamioContainerModuleV07.ContainerItemStruct[], BigNumberish, BigNumberish, BytesLike]): string;
 encodeFunctionData(functionFragment: 'relayContainerMainRelayedOpen', values: [AddressLike, AddressLike, IBeamioContainerModuleV07.ContainerItemStruct[], BigNumberish, BigNumberish, BigNumberish, BigNumberish, BytesLike]): string;
 encodeFunctionData(functionFragment: 'relayCreateFaucetPool', values: [AddressLike, BytesLike, BigNumberish, BigNumberish, IBeamioContainerModuleV07.ContainerItemStruct[]]): string;
@@ -66,12 +68,14 @@ encodeFunctionData(functionFragment: 'simulateRelayOpen', values: [AddressLike, 
 encodeFunctionData(functionFragment: 'transferAdmin', values: [AddressLike]): string;
 encodeFunctionData(functionFragment: 'updateDeployer', values: [AddressLike]): string;
 encodeFunctionData(functionFragment: 'usedOwnerExecuteNonces', values: [BytesLike]): string;
+encodeFunctionData(functionFragment: 'usedRedeemerExecuteNonces', values: [BytesLike]): string;
 encodeFunctionData(functionFragment: 'validatePaymasterUserOp', values: [PackedUserOperationStruct, BytesLike, BigNumberish]): string;
 encodeFunctionData(functionFragment: 'withdrawTo', values: [AddressLike, BigNumberish]): string;
 
     decodeFunctionResult(functionFragment: 'DOMAIN_SEPARATOR', data: BytesLike): Result;
 decodeFunctionResult(functionFragment: 'ENTRY_POINT', data: BytesLike): Result;
 decodeFunctionResult(functionFragment: 'EXECUTE_FOR_OWNER_TYPEHASH', data: BytesLike): Result;
+decodeFunctionResult(functionFragment: 'EXECUTE_FOR_REDEEMER_TYPEHASH', data: BytesLike): Result;
 decodeFunctionResult(functionFragment: 'USDC', data: BytesLike): Result;
 decodeFunctionResult(functionFragment: 'accountLimit', data: BytesLike): Result;
 decodeFunctionResult(functionFragment: 'addPayMaster', data: BytesLike): Result;
@@ -85,6 +89,7 @@ decodeFunctionResult(functionFragment: 'createAccountFor', data: BytesLike): Res
 decodeFunctionResult(functionFragment: 'deployer', data: BytesLike): Result;
 decodeFunctionResult(functionFragment: 'deposit', data: BytesLike): Result;
 decodeFunctionResult(functionFragment: 'executeForOwner', data: BytesLike): Result;
+decodeFunctionResult(functionFragment: 'executeForRedeemer', data: BytesLike): Result;
 decodeFunctionResult(functionFragment: 'getAddress', data: BytesLike): Result;
 decodeFunctionResult(functionFragment: 'getPayMasters', data: BytesLike): Result;
 decodeFunctionResult(functionFragment: 'isBeamioAccount', data: BytesLike): Result;
@@ -113,6 +118,7 @@ decodeFunctionResult(functionFragment: 'simulateRelayOpen', data: BytesLike): Re
 decodeFunctionResult(functionFragment: 'transferAdmin', data: BytesLike): Result;
 decodeFunctionResult(functionFragment: 'updateDeployer', data: BytesLike): Result;
 decodeFunctionResult(functionFragment: 'usedOwnerExecuteNonces', data: BytesLike): Result;
+decodeFunctionResult(functionFragment: 'usedRedeemerExecuteNonces', data: BytesLike): Result;
 decodeFunctionResult(functionFragment: 'validatePaymasterUserOp', data: BytesLike): Result;
 decodeFunctionResult(functionFragment: 'withdrawTo', data: BytesLike): Result;
   }
@@ -248,6 +254,14 @@ decodeFunctionResult(functionFragment: 'withdrawTo', data: BytesLike): Result;
     
 
     
+    EXECUTE_FOR_REDEEMER_TYPEHASH: TypedContractMethod<
+      [],
+      [string],
+      'view'
+    >
+    
+
+    
     USDC: TypedContractMethod<
       [],
       [string],
@@ -352,6 +366,14 @@ decodeFunctionResult(functionFragment: 'withdrawTo', data: BytesLike): Result;
     
 
     
+    executeForRedeemer: TypedContractMethod<
+      [account: AddressLike, data: BytesLike, deadline: BigNumberish, nonce: BytesLike, redeemerSignature: BytesLike, ],
+      [void],
+      'nonpayable'
+    >
+    
+
+    
     getAddress: TypedContractMethod<
       [creator: AddressLike, index: BigNumberish, ],
       [string],
@@ -433,7 +455,7 @@ decodeFunctionResult(functionFragment: 'withdrawTo', data: BytesLike): Result;
 
     
     relayCancelFaucetPool: TypedContractMethod<
-      [account: AddressLike, passwordHash: BytesLike, ],
+      [account: AddressLike, code: string, ],
       [void],
       'nonpayable'
     >
@@ -441,7 +463,7 @@ decodeFunctionResult(functionFragment: 'withdrawTo', data: BytesLike): Result;
 
     
     relayCancelRedeem: TypedContractMethod<
-      [account: AddressLike, passwordHash: BytesLike, ],
+      [account: AddressLike, code: string, ],
       [void],
       'nonpayable'
     >
@@ -576,6 +598,14 @@ decodeFunctionResult(functionFragment: 'withdrawTo', data: BytesLike): Result;
     
 
     
+    usedRedeemerExecuteNonces: TypedContractMethod<
+      [arg0: BytesLike, ],
+      [boolean],
+      'view'
+    >
+    
+
+    
     validatePaymasterUserOp: TypedContractMethod<
       [userOp: PackedUserOperationStruct, arg1: BytesLike, arg2: BigNumberish, ],
       [[string, bigint] & {context: string, validationData: bigint }],
@@ -605,6 +635,11 @@ getFunction(nameOrSignature: 'ENTRY_POINT'): TypedContractMethod<
       'view'
     >;
 getFunction(nameOrSignature: 'EXECUTE_FOR_OWNER_TYPEHASH'): TypedContractMethod<
+      [],
+      [string],
+      'view'
+    >;
+getFunction(nameOrSignature: 'EXECUTE_FOR_REDEEMER_TYPEHASH'): TypedContractMethod<
       [],
       [string],
       'view'
@@ -674,6 +709,11 @@ getFunction(nameOrSignature: 'executeForOwner'): TypedContractMethod<
       [void],
       'nonpayable'
     >;
+getFunction(nameOrSignature: 'executeForRedeemer'): TypedContractMethod<
+      [account: AddressLike, data: BytesLike, deadline: BigNumberish, nonce: BytesLike, redeemerSignature: BytesLike, ],
+      [void],
+      'nonpayable'
+    >;
 getFunction(nameOrSignature: 'getAddress'): TypedContractMethod<
       [creator: AddressLike, index: BigNumberish, ],
       [string],
@@ -725,12 +765,12 @@ getFunction(nameOrSignature: 'quoteHelper'): TypedContractMethod<
       'view'
     >;
 getFunction(nameOrSignature: 'relayCancelFaucetPool'): TypedContractMethod<
-      [account: AddressLike, passwordHash: BytesLike, ],
+      [account: AddressLike, code: string, ],
       [void],
       'nonpayable'
     >;
 getFunction(nameOrSignature: 'relayCancelRedeem'): TypedContractMethod<
-      [account: AddressLike, passwordHash: BytesLike, ],
+      [account: AddressLike, code: string, ],
       [void],
       'nonpayable'
     >;
@@ -810,6 +850,11 @@ getFunction(nameOrSignature: 'updateDeployer'): TypedContractMethod<
       'nonpayable'
     >;
 getFunction(nameOrSignature: 'usedOwnerExecuteNonces'): TypedContractMethod<
+      [arg0: BytesLike, ],
+      [boolean],
+      'view'
+    >;
+getFunction(nameOrSignature: 'usedRedeemerExecuteNonces'): TypedContractMethod<
       [arg0: BytesLike, ],
       [boolean],
       'view'

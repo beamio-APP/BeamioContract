@@ -2,4 +2,4 @@
 /* tslint:disable */
 /* eslint-disable */
 export { BeamioOracle__factory } from './BeamioOracle__factory.js';
-export { BeamioOracle3__factory } from './BeamioOracle3__factory.js';
+export { BeamioOracle2__factory } from './BeamioOracle2__factory.js';

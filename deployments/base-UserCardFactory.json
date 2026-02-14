@@ -2,17 +2,21 @@
   "network": "base",
   "chainId": "8453",
   "deployer": "0x87cAeD4e51C36a2C2ece3Aaf4ddaC9693d2405E1",
-  "timestamp": "2026-02-05T19:44:30.142Z",
+  "timestamp": "2026-02-14T05:07:52.667Z",
   "contracts": {
+    "beamioUserCardDeployer": {
+      "address": "0x6dEcDe360B84D6f75Ae2Ddf777A5B2A96Da1EeCa",
+      "transactionHash": "0x1eee1c741198cffc93c7fe377e0057ed93b864facbb99e7ef1c2e321495bf121"
+    },
     "beamioUserCardFactoryPaymaster": {
-      "address": "0x7Ec828BAbA1c58C5021a6E7D29ccDDdB2d8D84bd",
+      "address": "0xbDC8a165820bB8FA23f5d953632409F73E804eE5",
       "usdc": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
-      "redeemModule": "0xD20eec1d847765fa9D13743aee3ceA93d1D5CF51",
+      "redeemModule": "0x68a1aEdD2BBd4a44822b370bc51aAd5278F9fE7B",
       "quoteHelper": "0x291BDb7044B3C31e62Cb07A47fe48d4835954ffF",
-      "deployer": "0x9909Cbb1e70670c066c7BB0488Dbdf32d86e8961",
-      "aaFactory": "0xB8AB5fdD3f5097b2A0887fe9Ab2B605b0a546BD1",
+      "deployer": "0x6dEcDe360B84D6f75Ae2Ddf777A5B2A96Da1EeCa",
+      "aaFactory": "0xD86403DD1755F7add19540489Ea10cdE876Cc1CE",
       "owner": "0x87cAeD4e51C36a2C2ece3Aaf4ddaC9693d2405E1",
-      "transactionHash": "0x89649e9cb67cdfaa8f878266b4bac1411c356e1b841217c1cceb2decb7b94d1b"
+      "transactionHash": "0x3f34e13c6ba8fac1d9bcd488732fbdab3c3c59cc1859d3bcd9eee4d6cebc8680"
     }
   }
 }

@@ -6,21 +6,25 @@ import type { TypedContractEvent, TypedDeferredTopicFilter, TypedEventLog, Typed
   
 
   export interface BeamioUserCardRedeemModuleVNextInterface extends Interface {
-    getFunction(nameOrSignature: "cancelRedeem" | "consumeRedeem" | "consumeRedeemPool" | "createRedeem" | "createRedeemPool" | "terminateRedeemPool"): FunctionFragment;
+    getFunction(nameOrSignature: "cancelRedeem" | "consumeRedeem" | "consumeRedeemBatch" | "consumeRedeemPool" | "createRedeem" | "createRedeemBatch" | "createRedeemPool" | "terminateRedeemPool"): FunctionFragment;
 
     getEvent(nameOrSignatureOrTopic: "RedeemCancelled" | "RedeemConsumed" | "RedeemCreated" | "RedeemPoolConsumed" | "RedeemPoolCreated" | "RedeemPoolTerminated"): EventFragment;
 
     encodeFunctionData(functionFragment: 'cancelRedeem', values: [string]): string;
 encodeFunctionData(functionFragment: 'consumeRedeem', values: [string, AddressLike]): string;
+encodeFunctionData(functionFragment: 'consumeRedeemBatch', values: [string[], AddressLike]): string;
 encodeFunctionData(functionFragment: 'consumeRedeemPool', values: [string, AddressLike]): string;
 encodeFunctionData(functionFragment: 'createRedeem', values: [BytesLike, BigNumberish, BigNumberish, BigNumberish, BigNumberish, BigNumberish[], BigNumberish[]]): string;
+encodeFunctionData(functionFragment: 'createRedeemBatch', values: [BytesLike[], BigNumberish, BigNumberish, BigNumberish, BigNumberish, BigNumberish[], BigNumberish[]]): string;
 encodeFunctionData(functionFragment: 'createRedeemPool', values: [BytesLike, BigNumberish, BigNumberish, BigNumberish[][], BigNumberish[][], BigNumberish[]]): string;
 encodeFunctionData(functionFragment: 'terminateRedeemPool', values: [BytesLike]): string;
 
     decodeFunctionResult(functionFragment: 'cancelRedeem', data: BytesLike): Result;
 decodeFunctionResult(functionFragment: 'consumeRedeem', data: BytesLike): Result;
+decodeFunctionResult(functionFragment: 'consumeRedeemBatch', data: BytesLike): Result;
 decodeFunctionResult(functionFragment: 'consumeRedeemPool', data: BytesLike): Result;
 decodeFunctionResult(functionFragment: 'createRedeem', data: BytesLike): Result;
+decodeFunctionResult(functionFragment: 'createRedeemBatch', data: BytesLike): Result;
 decodeFunctionResult(functionFragment: 'createRedeemPool', data: BytesLike): Result;
 decodeFunctionResult(functionFragment: 'terminateRedeemPool', data: BytesLike): Result;
   }
@@ -148,6 +152,14 @@ decodeFunctionResult(functionFragment: 'terminateRedeemPool', data: BytesLike): 
     
 
     
+    consumeRedeemBatch: TypedContractMethod<
+      [codes: string[], to: AddressLike, ],
+      [[bigint, bigint, bigint[], bigint[]] & {points6: bigint, attr: bigint, tokenIds: bigint[], amounts: bigint[] }],
+      'nonpayable'
+    >
+    
+
+    
     consumeRedeemPool: TypedContractMethod<
       [code: string, user: AddressLike, ],
       [[bigint[], bigint[]] & {tokenIds: bigint[], amounts: bigint[] }],
@@ -158,6 +170,14 @@ decodeFunctionResult(functionFragment: 'terminateRedeemPool', data: BytesLike): 
     
     createRedeem: TypedContractMethod<
       [hash: BytesLike, points6: BigNumberish, attr: BigNumberish, validAfter: BigNumberish, validBefore: BigNumberish, tokenIds: BigNumberish[], amounts: BigNumberish[], ],
+      [void],
+      'nonpayable'
+    >
+    
+
+    
+    createRedeemBatch: TypedContractMethod<
+      [hashes: BytesLike[], points6: BigNumberish, attr: BigNumberish, validAfter: BigNumberish, validBefore: BigNumberish, tokenIds: BigNumberish[], amounts: BigNumberish[], ],
       [void],
       'nonpayable'
     >
@@ -192,6 +212,11 @@ getFunction(nameOrSignature: 'consumeRedeem'): TypedContractMethod<
       [[bigint, bigint, bigint[], bigint[]] & {points6: bigint, attr: bigint, tokenIds: bigint[], amounts: bigint[] }],
       'nonpayable'
     >;
+getFunction(nameOrSignature: 'consumeRedeemBatch'): TypedContractMethod<
+      [codes: string[], to: AddressLike, ],
+      [[bigint, bigint, bigint[], bigint[]] & {points6: bigint, attr: bigint, tokenIds: bigint[], amounts: bigint[] }],
+      'nonpayable'
+    >;
 getFunction(nameOrSignature: 'consumeRedeemPool'): TypedContractMethod<
       [code: string, user: AddressLike, ],
       [[bigint[], bigint[]] & {tokenIds: bigint[], amounts: bigint[] }],
@@ -199,6 +224,11 @@ getFunction(nameOrSignature: 'consumeRedeemPool'): TypedContractMethod<
     >;
 getFunction(nameOrSignature: 'createRedeem'): TypedContractMethod<
       [hash: BytesLike, points6: BigNumberish, attr: BigNumberish, validAfter: BigNumberish, validBefore: BigNumberish, tokenIds: BigNumberish[], amounts: BigNumberish[], ],
+      [void],
+      'nonpayable'
+    >;
+getFunction(nameOrSignature: 'createRedeemBatch'): TypedContractMethod<
+      [hashes: BytesLike[], points6: BigNumberish, attr: BigNumberish, validAfter: BigNumberish, validBefore: BigNumberish, tokenIds: BigNumberish[], amounts: BigNumberish[], ],
       [void],
       'nonpayable'
     >;

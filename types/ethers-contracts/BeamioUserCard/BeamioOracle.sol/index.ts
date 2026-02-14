@@ -2,4 +2,4 @@
 /* tslint:disable */
 /* eslint-disable */
 export type { BeamioOracle } from './BeamioOracle.js';
-export type { BeamioOracle3 } from './BeamioOracle3.js';
+export type { BeamioOracle2 } from './BeamioOracle2.js';

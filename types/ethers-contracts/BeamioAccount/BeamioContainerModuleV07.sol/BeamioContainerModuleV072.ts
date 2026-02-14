@@ -10,12 +10,12 @@ import type { TypedContractEvent, TypedDeferredTopicFilter, TypedEventLog, Typed
   
 
   export interface BeamioContainerModuleV072Interface extends Interface {
-    getFunction(nameOrSignature: "cancelFaucetPool" | "cancelRedeem" | "containerMainRelayed" | "containerMainRelayedOpen" | "createFaucetPool" | "createRedeem" | "domainSeparator" | "faucetRedeemPool" | "hashItem" | "hashItems" | "openRelayedNonce" | "redeem" | "relayedNonce" | "simulateOpenContainer"): FunctionFragment;
+    getFunction(nameOrSignature: "cancelFaucetPool" | "cancelRedeem" | "containerMainRelayed" | "containerMainRelayedOpen" | "createFaucetPool" | "createRedeem" | "domainSeparator" | "faucetRedeemPool" | "hashItem" | "hashItems" | "openRelayedNonce" | "preExecuteCheck" | "redeem" | "relayedNonce" | "simulateOpenContainer"): FunctionFragment;
 
     getEvent(nameOrSignatureOrTopic: "ContainerRelayed" | "FaucetClaimed" | "FaucetPoolCancelled" | "FaucetPoolCreated" | "RedeemCancelled" | "RedeemCreated" | "Redeemed"): EventFragment;
 
-    encodeFunctionData(functionFragment: 'cancelFaucetPool', values: [BytesLike]): string;
-encodeFunctionData(functionFragment: 'cancelRedeem', values: [BytesLike]): string;
+    encodeFunctionData(functionFragment: 'cancelFaucetPool', values: [string]): string;
+encodeFunctionData(functionFragment: 'cancelRedeem', values: [string]): string;
 encodeFunctionData(functionFragment: 'containerMainRelayed', values: [AddressLike, ContainerItemStruct[], BigNumberish, BigNumberish, BytesLike]): string;
 encodeFunctionData(functionFragment: 'containerMainRelayedOpen', values: [AddressLike, ContainerItemStruct[], BigNumberish, BigNumberish, BigNumberish, BigNumberish, BytesLike]): string;
 encodeFunctionData(functionFragment: 'createFaucetPool', values: [BytesLike, BigNumberish, BigNumberish, ContainerItemStruct[]]): string;
@@ -25,6 +25,7 @@ encodeFunctionData(functionFragment: 'faucetRedeemPool', values: [string, Addres
 encodeFunctionData(functionFragment: 'hashItem', values: [ContainerItemStruct]): string;
 encodeFunctionData(functionFragment: 'hashItems', values: [ContainerItemStruct[]]): string;
 encodeFunctionData(functionFragment: 'openRelayedNonce', values?: undefined): string;
+encodeFunctionData(functionFragment: 'preExecuteCheck', values: [AddressLike, BigNumberish, BytesLike]): string;
 encodeFunctionData(functionFragment: 'redeem', values: [string, AddressLike]): string;
 encodeFunctionData(functionFragment: 'relayedNonce', values?: undefined): string;
 encodeFunctionData(functionFragment: 'simulateOpenContainer', values: [AddressLike, ContainerItemStruct[], BigNumberish, BigNumberish, BigNumberish, BigNumberish, BytesLike]): string;
@@ -40,6 +41,7 @@ decodeFunctionResult(functionFragment: 'faucetRedeemPool', data: BytesLike): Res
 decodeFunctionResult(functionFragment: 'hashItem', data: BytesLike): Result;
 decodeFunctionResult(functionFragment: 'hashItems', data: BytesLike): Result;
 decodeFunctionResult(functionFragment: 'openRelayedNonce', data: BytesLike): Result;
+decodeFunctionResult(functionFragment: 'preExecuteCheck', data: BytesLike): Result;
 decodeFunctionResult(functionFragment: 'redeem', data: BytesLike): Result;
 decodeFunctionResult(functionFragment: 'relayedNonce', data: BytesLike): Result;
 decodeFunctionResult(functionFragment: 'simulateOpenContainer', data: BytesLike): Result;
@@ -165,7 +167,7 @@ decodeFunctionResult(functionFragment: 'simulateOpenContainer', data: BytesLike)
     
     
     cancelFaucetPool: TypedContractMethod<
-      [passwordHash: BytesLike, ],
+      [code: string, ],
       [void],
       'nonpayable'
     >
@@ -173,7 +175,7 @@ decodeFunctionResult(functionFragment: 'simulateOpenContainer', data: BytesLike)
 
     
     cancelRedeem: TypedContractMethod<
-      [passwordHash: BytesLike, ],
+      [code: string, ],
       [void],
       'nonpayable'
     >
@@ -252,6 +254,14 @@ decodeFunctionResult(functionFragment: 'simulateOpenContainer', data: BytesLike)
     
 
     
+    preExecuteCheck: TypedContractMethod<
+      [dest: AddressLike, arg1: BigNumberish, func: BytesLike, ],
+      [void],
+      'view'
+    >
+    
+
+    
     redeem: TypedContractMethod<
       [password: string, to: AddressLike, ],
       [void],
@@ -279,12 +289,12 @@ decodeFunctionResult(functionFragment: 'simulateOpenContainer', data: BytesLike)
     getFunction<T extends ContractMethod = ContractMethod>(key: string | FunctionFragment): T;
 
     getFunction(nameOrSignature: 'cancelFaucetPool'): TypedContractMethod<
-      [passwordHash: BytesLike, ],
+      [code: string, ],
       [void],
       'nonpayable'
     >;
 getFunction(nameOrSignature: 'cancelRedeem'): TypedContractMethod<
-      [passwordHash: BytesLike, ],
+      [code: string, ],
       [void],
       'nonpayable'
     >;
@@ -331,6 +341,11 @@ getFunction(nameOrSignature: 'hashItems'): TypedContractMethod<
 getFunction(nameOrSignature: 'openRelayedNonce'): TypedContractMethod<
       [],
       [bigint],
+      'view'
+    >;
+getFunction(nameOrSignature: 'preExecuteCheck'): TypedContractMethod<
+      [dest: AddressLike, arg1: BigNumberish, func: BytesLike, ],
+      [void],
       'view'
     >;
 getFunction(nameOrSignature: 'redeem'): TypedContractMethod<

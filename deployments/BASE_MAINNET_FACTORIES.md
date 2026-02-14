@@ -1,6 +1,6 @@
 # Base Mainnet 基础设施地址
 
-**单一数据源：** `config/base-addresses.ts`。AA Factory 重部署后会更新该文件，UI/API/SDK 均从此处或同步文件读取。
+**单一数据源：** `config/base-addresses.ts`。AA/Card Factory 重部署后会更新该文件，UI/API/SDK 均从此处或同步文件读取。
 
 ---
 
@@ -12,7 +12,7 @@
 | 项目 | 值 |
 |------|-----|
 | **合约** | BeamioFactoryPaymasterV07 |
-| **地址** | 见 `config/base-addresses.ts`（当前为 `0xD4759c85684e47A02223152b85C25D2E5cD2E738`） |
+| **地址** | 见 config/base-addresses.ts（当前为 `0xD86403DD1755F7add19540489Ea10cdE876Cc1CE`） |
 | **网络** | Base Mainnet (Chain ID: 8453) |
 
 **重部署 AA Factory：** `npm run redeploy:aa-factory:base`。完成后需由 Card Factory owner 执行 `npm run set:card-factory-aa:base`（或链上调用 `setAAFactory(新地址)`）。
@@ -26,42 +26,18 @@
 | 项目 | 值 |
 |------|-----|
 | **合约** | BeamioUserCardFactoryPaymasterV07 |
-| **地址** | 见 `config/base-addresses.ts`（当前为 `0x73e3b722Eb55C92Fe73DEC01c064a5C677079E03`） |
+| **地址** | 见 config/base-addresses.ts（当前为 `0xbDC8a165820bB8FA23f5d953632409F73E804eE5`） |
 | **网络** | Base Mainnet (Chain ID: 8453) |
 
----
-
-## APP 配置示例
-
-```ts
-// 固定常量，部署到所有 APP
-export const BASE_MAINNET_CHAIN_ID = 8453;
-
-export const BASE_MAINNET_FACTORIES = {
-  /** AA 账户工厂 (BeamioFactoryPaymasterV07) */
-  AA_FACTORY: '0xD4759c85684e47A02223152b85C25D2E5cD2E738',
-  /** UserCard 工厂 (BeamioUserCardFactoryPaymasterV07) */
-  CARD_FACTORY: '0x73e3b722Eb55C92Fe73DEC01c064a5C677079E03',
-} as const;
-```
-
-```json
-{
-  "base": {
-    "chainId": 8453,
-    "aaFactory": "0xD4759c85684e47A02223152b85C25D2E5cD2E738",
-    "cardFactory": "0x73e3b722Eb55C92Fe73DEC01c064a5C677079E03"
-  }
-}
-```
+**重部署 Card Factory：** `npm run redeploy:card-factory:base`。自动更新 SilentPassUI、x402sdk、config。
 
 ---
 
 ## 区块浏览器
 
-- AA Factory: https://basescan.org/address/0xD4759c85684e47A02223152b85C25D2E5cD2E738  
-- Card Factory: https://basescan.org/address/0x73e3b722Eb55C92Fe73DEC01c064a5C677079E03  
+- AA Factory: https://basescan.org/address/0xD86403DD1755F7add19540489Ea10cdE876Cc1CE
+- Card Factory: https://basescan.org/address/0xbDC8a165820bB8FA23f5d953632409F73E804eE5
 
 ---
 
-*Card Factory 请勿随意重部署；AA Factory 可按需重部署并更新 config 与 Card Factory 的 aaFactory。*
+*Card Factory 重部署后请运行 `npm run redeploy:card-factory:base` 以自动更新所有配置。*

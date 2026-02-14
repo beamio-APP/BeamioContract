@@ -2,4 +2,4 @@
 /* tslint:disable */
 /* eslint-disable */
 export type { BeamioFactoryPaymasterV07 } from './BeamioFactoryPaymasterV07.js';
-export type { BeamioFactoryPaymasterV073 } from './BeamioFactoryPaymasterV073.js';
+export type { BeamioFactoryPaymasterV072 } from './BeamioFactoryPaymasterV072.js';

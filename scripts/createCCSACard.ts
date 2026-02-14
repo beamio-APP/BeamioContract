@@ -26,15 +26,23 @@ async function main() {
     ? ethers.getAddress(process.env.CARD_OWNER)
     : ethers.getAddress(DEFAULT_CARD_OWNER);
 
-  const deploymentsDir = path.join(__dirname, "..", "deployments");
-  const fullFile = path.join(deploymentsDir, "base-FullAccountAndUserCard.json");
-  if (!fs.existsSync(fullFile)) {
-    throw new Error("未找到 deployments/base-FullAccountAndUserCard.json");
+  // 优先从 config 读取新 Card Factory；fallback 到 base-FullAccountAndUserCard.json
+  const configPath = path.join(__dirname, "..", "config", "base-addresses.ts");
+  let cardFactoryAddress: string | undefined;
+  if (fs.existsSync(configPath)) {
+    const config = fs.readFileSync(configPath, "utf-8");
+    const m = config.match(/CARD_FACTORY:\s*['"](0x[a-fA-F0-9]{40})['"]/);
+    if (m) cardFactoryAddress = m[1];
   }
-  const data = JSON.parse(fs.readFileSync(fullFile, "utf-8"));
-  const cardFactoryAddress = data.contracts?.beamioUserCardFactoryPaymaster?.address;
   if (!cardFactoryAddress) {
-    throw new Error("部署文件中缺少 beamioUserCardFactoryPaymaster 地址");
+    const fullFile = path.join(__dirname, "..", "deployments", "base-FullAccountAndUserCard.json");
+    if (fs.existsSync(fullFile)) {
+      const data = JSON.parse(fs.readFileSync(fullFile, "utf-8"));
+      cardFactoryAddress = data.contracts?.beamioUserCardFactoryPaymaster?.address;
+    }
+  }
+  if (!cardFactoryAddress) {
+    throw new Error("未找到 Card Factory 地址（请检查 config/base-addresses.ts 或 deployments/base-FullAccountAndUserCard.json）");
   }
 
   const cardFactory = await ethers.getContractAt(

@@ -2,4 +2,4 @@
 /* tslint:disable */
 /* eslint-disable */
 export type { BeamioUserCardDeployerV07 } from './BeamioUserCardDeployerV07.js';
-export type { BeamioUserCardDeployerV073 } from './BeamioUserCardDeployerV073.js';
+export type { BeamioUserCardDeployerV072 } from './BeamioUserCardDeployerV072.js';

@@ -1,5 +1,6 @@
 import { ethers } from 'ethers'
-import BeamioFactoryPaymasterABI from './ABI/BeamioUserCardFactoryPaymaster.json'
+import BeamioFactoryPaymasterArtifact from './ABI/BeamioUserCardFactoryPaymaster.json'
+const BeamioFactoryPaymasterABI = (Array.isArray(BeamioFactoryPaymasterArtifact) ? BeamioFactoryPaymasterArtifact : (BeamioFactoryPaymasterArtifact?.abi ?? BeamioFactoryPaymasterArtifact)) 
 import { masterSetup, checkSign } from './util'
 import { Request, Response} from 'express'
 import { logger } from './logger'
@@ -44,7 +45,7 @@ if (!BeamioAAAccountFactoryPaymaster) BeamioAAAccountFactoryPaymaster = '0xFD48F
 const BeamioOracle = '0xDa4AE8301262BdAaf1bb68EC91259E6C512A9A2B'
 const beamioConetAddress = '0xCE8e2Cda88FfE2c99bc88D9471A3CBD08F519FEd'
 /** UserCard gateway = AA Factory（与 config/base-addresses AA_FACTORY 一致） */
-const BeamioUserCardGatewayAddress = '0xD4759c85684e47A02223152b85C25D2E5cD2E738'
+const BeamioUserCardGatewayAddress = BeamioAAAccountFactoryPaymaster
 
 const BeamioTaskIndexerAddress = '0x43b25Da1d5516E98D569C1848b84d74B4b8cA6ad'
 const DIAMOND = BeamioTaskIndexerAddress
@@ -1032,7 +1033,7 @@ async function setTier(ownerPk: string, cardAddr: string) {
 	console.log('tiersCount(before)=', (await card.getTiersCount()).toString())
   
 	// 超低门槛，保证你买 0.01 USDC 后会触发发卡
-	const tx = await card.appendTier(1n, 1n, { gasLimit: 500_000 })
+	const tx = await card.appendTier(1n, 1n, 0n, { gasLimit: 500_000 }) // 0 = use global expirySeconds
 	await tx.wait()
   
 	console.log('tiersCount(after)=', (await card.getTiersCount()).toString())
@@ -1128,12 +1129,18 @@ export const purchasingCardProcess = async () => {
 
 
 
-		const tx = await card.buyPointsWith3009Authorization(
+		// 新合约设计：购点通过 Card Factory.buyPointsForUser，不再直接调用 card.buyPointsWith3009Authorization
+		// 显式使用 BASE_CARD_FACTORY，避免错误配置导致调用到卡地址（卡无 buyPointsForUser 会 revert）
+		const cardFactory = new ethers.Contract(BASE_CARD_FACTORY, BeamioFactoryPaymasterABI, SC.walletBase)
+		const nonceBytes32 = (typeof nonce === 'string' && nonce.startsWith('0x') ? ethers.zeroPadValue(nonce, 32) : ethers.zeroPadValue(ethers.toBeHex(BigInt(nonce)), 32))
+		logger(Colors.gray(`[purchasingCardProcess] buyPointsForUser factory=${BASE_CARD_FACTORY} card=${cardAddress}`))
+		const tx = await cardFactory.buyPointsForUser(
+			cardAddress,
 			from,
 			usdcAmount,
 			validAfter,
 			validBefore,
-			nonce,
+			nonceBytes32,
 			userSignature,
 			0
 		)
@@ -1182,24 +1189,27 @@ export const purchasingCardProcess = async () => {
 
 		logger(Colors.green(`✅ purchasingCardProcess note: ${payMe}`));
 
-
 		await tx.wait()
-		
-			
-			// tx 为 ethers TransactionResponse，只有 tx.hash，无 tx.finishedHash；合约 bytes32 用交易哈希 tx.hash 即可
-		const tr = await SC.conetSC.transferRecord(
+		// 购点成功即返回客户端，transferRecord / syncTokenAction 失败不影响
+		if (obj.res && !obj.res.headersSent) obj.res.status(200).json({ success: true, USDC_tx: tx.hash }).end()
+
+		try {
+			const tr = await SC.conetSC.transferRecord(
 				obj.from,
 				to,
 				usdcAmount,
 				tx.hash,
 				`\r\n${JSON.stringify(payMe)}`
-			)	
-		await tr.wait()
-		const actionFacet = await SC.BeamioTaskDiamondAction
-		const tx2 = await actionFacet.syncTokenAction(input)
-		await tx2.wait()
-		obj.res.status(200).json({success: true, USDC_tx: tx.hash}).end()
-		logger(Colors.green(`✅ purchasingCardProcess success! Hash: ${tx.hash}`), `✅ conetSC Hash: ${tr.hash}`, `✅ syncTokenAction Hash: ${tx2.hash}`);
+			)
+			await tr.wait()
+			const actionFacet = await SC.BeamioTaskDiamondAction
+			const tx2 = await actionFacet.syncTokenAction(input)
+			await tx2.wait()
+			logger(Colors.green(`✅ purchasingCardProcess success! Hash: ${tx.hash}`), `✅ conetSC Hash: ${tr.hash}`, `✅ syncTokenAction Hash: ${tx2.hash}`)
+		} catch (accountingErr: any) {
+			// Diamond: fn not found 等：syncTokenAction 未在 Diamond 上配置时，购点已成功，仅记账失败
+			logger(Colors.yellow(`[purchasingCardProcess] accounting non-critical (purchase succeeded): ${accountingErr?.shortMessage ?? accountingErr?.message ?? String(accountingErr)}`))
+		}
 		
 		
 	} catch (error: any) {

@@ -6,9 +6,9 @@ import type { TypedContractEvent, TypedDeferredTopicFilter, TypedEventLog, Typed
   
 
   export interface BeamioUserCardFactoryPaymasterV07Interface extends Interface {
-    getFunction(nameOrSignature: "DOMAIN_SEPARATOR" | "EXECUTE_FOR_OWNER_TYPEHASH" | "USDC" | "USDC_TOKEN" | "_aaFactory" | "aaFactory" | "beamioUserCardOwner" | "buyPointsForUser" | "cardsOfOwner" | "changePaymasterStatus" | "createCardCollectionWithInitCode" | "defaultRedeemModule" | "deployer" | "executeForOwner" | "isBeamioUserCard" | "isCardOfOwner" | "isPaymaster" | "isTokenIdIssued" | "issueTokenId" | "latestCardOfOwner" | "nextFungibleId" | "nextNftId" | "owner" | "purchaseFaucetForUser" | "quoteCurrencyAmountInUSDC6" | "quoteHelper" | "quoteUnitPointInUSDC6" | "redeemForUser" | "redeemPoolForUser" | "registerExistingCard" | "setAAFactory" | "setDeployer" | "setQuoteHelper" | "setRedeemModule" | "tokenIdIssued" | "transferOwner" | "usedOwnerExecuteNonces"): FunctionFragment;
+    getFunction(nameOrSignature: "DOMAIN_SEPARATOR" | "EXECUTE_FOR_OWNER_TYPEHASH" | "USDC" | "USDC_TOKEN" | "_aaFactory" | "aaFactory" | "beamioUserCardOwner" | "buyPointsForUser" | "cardsOfOwner" | "changePaymasterStatus" | "createCardCollectionWithInitCode" | "defaultRedeemModule" | "deployer" | "executeForOwner" | "isBeamioUserCard" | "isCardOfOwner" | "isPaymaster" | "isTokenIdIssued" | "issueTokenId" | "latestCardOfOwner" | "nextFungibleId" | "nextNftId" | "owner" | "purchaseFaucetForUser" | "purchaseIssuedNftForUser" | "quoteCurrencyAmountInUSDC6" | "quoteHelper" | "quoteUnitPointInUSDC6" | "redeemBatchForUser" | "redeemForUser" | "redeemPoolForUser" | "registerExistingCard" | "setAAFactory" | "setDeployer" | "setQuoteHelper" | "setRedeemModule" | "tokenIdIssued" | "transferOwner" | "usedOwnerExecuteNonces"): FunctionFragment;
 
-    getEvent(nameOrSignatureOrTopic: "AAFactoryChanged" | "CardDeployed" | "CardRegistered" | "DefaultRedeemModuleUpdated" | "DeployerChanged" | "OwnerChanged" | "PaymasterStatusChanged" | "PointsPurchasedForUser" | "QuoteHelperChanged" | "RedeemExecuted" | "TokenIdIssued"): EventFragment;
+    getEvent(nameOrSignatureOrTopic: "AAFactoryChanged" | "CardDeployed" | "CardRegistered" | "DefaultRedeemModuleUpdated" | "DeployerChanged" | "IssuedNftPurchasedForUser" | "OwnerChanged" | "PaymasterStatusChanged" | "PointsPurchasedForUser" | "QuoteHelperChanged" | "RedeemExecuted" | "TokenIdIssued"): EventFragment;
 
     encodeFunctionData(functionFragment: 'DOMAIN_SEPARATOR', values?: undefined): string;
 encodeFunctionData(functionFragment: 'EXECUTE_FOR_OWNER_TYPEHASH', values?: undefined): string;
@@ -34,9 +34,11 @@ encodeFunctionData(functionFragment: 'nextFungibleId', values?: undefined): stri
 encodeFunctionData(functionFragment: 'nextNftId', values?: undefined): string;
 encodeFunctionData(functionFragment: 'owner', values?: undefined): string;
 encodeFunctionData(functionFragment: 'purchaseFaucetForUser', values: [AddressLike, AddressLike, BigNumberish, BigNumberish, BigNumberish, BigNumberish, BytesLike, BytesLike]): string;
+encodeFunctionData(functionFragment: 'purchaseIssuedNftForUser', values: [AddressLike, AddressLike, BigNumberish, BigNumberish, BigNumberish, BigNumberish, BytesLike, BytesLike]): string;
 encodeFunctionData(functionFragment: 'quoteCurrencyAmountInUSDC6', values: [BigNumberish, BigNumberish]): string;
 encodeFunctionData(functionFragment: 'quoteHelper', values?: undefined): string;
 encodeFunctionData(functionFragment: 'quoteUnitPointInUSDC6', values: [AddressLike]): string;
+encodeFunctionData(functionFragment: 'redeemBatchForUser', values: [AddressLike, string[], AddressLike]): string;
 encodeFunctionData(functionFragment: 'redeemForUser', values: [AddressLike, string, AddressLike]): string;
 encodeFunctionData(functionFragment: 'redeemPoolForUser', values: [AddressLike, string, AddressLike]): string;
 encodeFunctionData(functionFragment: 'registerExistingCard', values: [AddressLike, AddressLike]): string;
@@ -72,9 +74,11 @@ decodeFunctionResult(functionFragment: 'nextFungibleId', data: BytesLike): Resul
 decodeFunctionResult(functionFragment: 'nextNftId', data: BytesLike): Result;
 decodeFunctionResult(functionFragment: 'owner', data: BytesLike): Result;
 decodeFunctionResult(functionFragment: 'purchaseFaucetForUser', data: BytesLike): Result;
+decodeFunctionResult(functionFragment: 'purchaseIssuedNftForUser', data: BytesLike): Result;
 decodeFunctionResult(functionFragment: 'quoteCurrencyAmountInUSDC6', data: BytesLike): Result;
 decodeFunctionResult(functionFragment: 'quoteHelper', data: BytesLike): Result;
 decodeFunctionResult(functionFragment: 'quoteUnitPointInUSDC6', data: BytesLike): Result;
+decodeFunctionResult(functionFragment: 'redeemBatchForUser', data: BytesLike): Result;
 decodeFunctionResult(functionFragment: 'redeemForUser', data: BytesLike): Result;
 decodeFunctionResult(functionFragment: 'redeemPoolForUser', data: BytesLike): Result;
 decodeFunctionResult(functionFragment: 'registerExistingCard', data: BytesLike): Result;
@@ -140,6 +144,18 @@ decodeFunctionResult(functionFragment: 'usedOwnerExecuteNonces', data: BytesLike
       export type InputTuple = [oldD: AddressLike, newD: AddressLike];
       export type OutputTuple = [oldD: string, newD: string];
       export interface OutputObject {oldD: string, newD: string };
+      export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>
+      export type Filter = TypedDeferredTopicFilter<Event>
+      export type Log = TypedEventLog<Event>
+      export type LogDescription = TypedLogDescription<Event>
+    }
+
+  
+
+    export namespace IssuedNftPurchasedForUserEvent {
+      export type InputTuple = [card: AddressLike, userEOA: AddressLike, cardOwner: AddressLike, tokenId: BigNumberish, amount: BigNumberish, usdcAmount6: BigNumberish, nonce: BytesLike];
+      export type OutputTuple = [card: string, userEOA: string, cardOwner: string, tokenId: bigint, amount: bigint, usdcAmount6: bigint, nonce: string];
+      export interface OutputObject {card: string, userEOA: string, cardOwner: string, tokenId: bigint, amount: bigint, usdcAmount6: bigint, nonce: string };
       export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>
       export type Filter = TypedDeferredTopicFilter<Event>
       export type Log = TypedEventLog<Event>
@@ -446,6 +462,14 @@ decodeFunctionResult(functionFragment: 'usedOwnerExecuteNonces', data: BytesLike
     
 
     
+    purchaseIssuedNftForUser: TypedContractMethod<
+      [cardAddr: AddressLike, userEOA: AddressLike, tokenId: BigNumberish, amount: BigNumberish, validAfter: BigNumberish, validBefore: BigNumberish, nonce: BytesLike, signature: BytesLike, ],
+      [void],
+      'nonpayable'
+    >
+    
+
+    
     quoteCurrencyAmountInUSDC6: TypedContractMethod<
       [cur: BigNumberish, amount6: BigNumberish, ],
       [bigint],
@@ -466,6 +490,14 @@ decodeFunctionResult(functionFragment: 'usedOwnerExecuteNonces', data: BytesLike
       [card: AddressLike, ],
       [bigint],
       'view'
+    >
+    
+
+    
+    redeemBatchForUser: TypedContractMethod<
+      [cardAddr: AddressLike, codes: string[], userEOA: AddressLike, ],
+      [void],
+      'nonpayable'
     >
     
 
@@ -672,6 +704,11 @@ getFunction(nameOrSignature: 'purchaseFaucetForUser'): TypedContractMethod<
       [void],
       'nonpayable'
     >;
+getFunction(nameOrSignature: 'purchaseIssuedNftForUser'): TypedContractMethod<
+      [cardAddr: AddressLike, userEOA: AddressLike, tokenId: BigNumberish, amount: BigNumberish, validAfter: BigNumberish, validBefore: BigNumberish, nonce: BytesLike, signature: BytesLike, ],
+      [void],
+      'nonpayable'
+    >;
 getFunction(nameOrSignature: 'quoteCurrencyAmountInUSDC6'): TypedContractMethod<
       [cur: BigNumberish, amount6: BigNumberish, ],
       [bigint],
@@ -686,6 +723,11 @@ getFunction(nameOrSignature: 'quoteUnitPointInUSDC6'): TypedContractMethod<
       [card: AddressLike, ],
       [bigint],
       'view'
+    >;
+getFunction(nameOrSignature: 'redeemBatchForUser'): TypedContractMethod<
+      [cardAddr: AddressLike, codes: string[], userEOA: AddressLike, ],
+      [void],
+      'nonpayable'
     >;
 getFunction(nameOrSignature: 'redeemForUser'): TypedContractMethod<
       [cardAddr: AddressLike, code: string, userEOA: AddressLike, ],
@@ -743,6 +785,7 @@ getEvent(key: 'CardDeployed'): TypedContractEvent<CardDeployedEvent.InputTuple, 
 getEvent(key: 'CardRegistered'): TypedContractEvent<CardRegisteredEvent.InputTuple, CardRegisteredEvent.OutputTuple, CardRegisteredEvent.OutputObject>;
 getEvent(key: 'DefaultRedeemModuleUpdated'): TypedContractEvent<DefaultRedeemModuleUpdatedEvent.InputTuple, DefaultRedeemModuleUpdatedEvent.OutputTuple, DefaultRedeemModuleUpdatedEvent.OutputObject>;
 getEvent(key: 'DeployerChanged'): TypedContractEvent<DeployerChangedEvent.InputTuple, DeployerChangedEvent.OutputTuple, DeployerChangedEvent.OutputObject>;
+getEvent(key: 'IssuedNftPurchasedForUser'): TypedContractEvent<IssuedNftPurchasedForUserEvent.InputTuple, IssuedNftPurchasedForUserEvent.OutputTuple, IssuedNftPurchasedForUserEvent.OutputObject>;
 getEvent(key: 'OwnerChanged'): TypedContractEvent<OwnerChangedEvent.InputTuple, OwnerChangedEvent.OutputTuple, OwnerChangedEvent.OutputObject>;
 getEvent(key: 'PaymasterStatusChanged'): TypedContractEvent<PaymasterStatusChangedEvent.InputTuple, PaymasterStatusChangedEvent.OutputTuple, PaymasterStatusChangedEvent.OutputObject>;
 getEvent(key: 'PointsPurchasedForUser'): TypedContractEvent<PointsPurchasedForUserEvent.InputTuple, PointsPurchasedForUserEvent.OutputTuple, PointsPurchasedForUserEvent.OutputObject>;
@@ -770,6 +813,10 @@ getEvent(key: 'TokenIdIssued'): TypedContractEvent<TokenIdIssuedEvent.InputTuple
 
       'DeployerChanged(address,address)': TypedContractEvent<DeployerChangedEvent.InputTuple, DeployerChangedEvent.OutputTuple, DeployerChangedEvent.OutputObject>;
       DeployerChanged: TypedContractEvent<DeployerChangedEvent.InputTuple, DeployerChangedEvent.OutputTuple, DeployerChangedEvent.OutputObject>;
+    
+
+      'IssuedNftPurchasedForUser(address,address,address,uint256,uint256,uint256,bytes32)': TypedContractEvent<IssuedNftPurchasedForUserEvent.InputTuple, IssuedNftPurchasedForUserEvent.OutputTuple, IssuedNftPurchasedForUserEvent.OutputObject>;
+      IssuedNftPurchasedForUser: TypedContractEvent<IssuedNftPurchasedForUserEvent.InputTuple, IssuedNftPurchasedForUserEvent.OutputTuple, IssuedNftPurchasedForUserEvent.OutputObject>;
     
 
       'OwnerChanged(address,address)': TypedContractEvent<OwnerChangedEvent.InputTuple, OwnerChangedEvent.OutputTuple, OwnerChangedEvent.OutputObject>;

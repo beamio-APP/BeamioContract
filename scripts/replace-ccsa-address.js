@@ -1,56 +1,77 @@
 #!/usr/bin/env node
 /**
- * 将代码库中旧的 CCSA 卡地址替换为新地址。
+ * 将代码库中 CCSA 卡地址替换为新地址。
  * 用法：
  *   NEW_CCSA_ADDRESS=0x... node scripts/replace-ccsa-address.js
  *   或
  *   node scripts/replace-ccsa-address.js 0x新地址
  *
- * 新地址需先通过 createCCSA 发行：
- *   cd src/x402sdk && npx ts-node src/createCCSA.ts
+ * 可选 OLD_CCSA_ADDRESS 指定旧地址，否则自动从 chainAddresses 提取当前值并替换。
  *
- * 更新的文件（单一数据源）：x402sdk/chainAddresses、SilentPassUI/config、deployments JSON。
- * MemberCard（x402sdk 与 scripts/API server）与 SilentPassUI/contracts 均从上述配置读取，无需再替换。
+ * 新地址需先通过 createCCSA 发行：
+ *   CARD_OWNER=0xEaBF0A98aC208647247eAA25fDD4eB0e67793d61 npm run create:ccsa:base
+ *
+ * 更新的文件：x402sdk/chainAddresses、SilentPassUI/config、deployments JSON。
  */
-const fs = require('fs')
-const path = require('path')
+import fs from 'fs'
+import path from 'path'
+import { fileURLToPath } from 'url'
 
-const OLD = '0xd81B78B3E3253b37B44b75E88b6965FE887721a3'
+const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const ROOT = path.resolve(__dirname, '..')
+const ADDR_REGEX = /0x[a-fA-F0-9]{40}/
 
 const FILES = [
-  'src/x402sdk/src/chainAddresses.ts',
-  'src/SilentPassUI/src/config/chainAddresses.ts',
-  'deployments/base-UserCard-0xEaBF0A98.json',
+  { path: 'src/x402sdk/src/chainAddresses.ts', pattern: /BASE_CCSA_CARD_ADDRESS\s*=\s*'0x[a-fA-F0-9]{40}'/ },
+  { path: 'src/SilentPassUI/src/config/chainAddresses.ts', pattern: /BeamioCardCCSA_ADDRESS:\s*'0x[a-fA-F0-9]{40}'/ },
+  { path: 'deployments/base-UserCard-0xEaBF0A98.json', pattern: /"userCard"\s*:\s*"0x[a-fA-F0-9]{40}"/ },
 ]
 
 function main() {
-  const newAddr = process.env.NEW_CCSA_ADDRESS || process.argv[2]
+  const newAddr = (process.env.NEW_CCSA_ADDRESS || process.argv[2] || '').trim()
   if (!newAddr || !/^0x[a-fA-F0-9]{40}$/.test(newAddr)) {
     console.error('Usage: NEW_CCSA_ADDRESS=0x... node scripts/replace-ccsa-address.js')
     console.error('   or: node scripts/replace-ccsa-address.js 0x<new-address>')
     process.exit(1)
   }
 
+  const oldAddr = process.env.OLD_CCSA_ADDRESS || null
   let replaced = 0
-  for (const rel of FILES) {
+
+  for (const { path: rel, pattern } of FILES) {
     const file = path.join(ROOT, rel)
     if (!fs.existsSync(file)) {
       console.warn('Skip (not found):', rel)
       continue
     }
     let content = fs.readFileSync(file, 'utf8')
-    const count = (content.match(new RegExp(OLD.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'gi')) || []).length
-    if (count === 0) {
-      console.log('No match:', rel)
-      continue
+
+    if (pattern) {
+      const match = content.match(pattern)
+      if (match) {
+        const current = match[0].match(ADDR_REGEX)[0]
+        if (oldAddr && current.toLowerCase() !== oldAddr.toLowerCase()) {
+          console.warn('Skip (current addr differs from OLD_CCSA_ADDRESS):', rel)
+          continue
+        }
+        content = content.replace(pattern, match[0].replace(current, newAddr))
+        fs.writeFileSync(file, content)
+        console.log('Updated:', rel, current, '->', newAddr)
+        replaced++
+      } else {
+        console.log('No match:', rel)
+      }
+    } else {
+      const m = content.match(ADDR_REGEX)
+      if (m && (oldAddr ? m[0].toLowerCase() === oldAddr.toLowerCase() : true)) {
+        content = content.replace(m[0], newAddr)
+        fs.writeFileSync(file, content)
+        console.log('Updated:', rel)
+        replaced++
+      }
     }
-    content = content.split(OLD).join(newAddr)
-    fs.writeFileSync(file, content)
-    console.log('Updated', count, 'occurrence(s):', rel)
-    replaced += count
   }
-  console.log('Done. Replaced', replaced, 'occurrence(s) with', newAddr)
+  console.log('Done. Updated', replaced, 'file(s) with', newAddr)
 }
 
 main()

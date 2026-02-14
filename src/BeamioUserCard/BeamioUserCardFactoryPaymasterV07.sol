@@ -80,6 +80,15 @@ contract BeamioUserCardFactoryPaymasterV07 is IBeamioFactoryOracle {
         uint256 pointsOut6,
         bytes32 nonce
     );
+    event IssuedNftPurchasedForUser(
+        address indexed card,
+        address indexed userEOA,
+        address indexed cardOwner,
+        uint256 tokenId,
+        uint256 amount,
+        uint256 usdcAmount6,
+        bytes32 nonce
+    );
 
     modifier onlyOwner() {
         if (msg.sender != owner) revert BM_NotAuthorized();
@@ -267,6 +276,19 @@ contract BeamioUserCardFactoryPaymasterV07 is IBeamioFactoryOracle {
         emit RedeemExecuted(cardAddr, userEOA, keccak256(bytes(code)));
     }
 
+    /// @notice 批量 one-time redeem（多张相同类型）
+    function redeemBatchForUser(address cardAddr, string[] calldata codes, address userEOA) external onlyPaymaster {
+        if (userEOA == address(0)) revert BM_ZeroAddress();
+        if (cardAddr == address(0) || cardAddr.code.length == 0) revert BM_ZeroAddress();
+        if (BeamioUserCard(cardAddr).factoryGateway() != address(this)) revert BM_NotAuthorized();
+        if (codes.length == 0) revert F_InvalidRedeemHash();
+
+        BeamioUserCard(cardAddr).redeemBatchByGateway(codes, userEOA);
+        for (uint256 i = 0; i < codes.length; i++) {
+            emit RedeemExecuted(cardAddr, userEOA, keccak256(bytes(codes[i])));
+        }
+    }
+
     function redeemPoolForUser(address cardAddr, string calldata code, address userEOA) external onlyPaymaster {
         if (userEOA == address(0)) revert BM_ZeroAddress();
         if (cardAddr == address(0) || cardAddr.code.length == 0) revert BM_ZeroAddress();
@@ -357,6 +379,46 @@ contract BeamioUserCardFactoryPaymasterV07 is IBeamioFactoryOracle {
 
         // 2) Card: mint faucet tokens to user's AA account
         card.mintFaucetByGateway(userEOA, id, amount6);
+    }
+
+    // ==========================================================
+    // Purchase issued NFT for user (USDC ERC-3009 -> merchant, then mint issued NFT)
+    // ==========================================================
+    function purchaseIssuedNftForUser(
+        address cardAddr,
+        address userEOA,
+        uint256 tokenId,
+        uint256 amount,
+        uint256 validAfter,
+        uint256 validBefore,
+        bytes32 nonce,
+        bytes calldata signature
+    ) external onlyPaymaster {
+        if (userEOA == address(0)) revert BM_ZeroAddress();
+        if (cardAddr == address(0) || cardAddr.code.length == 0) revert BM_ZeroAddress();
+        if (BeamioUserCard(cardAddr).factoryGateway() != address(this)) revert BM_NotAuthorized();
+        if (amount == 0) revert UC_AmountZero();
+
+        BeamioUserCard card = BeamioUserCard(cardAddr);
+        address cardOwner = card.owner();
+        if (cardOwner == address(0)) revert BM_ZeroAddress();
+
+        uint256 priceInCurrency6 = card.issuedNftPriceInCurrency6(tokenId);
+        if (priceInCurrency6 == 0) revert UC_PurchaseDisabledBecauseFree();
+
+        uint256 totalPriceInCurrency6 = amount * priceInCurrency6;
+        uint256 usdcAmount6 = this.quoteCurrencyAmountInUSDC6(uint8(card.currency()), totalPriceInCurrency6);
+        if (usdcAmount6 == 0) revert UC_AmountZero();
+
+        // 1) USDC: userEOA -> cardOwner (merchant)
+        IERC3009BytesSig(USDC_TOKEN).transferWithAuthorization(
+            userEOA, cardOwner, usdcAmount6, validAfter, validBefore, nonce, signature
+        );
+
+        // 2) Card: mint issued NFT to user's AA account
+        card.mintIssuedNftByGateway(userEOA, tokenId, amount);
+
+        emit IssuedNftPurchasedForUser(cardAddr, userEOA, cardOwner, tokenId, amount, usdcAmount6, nonce);
     }
 
     bytes32 public constant EXECUTE_FOR_OWNER_TYPEHASH = keccak256(

@@ -2,15 +2,16 @@
   "network": "base",
   "chainId": "8453",
   "deployer": "0x87cAeD4e51C36a2C2ece3Aaf4ddaC9693d2405E1",
-  "timestamp": "2026-02-05T10:10:11.230Z",
+  "timestamp": "2026-02-14T06:49:57.631Z",
   "contracts": {
     "redeemModule": {
-      "address": "0xD20eec1d847765fa9D13743aee3ceA93d1D5CF51",
-      "transactionHash": "0xc87b6327259e442bfe131a58301e87e1d665b6f03f3639127e78043c32517ae3"
+      "address": "0x68a1aEdD2BBd4a44822b370bc51aAd5278F9fE7B",
+      "previous": "0x15f1aF8b228ea1cdFA424b3104DF01c451b188dd",
+      "note": "BeamioUserCardRedeemModuleVNext (with createRedeemBatch)"
     },
     "beamioUserCardDeployer": {
-      "address": "0x9909Cbb1e70670c066c7BB0488Dbdf32d86e8961",
-      "transactionHash": "0xc099b32ac0808328995d02275578130ffc34974921d5ed64d7d6cec96f17a254"
+      "address": "0xB3a1CfF887B64A37307b6A2D0c80C1F4E732542F",
+      "transactionHash": "0x9998e8fc6d5e7b7fef812b9f2b1b78ff06e80b5283a17180373e77fe6379e041"
     }
   }
 }

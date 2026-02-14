@@ -61,6 +61,45 @@
   {
     "inputs": [
       {
+        "internalType": "string[]",
+        "name": "codes",
+        "type": "string[]"
+      },
+      {
+        "internalType": "address",
+        "name": "to",
+        "type": "address"
+      }
+    ],
+    "name": "consumeRedeemBatch",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "points6",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "attr",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256[]",
+        "name": "tokenIds",
+        "type": "uint256[]"
+      },
+      {
+        "internalType": "uint256[]",
+        "name": "amounts",
+        "type": "uint256[]"
+      }
+    ],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
         "internalType": "string",
         "name": "code",
         "type": "string"
@@ -126,6 +165,49 @@
       }
     ],
     "name": "createRedeem",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bytes32[]",
+        "name": "hashes",
+        "type": "bytes32[]"
+      },
+      {
+        "internalType": "uint256",
+        "name": "points6",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "attr",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint64",
+        "name": "validAfter",
+        "type": "uint64"
+      },
+      {
+        "internalType": "uint64",
+        "name": "validBefore",
+        "type": "uint64"
+      },
+      {
+        "internalType": "uint256[]",
+        "name": "tokenIds",
+        "type": "uint256[]"
+      },
+      {
+        "internalType": "uint256[]",
+        "name": "amounts",
+        "type": "uint256[]"
+      }
+    ],
+    "name": "createRedeemBatch",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"

@@ -4,6 +4,7 @@ pragma solidity ^0.8.20;
 import "./BeamioERC1155Logic.sol";
 import "./BeamioCurrency.sol";
 import "./Errors.sol";
+import "./RedeemStorage.sol";
 
 import "../contracts/token/ERC1155/ERC1155.sol";
 import "../contracts/access/Ownable.sol";
@@ -39,6 +40,20 @@ interface IBeamioRedeemModuleVNext {
     function cancelRedeem(string calldata code) external;
 
     function consumeRedeem(string calldata code, address to)
+        external
+        returns (uint256 points6, uint256 attr, uint256[] memory tokenIds, uint256[] memory amounts);
+
+    function createRedeemBatch(
+        bytes32[] calldata hashes,
+        uint256 points6,
+        uint256 attr,
+        uint64 validAfter,
+        uint64 validBefore,
+        uint256[] calldata tokenIds,
+        uint256[] calldata amounts
+    ) external;
+
+    function consumeRedeemBatch(string[] calldata codes, address to)
         external
         returns (uint256 points6, uint256 attr, uint256[] memory tokenIds, uint256[] memory amounts);
 
@@ -167,12 +182,13 @@ contract BeamioUserCard is ERC1155, Ownable, ReentrancyGuard {
     struct Tier {
         uint256 minUsdc6; // semantic: minPointsDelta6
         uint256 attr;
+        uint256 tierExpirySeconds; // 0 => use global expirySeconds
     }
     Tier[] public tiers;
     uint256 public defaultAttrWhenNoTiers;
 
     event TiersUpdated(uint256 count);
-    event TierAppended(uint256 index, uint256 minUsdc6, uint256 attr);
+    event TierAppended(uint256 index, uint256 minUsdc6, uint256 attr, uint256 tierExpirySeconds);
     event DefaultAttrUpdated(uint256 attr);
 
     event MemberNFTIssued(address indexed user, uint256 indexed tokenId, uint256 tierIndexOrMax, uint256 minUsdc6, uint256 expiry);
@@ -213,8 +229,19 @@ contract BeamioUserCard is ERC1155, Ownable, ReentrancyGuard {
     event FaucetConfigUpdated(uint256 indexed id, FaucetConfig cfg);
     event FaucetClaimed(uint256 indexed id, address indexed userEOA, address indexed acct, uint256 amount, uint256 claimedAfter);
 
+    event IssuedNftCreated(uint256 indexed tokenId, bytes32 title, uint64 validAfter, uint64 validBefore, uint256 maxSupply, uint256 priceInCurrency6, bytes32 sharedMetadataHash);
+    event IssuedNftMinted(uint256 indexed tokenId, address indexed recipient, uint256 amount);
+
     // ===== current index =====
     uint256 private _currentIndex = NFT_START_ID;
+    uint256 private _issuedNftIndex = ISSUED_NFT_START_ID;
+    mapping(uint256 => uint64) public issuedNftValidAfter;
+    mapping(uint256 => uint64) public issuedNftValidBefore;
+    mapping(uint256 => bytes32) public issuedNftTitle;
+    mapping(uint256 => bytes32) public issuedNftSharedMetadataHash; // 0 => no shared metadata; else hash of IPFS JSON (e.g. keccak256(cid))
+    mapping(uint256 => uint256) public issuedNftMaxSupply;
+    mapping(uint256 => uint256) public issuedNftMintedCount;
+    mapping(uint256 => uint256) public issuedNftPriceInCurrency6;
 
     // ===== Redeem Events (emitted by card; module also emits its own) =====
     event RedeemCreated(bytes32 indexed hash, uint256 points6, uint256 attr);
@@ -254,7 +281,7 @@ contract BeamioUserCard is ERC1155, Ownable, ReentrancyGuard {
         defaultAttrWhenNoTiers = attr;
     }
 
-    function appendTier(uint256 minUsdc6, uint256 attr) external {
+    function appendTier(uint256 minUsdc6, uint256 attr, uint256 tierExpirySeconds) external {
         _requireOwnerOrGateway();
         if (minUsdc6 == 0) revert UC_TierMinZero();
         if (tiers.length > 0) {
@@ -263,8 +290,8 @@ contract BeamioUserCard is ERC1155, Ownable, ReentrancyGuard {
             if (minUsdc6 >= last.minUsdc6) revert UC_TiersNotDecreasing();
         }
         uint256 idx = tiers.length;
-        tiers.push(Tier(minUsdc6, attr));
-        emit TierAppended(idx, minUsdc6, attr);
+        tiers.push(Tier(minUsdc6, attr, tierExpirySeconds));
+        emit TierAppended(idx, minUsdc6, attr, tierExpirySeconds);
     }
 
     function setTiers(Tier[] calldata newTiers) external {
@@ -436,6 +463,105 @@ contract BeamioUserCard is ERC1155, Ownable, ReentrancyGuard {
         emit RedeemCreated(hash, points6, attr);
     }
 
+    /// @notice card owner (or gateway) creates batch one-time redeems (same content, multiple hashes)
+    function createRedeemBatch(
+        bytes32[] calldata hashes,
+        uint256 points6,
+        uint256 attr,
+        uint64 validAfter,
+        uint64 validBefore,
+        uint256[] calldata tokenIds,
+        uint256[] calldata amounts
+    ) external nonReentrant {
+        _requireOwnerOrGateway();
+
+        address module = _redeemModule();
+        (bool ok, bytes memory data) = module.delegatecall(
+            abi.encodeWithSelector(
+                IBeamioRedeemModuleVNext.createRedeemBatch.selector,
+                hashes,
+                points6,
+                attr,
+                validAfter,
+                validBefore,
+                tokenIds,
+                amounts
+            )
+        );
+        if (!ok) revert UC_RedeemDelegateFailed(data);
+
+        for (uint256 i = 0; i < hashes.length; i++) {
+            emit RedeemCreated(hashes[i], points6, attr);
+        }
+    }
+
+    /// @notice 统一查询：通过 hash 检查 one-time 或 pool，无需区分类型。active=true 表示可兑换
+    function getRedeemStatus(bytes32 hash) external view returns (bool active, uint128 points6) {
+        RedeemStorage.Layout storage l = RedeemStorage.layout();
+        RedeemStorage.Redeem storage r = l.redeems[hash];
+        if (r.active) return (true, r.points6);
+        RedeemStorage.RedeemPool storage p = l.pools[hash];
+        if (p.active && p.totalRemaining > 0) return (true, 0); // pool 无单点 points6
+        return (false, 0);
+    }
+
+    /// @notice 批量查询：输入 string[] codes，返回 (active[], points6[])，一次 RPC 完成
+    function getRedeemStatusBatch(string[] calldata codes) external view returns (bool[] memory active, uint128[] memory points6) {
+        uint256 n = codes.length;
+        active = new bool[](n);
+        points6 = new uint128[](n);
+        RedeemStorage.Layout storage l = RedeemStorage.layout();
+        for (uint256 i = 0; i < n; i++) {
+            bytes32 hash = keccak256(bytes(codes[i]));
+            RedeemStorage.Redeem storage r = l.redeems[hash];
+            if (r.active) {
+                active[i] = true;
+                points6[i] = r.points6;
+            } else {
+                RedeemStorage.RedeemPool storage p = l.pools[hash];
+                if (p.active && p.totalRemaining > 0) {
+                    active[i] = true;
+                    points6[i] = 0;
+                }
+            }
+        }
+    }
+
+    /// @notice 批量查询：输入 bytes32[] hashes（已有 hash 时使用，避免 on-chain keccak）
+    function getRedeemStatusBatch(bytes32[] calldata hashes) external view returns (bool[] memory active, uint128[] memory points6) {
+        uint256 n = hashes.length;
+        active = new bool[](n);
+        points6 = new uint128[](n);
+        RedeemStorage.Layout storage l = RedeemStorage.layout();
+        for (uint256 i = 0; i < n; i++) {
+            bytes32 hash = hashes[i];
+            RedeemStorage.Redeem storage r = l.redeems[hash];
+            if (r.active) {
+                active[i] = true;
+                points6[i] = r.points6;
+            } else {
+                RedeemStorage.RedeemPool storage p = l.pools[hash];
+                if (p.active && p.totalRemaining > 0) {
+                    active[i] = true;
+                    points6[i] = 0;
+                }
+            }
+        }
+    }
+
+    /// @notice 统一查询（含 claimer）：对 pool 会检查 claimer 是否已领取
+    function getRedeemStatusEx(bytes32 hash, address claimer) external view returns (bool active, uint128 points6, bool isPool) {
+        RedeemStorage.Layout storage l = RedeemStorage.layout();
+        RedeemStorage.Redeem storage r = l.redeems[hash];
+        if (r.active) return (true, r.points6, false);
+        RedeemStorage.RedeemPool storage p = l.pools[hash];
+        if (p.active && p.totalRemaining > 0) {
+            if (claimer != address(0) && l.poolClaimed[hash][claimer]) return (false, 0, true);
+            return (true, 0, true);
+        }
+        return (false, 0, false);
+    }
+
     /// @notice card owner (or gateway) cancels redeem by code string
     function cancelRedeem(string calldata code) external nonReentrant {
         _requireOwnerOrGateway();
@@ -486,12 +612,16 @@ contract BeamioUserCard is ERC1155, Ownable, ReentrancyGuard {
         if (!ok) revert UC_RedeemDelegateFailed(data);
     }
 
-    /// @notice gateway consumes one-time redeem and mints to user's AA account
+    /// @notice gateway 兑换 redeem（统一处理 one-time 与 pool）
     function redeemByGateway(string calldata code, address userEOA)
         external
         onlyAuthorizedGateway
         nonReentrant
     {
+        _redeemByGatewayInternal(code, userEOA);
+    }
+
+    function _redeemByGatewayInternal(string calldata code, address userEOA) internal {
         if (userEOA == address(0)) revert BM_ZeroAddress();
 
         address module = _redeemModule();
@@ -510,46 +640,100 @@ contract BeamioUserCard is ERC1155, Ownable, ReentrancyGuard {
         _syncActiveToBestValid(acct);
         bool hasValidCard = (activeMembershipId[acct] != 0);
 
+        // 避免双倍：当 tokenIds 含 POINTS_ID 时，点数仅取自 bundle；top-level points6 与 bundle 重复会导致双倍 mint
+        uint256 totalPoints6 = 0;
+        bool pointsInBundle = false;
+        for (uint256 i = 0; i < tokenIds.length; i++) {
+            if (tokenIds[i] == POINTS_ID) {
+                totalPoints6 += amounts[i];
+                pointsInBundle = true;
+            }
+        }
+        if (!pointsInBundle) totalPoints6 = points6;
         if (!hasValidCard && tiers.length > 0) {
             uint256 minReqPoints6 = tiers[tiers.length - 1].minUsdc6;
-            if (points6 < minReqPoints6) revert UC_BelowMinThreshold();
+            if (totalPoints6 < minReqPoints6) revert UC_BelowMinThreshold();
         }
 
-        if (points6 > 0) _mint(acct, POINTS_ID, points6, "");
+        if (totalPoints6 > 0) _mint(acct, POINTS_ID, totalPoints6, "");
 
         for (uint256 i = 0; i < tokenIds.length; i++) {
             uint256 amt = amounts[i];
             if (amt == 0) revert UC_AmountZero();
-            _mint(acct, tokenIds[i], amt, "");
+            if (tokenIds[i] == POINTS_ID) continue; // 已合并到 totalPoints6 一并 mint，避免二次转账
+            if (tokenIds[i] >= ISSUED_NFT_START_ID) {
+                _mintIssuedNftChecked(acct, tokenIds[i], amt);
+            } else {
+                _mint(acct, tokenIds[i], amt, "");
+            }
         }
 
-        if (!hasValidCard) _issueCardByPointsDelta_AssumingNoValidCard(acct, points6);
+        if (!hasValidCard) _issueCardByPointsDelta_AssumingNoValidCard(acct, totalPoints6);
     }
 
-    /// @notice gateway consumes pool redeem and mints to user's AA account (bundle only)
-    function redeemPoolByGateway(string calldata code, address userEOA)
+    /// @notice gateway consumes batch one-time redeem (multiple codes of same type) and mints to user's AA account
+    function redeemBatchByGateway(string[] calldata codes, address userEOA)
         external
         onlyAuthorizedGateway
         nonReentrant
     {
         if (userEOA == address(0)) revert BM_ZeroAddress();
+        if (codes.length == 0) revert UC_InvalidProposal();
 
         address module = _redeemModule();
         (bool ok, bytes memory data) = module.delegatecall(
-            abi.encodeWithSelector(IBeamioRedeemModuleVNext.consumeRedeemPool.selector, code, userEOA)
+            abi.encodeWithSelector(IBeamioRedeemModuleVNext.consumeRedeemBatch.selector, codes, userEOA)
         );
         if (!ok) revert UC_RedeemDelegateFailed(data);
 
-        (uint256[] memory tokenIds, uint256[] memory amounts) = abi.decode(data, (uint256[], uint256[]));
+        (uint256 points6, uint256 attr, uint256[] memory tokenIds, uint256[] memory amounts) =
+            abi.decode(data, (uint256, uint256, uint256[], uint256[]));
+        attr; // 未使用的变量
         if (tokenIds.length != amounts.length) revert UC_RedeemDelegateFailed(data);
 
         address acct = _toAccount(userEOA);
 
+        _syncActiveToBestValid(acct);
+        bool hasValidCard = (activeMembershipId[acct] != 0);
+
+        // 避免双倍：当 tokenIds 含 POINTS_ID 时，点数仅取自 bundle；top-level points6 与 bundle 重复会导致双倍 mint
+        uint256 totalPoints6 = 0;
+        bool pointsInBundle = false;
+        for (uint256 i = 0; i < tokenIds.length; i++) {
+            if (tokenIds[i] == POINTS_ID) {
+                totalPoints6 += amounts[i];
+                pointsInBundle = true;
+            }
+        }
+        if (!pointsInBundle) totalPoints6 = points6;
+        if (!hasValidCard && tiers.length > 0) {
+            uint256 minReqPoints6 = tiers[tiers.length - 1].minUsdc6;
+            if (totalPoints6 < minReqPoints6) revert UC_BelowMinThreshold();
+        }
+
+        if (totalPoints6 > 0) _mint(acct, POINTS_ID, totalPoints6, "");
+
         for (uint256 i = 0; i < tokenIds.length; i++) {
             uint256 amt = amounts[i];
             if (amt == 0) revert UC_AmountZero();
-            _mint(acct, tokenIds[i], amt, "");
+            if (tokenIds[i] == POINTS_ID) continue; // 已合并到 totalPoints6 一并 mint，避免二次转账
+            if (tokenIds[i] >= ISSUED_NFT_START_ID) {
+                _mintIssuedNftChecked(acct, tokenIds[i], amt);
+            } else {
+                _mint(acct, tokenIds[i], amt, "");
+            }
         }
+
+        if (!hasValidCard) _issueCardByPointsDelta_AssumingNoValidCard(acct, totalPoints6);
+    }
+
+    /// @notice gateway 兑换 pool redeem，与 redeemByGateway 共用统一逻辑（自动识别 one-time/pool）
+    function redeemPoolByGateway(string calldata code, address userEOA)
+        external
+        onlyAuthorizedGateway
+        nonReentrant
+    {
+        _redeemByGatewayInternal(code, userEOA);
     }
 
     function _redeemModule() internal view returns (address module) {
@@ -676,6 +860,80 @@ contract BeamioUserCard is ERC1155, Ownable, ReentrancyGuard {
         _mintMemberCardInternal(user, tierIndex);
     }
 
+    /// @notice 定义一个新的「发行 NFT」类型（不指定受益人、不 mint）。如：2月3日14:00 门票100张，单价 10 USDC
+    /// @param title title 的 bytes32（如 keccak256("Event Name")）
+    /// @param validAfter 有效开始时间戳（秒），0=不限制
+    /// @param validBefore 有效截止时间戳（秒），0=不限制，须 >= validAfter
+    /// @param maxSupply 最大发行数（如 100 张票）
+    /// @param priceInCurrency6 单价（card.currency 的 6 位精度），0=免费
+    /// @param sharedMetadataHash 系列共享 metadata 的 hash（如 keccak256(ipfs_cid)），0=无；API 用此 hash 从 IPFS 拉取 sharedSeriesMetadata JSON 并与 nftSpecialMetadata 组装
+    /// @return tokenId 新创建的 NFT tokenId
+    function createIssuedNft(
+        bytes32 title,
+        uint64 validAfter,
+        uint64 validBefore,
+        uint256 maxSupply,
+        uint256 priceInCurrency6,
+        bytes32 sharedMetadataHash
+    ) external nonReentrant returns (uint256 tokenId) {
+        _requireOwnerOrGateway();
+        if (maxSupply == 0) revert UC_AmountZero();
+        if (validBefore != 0 && validBefore < validAfter) revert UC_InvalidDateRange(validAfter, validBefore);
+
+        tokenId = _issuedNftIndex++;
+        issuedNftTitle[tokenId] = title;
+        issuedNftValidAfter[tokenId] = validAfter;
+        issuedNftValidBefore[tokenId] = validBefore;
+        issuedNftMaxSupply[tokenId] = maxSupply;
+        issuedNftPriceInCurrency6[tokenId] = priceInCurrency6;
+        issuedNftSharedMetadataHash[tokenId] = sharedMetadataHash;
+
+        emit IssuedNftCreated(tokenId, title, validAfter, validBefore, maxSupply, priceInCurrency6, sharedMetadataHash);
+    }
+
+    /// @notice Owner 直接 mint 给受益人（免费，用于分发/兑换等）
+    function mintIssuedNftByOwner(address to, uint256 tokenId, uint256 amount) external nonReentrant {
+        _requireOwnerOrGateway();
+        if (to == address(0)) revert BM_ZeroAddress();
+        if (amount == 0) revert UC_AmountZero();
+        _mintIssuedNftChecked(_toAccount(to), tokenId, amount);
+    }
+
+    /// @notice Gateway 为用户 mint（Factory 收 USDC 后调用）
+    function mintIssuedNftByGateway(address userEOA, uint256 tokenId, uint256 amount) external onlyAuthorizedGateway nonReentrant {
+        if (userEOA == address(0)) revert BM_ZeroAddress();
+        if (amount == 0) revert UC_AmountZero();
+        address acct = _toAccount(userEOA);
+        _mintIssuedNftChecked(acct, tokenId, amount);
+    }
+
+    function _mintIssuedNftChecked(address acct, uint256 tokenId, uint256 amount) internal {
+        if (tokenId < ISSUED_NFT_START_ID) revert UC_InvalidTokenId(tokenId, ISSUED_NFT_START_ID);
+        uint256 maxSupply = issuedNftMaxSupply[tokenId];
+        if (maxSupply == 0) revert UC_InvalidTokenId(tokenId, 0); // token not defined
+        uint256 cnt = issuedNftMintedCount[tokenId];
+        if (cnt + amount > maxSupply) revert UC_InsufficientBalance(address(this), tokenId, maxSupply - cnt, amount);
+        issuedNftMintedCount[tokenId] = cnt + amount;
+        _mint(acct, tokenId, amount, "");
+        emit IssuedNftMinted(tokenId, acct, amount);
+    }
+
+    /// @notice 当前 issued NFT 的 next tokenId（ISSUED_NFT_START_ID 到 issuedNftIndex()-1 为已定义的 issued NFT）
+    function issuedNftIndex() external view returns (uint256) {
+        return _issuedNftIndex;
+    }
+
+    /// @notice 检查 issued NFT 是否在有效期内
+    function isIssuedNftValid(uint256 tokenId) external view returns (bool) {
+        if (tokenId < ISSUED_NFT_START_ID) return false;
+        uint64 va = issuedNftValidAfter[tokenId];
+        uint64 vb = issuedNftValidBefore[tokenId];
+        uint256 ts = block.timestamp;
+        if (va != 0 && ts < va) return false;
+        if (vb != 0 && ts > vb) return false;
+        return true;
+    }
+
     function _mintMemberCardInternal(address user, uint256 tierIndex) internal {
         if (user == address(0)) revert BM_ZeroAddress();
         if (tiers.length == 0) revert UC_MustGrow();
@@ -688,10 +946,11 @@ contract BeamioUserCard is ERC1155, Ownable, ReentrancyGuard {
 
         uint256 newId = _currentIndex++;
         Tier memory tier = tiers[tierIndex];
+        uint256 effExpiry = _effectiveExpirySeconds(tierIndex);
 
         _mint(acct, newId, 1, "");
 
-        expiresAt[newId] = (expirySeconds == 0) ? 0 : (block.timestamp + expirySeconds);
+        expiresAt[newId] = (effExpiry == 0) ? 0 : (block.timestamp + effExpiry);
         attributes[newId] = tier.attr;
         tokenTierIndexOrMax[newId] = tierIndex;
         _userOwnedNfts[acct].push(newId);
@@ -773,6 +1032,12 @@ contract BeamioUserCard is ERC1155, Ownable, ReentrancyGuard {
     // Membership helpers
     // ==========================================================
     function _tierMinPoints6(uint256 i) internal view returns (uint256) { return tiers[i].minUsdc6; }
+
+    /// @dev Returns effective expiry seconds for a tier: tier.tierExpirySeconds if > 0, else global expirySeconds.
+    function _effectiveExpirySeconds(uint256 tierIndex) internal view returns (uint256) {
+        uint256 ts = tiers[tierIndex].tierExpirySeconds;
+        return ts > 0 ? ts : expirySeconds;
+    }
 
     function _isExpired(uint256 tokenId) internal view returns (bool) {
         uint256 exp = expiresAt[tokenId];
@@ -860,7 +1125,8 @@ contract BeamioUserCard is ERC1155, Ownable, ReentrancyGuard {
         }
         if (tierIdx == type(uint256).max) return;
 
-        uint256 expiry2 = (expirySeconds == 0) ? 0 : (block.timestamp + expirySeconds);
+        uint256 effExpiry = _effectiveExpirySeconds(tierIdx);
+        uint256 expiry2 = (effExpiry == 0) ? 0 : (block.timestamp + effExpiry);
         uint256 newId2 = _currentIndex++;
 
         _mint(acct, newId2, 1, "");
@@ -909,7 +1175,8 @@ contract BeamioUserCard is ERC1155, Ownable, ReentrancyGuard {
         }
         if (tierIdx == type(uint256).max) return;
 
-        uint256 expiry2 = (expirySeconds == 0) ? 0 : (block.timestamp + expirySeconds);
+        uint256 effExpiry = _effectiveExpirySeconds(tierIdx);
+        uint256 expiry2 = (effExpiry == 0) ? 0 : (block.timestamp + effExpiry);
         uint256 newId2 = _currentIndex++;
 
         _mint(acct, newId2, 1, "");

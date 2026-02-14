@@ -77,5 +77,6 @@ UC_InsufficientBalance 能直接告诉你余额差多少。
 error UC_InvalidTokenId(uint256 got, uint256 expected);
 error UC_InvalidSignature(address recovered, address expected);
 error UC_InvalidTimeWindow(uint256 nowTs, uint256 validAfter, uint256 validBefore);
+error UC_InvalidDateRange(uint64 validAfter, uint64 validBefore);
 error UC_ResolveAccountFailed(address eoa, address aaFactory, address acct);
 error UC_InsufficientBalance(address fromAccount, uint256 id, uint256 have, uint256 need);

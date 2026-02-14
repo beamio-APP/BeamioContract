@@ -1,0 +1,40 @@
+---
+description: Beamio API 服务器必须遵循 cluster/master 协议
+globs: src/x402sdk/**/endpoint/**/*.ts
+alwaysApply: true
+---
+
+# Beamio API：Cluster/Master 协议
+
+Beamio 的 API 服务器**必须**遵守 cluster/master 协议。
+
+## 架构
+
+- **Cluster (beamioServer, port 2222)**：对外入口，接收请求
+- **Master (beamioMaster, port 1111)**：后端，处理队列、链上操作、DB 写入
+
+## 写操作
+
+所有**写操作**（DB 写入、链上交易、队列处理）必须：
+
+1. Cluster 做**预检**（格式、必填项、基本校验）
+2. 预检通过后通过 `postLocalhost('/api/xxx', body, res)` **转发到 Master**
+3. Master 实现实际逻辑（链校验、DB 写入、队列等）
+
+示例：createCard、purchasingCard、registerSeries、registerMintMetadata、executeForOwner、AAtoEOA 等。
+
+## 读操作
+
+**读操作**由 Cluster 直接处理，减轻 Master 负担。Master 可选择性实现相同读端点（如 latestCards 两端都有）。
+
+## 特殊情况
+
+- **coinbase-hooks**：Webhook 需 raw body 验签，Cluster 与 Master 均可独立接收处理，不转发（转发会丢失 raw body）
+
+## 新增端点检查清单
+
+新增 API 时：
+
+- [ ] 若是**写操作**：在 Master 添加 handler，在 Cluster 添加预检 + `postLocalhost` 转发
+- [ ] 若是**读操作**：在 Cluster 添加 handler，Master 建议同步实现（便于直连 Master 或容错）
+- [ ] 不要仅在 Cluster 实现写操作的完整逻辑

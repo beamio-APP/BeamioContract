@@ -62,12 +62,13 @@ library BeamioERC1155Logic {
 
     // membership SBT ids range: [100, 100000000000)
     uint256 public constant NFT_START_ID = 100;
-    uint256 public constant ISSUED_NFT_START_ID = 100000000000;
+    uint256 public constant ISSUED_NFT_START_ID = 100_000_000_000;
 
     // ===== Tier Struct =====
     struct Tier {
         uint256 minUsdc6;
         uint256 attr;
+        uint256 tierExpirySeconds; // 0 => use global expirySeconds
     }
 
     struct Faucet {
@@ -145,7 +146,7 @@ library BeamioERC1155Logic {
     event MemberNFTUpgraded(address indexed user, uint256 indexed oldActiveTokenId, uint256 indexed newTokenId, uint256 oldTierIndexOrMax, uint256 newTierIndex, uint256 newExpiry);
 
     event TiersUpdated(uint256 count);
-    event TierAppended(uint256 index, uint256 minUsdc6, uint256 attr);
+    event TierAppended(uint256 index, uint256 minUsdc6, uint256 attr, uint256 tierExpirySeconds);
     event DefaultAttrUpdated(uint256 attr);
 
     event AdminCardMinted(address indexed beneficiaryAccount, uint256 indexed tokenId, uint256 attr, uint256 expiry);
@@ -239,6 +240,11 @@ library BeamioERC1155Logic {
         return (false, 0, 0);
     }
 
+    function _effectiveExpirySecondsForTier(Layout storage layout, uint256 tierIdx) internal view returns (uint256) {
+        uint256 ts = layout.tiers[tierIdx].tierExpirySeconds;
+        return ts > 0 ? ts : layout.expirySeconds;
+    }
+
     function _maybeIssueOrUpgradeByPointsBalance(
         address user,
         address erc1155Addr,
@@ -260,7 +266,8 @@ library BeamioERC1155Logic {
             if (currentTierIdx <= tierIdx) return;
         }
 
-        uint256 expiry = (layout.expirySeconds == 0) ? 0 : (block.timestamp + layout.expirySeconds);
+        uint256 effExpiry = _effectiveExpirySecondsForTier(layout, tierIdx);
+        uint256 expiry = (effExpiry == 0) ? 0 : (block.timestamp + effExpiry);
 
         // IMPORTANT: ensure layout.currentIndex is initialized to NFT_START_ID (100) elsewhere
         uint256 newId = layout.currentIndex++;
@@ -305,7 +312,8 @@ library BeamioERC1155Logic {
         uint256 currentTierIdx = layout.activeTierIndexOrMax[user];
         if (!okTier || currentTierIdx <= tierIdx) return;
 
-        uint256 expiry = (layout.expirySeconds == 0) ? 0 : (block.timestamp + layout.expirySeconds);
+        uint256 effExpiry = _effectiveExpirySecondsForTier(layout, tierIdx);
+        uint256 expiry = (effExpiry == 0) ? 0 : (block.timestamp + effExpiry);
         uint256 newId = layout.currentIndex++;
 
         layout.expiresAt[newId] = expiry;

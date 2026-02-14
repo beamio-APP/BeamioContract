@@ -22,8 +22,8 @@ export declare namespace IBeamioContainerModuleV07 {
 
     getEvent(nameOrSignatureOrTopic: "FactoryUpdated" | "Initialized" | "ThresholdPolicyUpdated"): EventFragment;
 
-    encodeFunctionData(functionFragment: 'cancelFaucetPool', values: [BytesLike]): string;
-encodeFunctionData(functionFragment: 'cancelRedeem', values: [BytesLike]): string;
+    encodeFunctionData(functionFragment: 'cancelFaucetPool', values: [string]): string;
+encodeFunctionData(functionFragment: 'cancelRedeem', values: [string]): string;
 encodeFunctionData(functionFragment: 'containerMainRelayed', values: [AddressLike, IBeamioContainerModuleV07.ContainerItemStruct[], BigNumberish, BigNumberish, BytesLike]): string;
 encodeFunctionData(functionFragment: 'containerMainRelayedOpen', values: [AddressLike, IBeamioContainerModuleV07.ContainerItemStruct[], BigNumberish, BigNumberish, BigNumberish, BigNumberish, BytesLike]): string;
 encodeFunctionData(functionFragment: 'createFaucetPool', values: [BytesLike, BigNumberish, BigNumberish, IBeamioContainerModuleV07.ContainerItemStruct[]]): string;
@@ -153,7 +153,7 @@ decodeFunctionResult(functionFragment: 'validateUserOp', data: BytesLike): Resul
     
     
     cancelFaucetPool: TypedContractMethod<
-      [passwordHash: BytesLike, ],
+      [code: string, ],
       [void],
       'nonpayable'
     >
@@ -161,7 +161,7 @@ decodeFunctionResult(functionFragment: 'validateUserOp', data: BytesLike): Resul
 
     
     cancelRedeem: TypedContractMethod<
-      [passwordHash: BytesLike, ],
+      [code: string, ],
       [void],
       'nonpayable'
     >
@@ -379,12 +379,12 @@ decodeFunctionResult(functionFragment: 'validateUserOp', data: BytesLike): Resul
     getFunction<T extends ContractMethod = ContractMethod>(key: string | FunctionFragment): T;
 
     getFunction(nameOrSignature: 'cancelFaucetPool'): TypedContractMethod<
-      [passwordHash: BytesLike, ],
+      [code: string, ],
       [void],
       'nonpayable'
     >;
 getFunction(nameOrSignature: 'cancelRedeem'): TypedContractMethod<
-      [passwordHash: BytesLike, ],
+      [code: string, ],
       [void],
       'nonpayable'
     >;

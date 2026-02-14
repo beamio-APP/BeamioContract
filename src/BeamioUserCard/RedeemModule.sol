@@ -2,58 +2,7 @@
 pragma solidity ^0.8.20;
 
 import "./Errors.sol";
-
-/* =========================================================
-   RedeemStorage (delegatecall storage in card)
-   - NO magic hex slot: use keccak256("...") constant
-   ========================================================= */
-
-library RedeemStorage {
-    bytes32 internal constant SLOT = keccak256("beamio.usercard.redeem.storage.v1");
-
-    // ===== One-time Redeem =====
-    struct Redeem {
-        uint128 points6;
-        uint32  attr;
-        bool    active;
-
-        uint64  validAfter;   // 0 => immediate
-        uint64  validBefore;  // 0 => forever
-
-        uint256[] tokenIds;
-        uint256[] amounts;
-    }
-
-    // ===== RedeemPool (repeatable password; each user once) =====
-    struct PoolContainer {
-        uint32 remaining;
-        uint256[] tokenIds;
-        uint256[] amounts;
-    }
-
-    struct RedeemPool {
-        bool   active;
-        uint64 validAfter;
-        uint64 validBefore;
-
-        uint32 totalRemaining;
-        uint32 cursor;
-
-        PoolContainer[] containers;
-    }
-
-    struct Layout {
-        mapping(bytes32 => Redeem) redeems;
-
-        mapping(bytes32 => RedeemPool) pools;
-        mapping(bytes32 => mapping(address => bool)) poolClaimed;  // poolHash => user => claimed，每轮新 password 即新 poolHash
-    }
-
-    function layout() internal pure returns (Layout storage l) {
-        bytes32 slot = SLOT;
-        assembly { l.slot := slot }
-    }
-}
+import "./RedeemStorage.sol";
 
 /* =========================
    Context interfaces (delegatecall)
@@ -166,6 +115,14 @@ contract BeamioUserCardRedeemModuleVNext {
         external
         returns (uint256 points6, uint256 attr, uint256[] memory tokenIds, uint256[] memory amounts)
     {
+        return _consumeRedeemUnified(code, to);
+    }
+
+    /// @notice 统一入口：根据 hash 查找 redeems 或 pools，自动分发处理
+    function _consumeRedeemUnified(string calldata code, address to)
+        internal
+        returns (uint256 points6, uint256 attr, uint256[] memory tokenIds, uint256[] memory amounts)
+    {
         if (to == address(0)) revert BM_ZeroAddress();
 
         bytes memory b = bytes(code);
@@ -174,15 +131,26 @@ contract BeamioUserCardRedeemModuleVNext {
 
         RedeemStorage.Layout storage l = RedeemStorage.layout();
         RedeemStorage.Redeem storage r = l.redeems[hash];
+        RedeemStorage.RedeemPool storage p = l.pools[hash];
 
-        if (!r.active) revert UC_InvalidProposal();
+        if (r.active) {
+            return _consumeOneTime(r, hash, to);
+        }
+        if (p.active) {
+            return _consumePoolToUnified(l, p, hash, to);
+        }
+        revert UC_InvalidProposal();
+    }
+
+    function _consumeOneTime(RedeemStorage.Redeem storage r, bytes32 hash, address to)
+        internal
+        returns (uint256 points6, uint256 attr, uint256[] memory tokenIds, uint256[] memory amounts)
+    {
         if (!_timeOk(r.validAfter, r.validBefore)) revert UC_InvalidTimeWindow(block.timestamp, r.validAfter, r.validBefore);
-
         r.active = false;
 
         points6 = r.points6;
         attr = r.attr;
-
         uint256 n = r.tokenIds.length;
         tokenIds = new uint256[](n);
         amounts = new uint256[](n);
@@ -190,11 +158,125 @@ contract BeamioUserCardRedeemModuleVNext {
             tokenIds[i] = r.tokenIds[i];
             amounts[i] = r.amounts[i];
         }
-
         _wipeRedeemArrays(r);
-
         emit RedeemConsumed(hash, to, points6, attr, r.validAfter, r.validBefore, n);
-        return (points6, attr, tokenIds, amounts);
+    }
+
+    function _consumePoolToUnified(RedeemStorage.Layout storage l, RedeemStorage.RedeemPool storage p, bytes32 poolHash, address user)
+        internal
+        returns (uint256 points6, uint256 attr, uint256[] memory tokenIds, uint256[] memory amounts)
+    {
+        if (!_timeOk(p.validAfter, p.validBefore)) revert UC_InvalidTimeWindow(block.timestamp, p.validAfter, p.validBefore);
+        if (p.totalRemaining == 0) revert UC_InvalidProposal();
+        if (l.poolClaimed[poolHash][user]) revert UC_PoolAlreadyClaimed(poolHash, user);
+
+        l.poolClaimed[poolHash][user] = true;
+
+        uint256 m = p.containers.length;
+        uint256 idx = p.cursor;
+        for (uint256 k = 0; k < m; k++) {
+            uint256 i = (idx + k) % m;
+            if (p.containers[i].remaining != 0) {
+                idx = i;
+                break;
+            }
+            if (k == m - 1) revert UC_InvalidProposal();
+        }
+
+        RedeemStorage.PoolContainer storage c = p.containers[idx];
+        c.remaining -= 1;
+        p.totalRemaining -= 1;
+        p.cursor = uint32((idx + 1) % m);
+
+        uint256 n = c.tokenIds.length;
+        tokenIds = new uint256[](n);
+        amounts = new uint256[](n);
+        for (uint256 j = 0; j < n; j++) {
+            tokenIds[j] = c.tokenIds[j];
+            amounts[j] = c.amounts[j];
+        }
+        emit RedeemPoolConsumed(poolHash, user, idx, n);
+        return (0, 0, tokenIds, amounts);  // pool 无单独 points6/attr，由 tokenIds 含 POINTS_ID 表示
+    }
+
+    // ==========================================================
+    // Batch One-time Redeem（一次多张相同类型的 Redeem）
+    // ==========================================================
+    /// @notice 批量创建多个 one-time redeem，内容相同（points6、attr、tokenIds、amounts），每个 hash 对应一张
+    function createRedeemBatch(
+        bytes32[] calldata hashes,
+        uint256 points6,
+        uint256 attr,
+        uint64 validAfter,
+        uint64 validBefore,
+        uint256[] calldata tokenIds,
+        uint256[] calldata amounts
+    ) external onlyOwnerOrGateway {
+        if (hashes.length == 0) revert UC_InvalidProposal();
+        _validateBundle(tokenIds, amounts);
+
+        RedeemStorage.Layout storage l = RedeemStorage.layout();
+
+        for (uint256 i = 0; i < hashes.length; i++) {
+            if (hashes[i] == bytes32(0)) revert BM_InvalidSecret();
+            RedeemStorage.Redeem storage r = l.redeems[hashes[i]];
+            if (r.active) revert UC_InvalidProposal();
+
+            _wipeRedeemArrays(r);
+            r.points6 = uint128(points6);
+            r.attr = uint32(attr);
+            r.validAfter = validAfter;
+            r.validBefore = validBefore;
+            r.active = true;
+
+            for (uint256 j = 0; j < tokenIds.length; j++) {
+                r.tokenIds.push(tokenIds[j]);
+                r.amounts.push(amounts[j]);
+            }
+
+            emit RedeemCreated(hashes[i], points6, attr, validAfter, validBefore, tokenIds.length);
+        }
+    }
+
+    /// @notice 批量 consume，智能处理：每个 code 可为 one-time 或 pool，统一聚合返回
+    function consumeRedeemBatch(string[] calldata codes, address to)
+        external
+        returns (uint256 points6, uint256 attr, uint256[] memory tokenIds, uint256[] memory amounts)
+    {
+        if (to == address(0)) revert BM_ZeroAddress();
+        if (codes.length == 0) revert UC_InvalidProposal();
+
+        uint256 totalPoints6 = 0;
+        uint256 firstAttr = 0;
+        bool attrSet = false;
+        uint256[] memory accT = new uint256[](128); // 预分配，单次 batch 通常不会超
+        uint256[] memory accA = new uint256[](128);
+        uint256 cursor = 0;
+
+        for (uint256 c = 0; c < codes.length; c++) {
+            if (bytes(codes[c]).length == 0) revert BM_InvalidSecret();
+            for (uint256 d = 0; d < c; d++) {
+                if (keccak256(bytes(codes[d])) == keccak256(bytes(codes[c]))) revert UC_InvalidProposal(); // 禁止重复
+            }
+            (uint256 p6, uint256 a, uint256[] memory tIds, uint256[] memory amts) = _consumeRedeemUnified(codes[c], to);
+            totalPoints6 += p6;
+            if (!attrSet && (a != 0 || tIds.length > 0)) { firstAttr = a; attrSet = true; }
+            for (uint256 j = 0; j < tIds.length; j++) {
+                if (cursor >= accT.length) revert UC_InvalidProposal(); // 超出预分配
+                accT[cursor] = tIds[j];
+                accA[cursor] = amts[j];
+                cursor++;
+            }
+        }
+
+        tokenIds = new uint256[](cursor);
+        amounts = new uint256[](cursor);
+        for (uint256 i = 0; i < cursor; i++) {
+            tokenIds[i] = accT[i];
+            amounts[i] = accA[i];
+        }
+        points6 = totalPoints6;
+        attr = firstAttr;
     }
 
     // ==========================================================
@@ -259,54 +341,12 @@ contract BeamioUserCardRedeemModuleVNext {
         emit RedeemPoolTerminated(poolHash);
     }
 
+    /// @notice Pool 专用入口（向后兼容），内部走统一 _consumeRedeemUnified 分发
     function consumeRedeemPool(string calldata code, address user)
         external
         returns (uint256[] memory tokenIds, uint256[] memory amounts)
     {
-        if (user == address(0)) revert BM_ZeroAddress();
-
-        bytes memory b = bytes(code);
-        if (b.length == 0) revert BM_InvalidSecret();
-        bytes32 poolHash = keccak256(b);
-
-        RedeemStorage.Layout storage l = RedeemStorage.layout();
-        RedeemStorage.RedeemPool storage p = l.pools[poolHash];
-
-        if (!p.active) revert UC_InvalidProposal();
-        if (!_timeOk(p.validAfter, p.validBefore)) revert UC_InvalidTimeWindow(block.timestamp, p.validAfter, p.validBefore);
-        if (p.totalRemaining == 0) revert UC_InvalidProposal();
-        if (l.poolClaimed[poolHash][user]) revert UC_PoolAlreadyClaimed(poolHash, user);
-
-        l.poolClaimed[poolHash][user] = true;
-
-        uint256 m = p.containers.length;
-        uint256 idx = p.cursor;
-
-        for (uint256 k = 0; k < m; k++) {
-            uint256 i = (idx + k) % m;
-            if (p.containers[i].remaining != 0) {
-                idx = i;
-                break;
-            }
-            if (k == m - 1) revert UC_InvalidProposal();
-        }
-
-        RedeemStorage.PoolContainer storage c = p.containers[idx];
-        c.remaining -= 1;
-        p.totalRemaining -= 1;
-
-        p.cursor = uint32((idx + 1) % m);
-
-        uint256 n = c.tokenIds.length;
-        tokenIds = new uint256[](n);
-        amounts = new uint256[](n);
-
-        for (uint256 j = 0; j < n; j++) {
-            tokenIds[j] = c.tokenIds[j];
-            amounts[j] = c.amounts[j];
-        }
-
-        emit RedeemPoolConsumed(poolHash, user, idx, n);
-        return (tokenIds, amounts);
+        (, , tokenIds, amounts) = _consumeRedeemUnified(code, user);
     }
 }
+

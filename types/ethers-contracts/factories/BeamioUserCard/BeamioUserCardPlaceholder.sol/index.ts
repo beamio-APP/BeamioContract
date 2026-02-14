@@ -2,4 +2,4 @@
 /* tslint:disable */
 /* eslint-disable */
 export { BeamioUserCardPlaceholder__factory } from './BeamioUserCardPlaceholder__factory.js';
-export { BeamioUserCardPlaceholder3__factory } from './BeamioUserCardPlaceholder3__factory.js';
+export { BeamioUserCardPlaceholder2__factory } from './BeamioUserCardPlaceholder2__factory.js';

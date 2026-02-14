@@ -2,4 +2,4 @@
 /* tslint:disable */
 /* eslint-disable */
 export type { BeamioUserCardPlaceholder } from './BeamioUserCardPlaceholder.js';
-export type { BeamioUserCardPlaceholder3 } from './BeamioUserCardPlaceholder3.js';
+export type { BeamioUserCardPlaceholder2 } from './BeamioUserCardPlaceholder2.js';
