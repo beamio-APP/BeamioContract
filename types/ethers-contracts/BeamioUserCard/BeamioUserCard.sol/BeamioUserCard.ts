@@ -851,7 +851,7 @@ decodeFunctionResult(functionFragment: 'uri', data: BytesLike): Result;
     
     getRedeemStatus: TypedContractMethod<
       [hash: BytesLike, ],
-      [[boolean, bigint] & {active: boolean, points6: bigint }],
+      [[boolean, bigint] & {active: boolean, totalPoints6: bigint }],
       'view'
     >
     
@@ -859,7 +859,7 @@ decodeFunctionResult(functionFragment: 'uri', data: BytesLike): Result;
     
     "getRedeemStatusBatch(string[])": TypedContractMethod<
       [codes: string[], ],
-      [[boolean[], bigint[]] & {active: boolean[], points6: bigint[] }],
+      [[boolean[], bigint[]] & {active: boolean[], totalPoints6: bigint[] }],
       'view'
     >
     
@@ -867,7 +867,7 @@ decodeFunctionResult(functionFragment: 'uri', data: BytesLike): Result;
     
     "getRedeemStatusBatch(bytes32[])": TypedContractMethod<
       [hashes: BytesLike[], ],
-      [[boolean[], bigint[]] & {active: boolean[], points6: bigint[] }],
+      [[boolean[], bigint[]] & {active: boolean[], totalPoints6: bigint[] }],
       'view'
     >
     
@@ -1446,17 +1446,17 @@ getFunction(nameOrSignature: 'getOwnershipByEOA'): TypedContractMethod<
     >;
 getFunction(nameOrSignature: 'getRedeemStatus'): TypedContractMethod<
       [hash: BytesLike, ],
-      [[boolean, bigint] & {active: boolean, points6: bigint }],
+      [[boolean, bigint] & {active: boolean, totalPoints6: bigint }],
       'view'
     >;
 getFunction(nameOrSignature: 'getRedeemStatusBatch(string[])'): TypedContractMethod<
       [codes: string[], ],
-      [[boolean[], bigint[]] & {active: boolean[], points6: bigint[] }],
+      [[boolean[], bigint[]] & {active: boolean[], totalPoints6: bigint[] }],
       'view'
     >;
 getFunction(nameOrSignature: 'getRedeemStatusBatch(bytes32[])'): TypedContractMethod<
       [hashes: BytesLike[], ],
-      [[boolean[], bigint[]] & {active: boolean[], points6: bigint[] }],
+      [[boolean[], bigint[]] & {active: boolean[], totalPoints6: bigint[] }],
       'view'
     >;
 getFunction(nameOrSignature: 'getRedeemStatusEx'): TypedContractMethod<

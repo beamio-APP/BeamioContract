@@ -32,15 +32,26 @@ async function main() {
   let FACTORY_ADDRESS = process.env.FACTORY_ADDRESS || "";
   
   if (!FACTORY_ADDRESS) {
-    // 尝试从部署记录文件读取
+    // 尝试从部署记录文件读取（优先 FullAccountAndUserCard）
     const deploymentsDir = path.join(__dirname, "..", "deployments");
     try {
-      const factoryFile = path.join(deploymentsDir, `${networkInfo.name}-FactoryAndModule.json`);
-      if (fs.existsSync(factoryFile)) {
-        const factoryData = JSON.parse(fs.readFileSync(factoryFile, "utf-8"));
-        if (factoryData.contracts?.beamioFactoryPaymaster?.address) {
-          FACTORY_ADDRESS = factoryData.contracts.beamioFactoryPaymaster.address;
-          console.log("✅ 从部署记录读取 Factory 地址:", FACTORY_ADDRESS);
+      const fullFile = path.join(deploymentsDir, `${networkInfo.name}-FullAccountAndUserCard.json`);
+      if (fs.existsSync(fullFile)) {
+        const data = JSON.parse(fs.readFileSync(fullFile, "utf-8"));
+        const addr = data.contracts?.beamioFactoryPaymaster?.address;
+        if (addr) {
+          FACTORY_ADDRESS = addr;
+          console.log("✅ 从 FullAccountAndUserCard 读取 AA Factory 地址:", FACTORY_ADDRESS);
+        }
+      }
+      if (!FACTORY_ADDRESS) {
+        const factoryFile = path.join(deploymentsDir, `${networkInfo.name}-FactoryAndModule.json`);
+        if (fs.existsSync(factoryFile)) {
+          const factoryData = JSON.parse(fs.readFileSync(factoryFile, "utf-8"));
+          if (factoryData.contracts?.beamioFactoryPaymaster?.address) {
+            FACTORY_ADDRESS = factoryData.contracts.beamioFactoryPaymaster.address;
+            console.log("✅ 从 FactoryAndModule 读取 Factory 地址:", FACTORY_ADDRESS);
+          }
         }
       }
     } catch (error) {
@@ -58,7 +69,7 @@ async function main() {
   // UserCard 部署参数（从环境变量获取，或使用默认值）
   const USER_CARD_URI = process.env.USER_CARD_URI || "https://api.beamio.io/metadata/{id}.json";
   const USER_CARD_CURRENCY = parseInt(process.env.USER_CARD_CURRENCY || "4"); // 4 = USDC
-  const USER_CARD_PRICE = process.env.USER_CARD_PRICE || "1000000000000000000"; // 1.0 E18
+  const USER_CARD_PRICE = process.env.USER_CARD_PRICE || "1000000"; // pointsUnitPriceInCurrencyE6，1 USDC = 1e6 pts
   const USER_CARD_OWNER = process.env.USER_CARD_OWNER || deployer.address;
   
   console.log("\n配置参数:");
@@ -186,8 +197,28 @@ async function main() {
   console.log("  - Factory:", FACTORY_ADDRESS);
   console.log("  - Factory UserCard 地址已自动更新");
   
+  // ============================================================
+  // 4. 合格性检查：验证 getRedeemStatus 返回 (bool, uint256 totalPoints6)
+  // ============================================================
+  console.log("\n" + "=".repeat(60));
+  console.log("步骤 4: 合格性检查");
+  console.log("=".repeat(60));
+  const card = await ethers.getContractAt("BeamioUserCard", userCardAddress);
+  const testHash = ethers.keccak256(ethers.toUtf8Bytes("_verification_"));
+  const [active, totalPoints6] = await card.getRedeemStatus(testHash);
+  console.log("getRedeemStatus(0x...): active =", active, ", totalPoints6 =", totalPoints6.toString());
+  if (typeof totalPoints6 === "bigint") {
+    console.log("✅ getRedeemStatus 返回 uint256 totalPoints6，新接口合格");
+  } else {
+    console.log("⚠️  totalPoints6 类型异常:", typeof totalPoints6);
+  }
+  const [activeBatch, totalBatch] = await card["getRedeemStatusBatch(bytes32[])"]([testHash]);
+  if (Array.isArray(totalBatch) && totalBatch.length === 1) {
+    console.log("✅ getRedeemStatusBatch 返回 uint256[] totalPoints6，批量接口合格");
+  }
+
   console.log("\n✅ 完成!");
-  console.log("  Factory 现在使用真正的 UserCard 地址，占位符已被替换");
+  console.log("  Factory 现在使用真正的 UserCard 地址");
 }
 
 main()

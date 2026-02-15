@@ -16,6 +16,6 @@
     "redeemModule": { "address": "0x9566ce3B07d5DB5d8c63a93179A541C8b2f11448" },
     "beamioUserCardDeployer": { "address": "0x719DdE8C7917AF06cd66bB7e2118fa2F2eC81ED9" },
     "beamioUserCardFactoryPaymaster": { "address": "0x86879fE3fbd958f468B1e5E6Cd075a9149ADB48F" },
-    "beamioUserCard": { "address": "0x3A578f47d68a5f2C1f2930E9548E240AB8d40048" }
+    "beamioUserCard": { "address": "0xBCcfA50d2a5917C7A8662177F5F4B7A175787270" }
   }
 }

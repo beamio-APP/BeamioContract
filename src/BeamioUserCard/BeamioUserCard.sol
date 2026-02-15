@@ -495,55 +495,76 @@ contract BeamioUserCard is ERC1155, Ownable, ReentrancyGuard {
         }
     }
 
-    /// @notice 统一查询：通过 hash 检查 one-time 或 pool，无需区分类型。active=true 表示可兑换
-    function getRedeemStatus(bytes32 hash) external view returns (bool active, uint128 points6) {
+    /// @notice 计算 one-time redeem 总点数：r.points6 + token bundle 中 POINTS_ID 的 amounts
+    function _redeemTotalPoints(RedeemStorage.Redeem storage r) internal view returns (uint256) {
+        uint256 t = r.points6;
+        for (uint256 i = 0; i < r.tokenIds.length; i++) {
+            if (r.tokenIds[i] == POINTS_ID) t += r.amounts[i];
+        }
+        return t;
+    }
+
+    /// @notice 计算 pool 总点数：遍历 containers 中 POINTS_ID 的 amounts
+    function _poolTotalPoints(RedeemStorage.RedeemPool storage p) internal view returns (uint256) {
+        uint256 t = 0;
+        for (uint256 c = 0; c < p.containers.length; c++) {
+            RedeemStorage.PoolContainer storage pc = p.containers[c];
+            for (uint256 i = 0; i < pc.tokenIds.length; i++) {
+                if (pc.tokenIds[i] == POINTS_ID) t += pc.amounts[i];
+            }
+        }
+        return t;
+    }
+
+    /// @notice 统一查询：active=true 表示可兑换，totalPoints6 含 token bundle 中 POINTS_ID
+    function getRedeemStatus(bytes32 hash) external view returns (bool active, uint256 totalPoints6) {
         RedeemStorage.Layout storage l = RedeemStorage.layout();
         RedeemStorage.Redeem storage r = l.redeems[hash];
-        if (r.active) return (true, r.points6);
+        if (r.active) return (true, _redeemTotalPoints(r));
         RedeemStorage.RedeemPool storage p = l.pools[hash];
-        if (p.active && p.totalRemaining > 0) return (true, 0); // pool 无单点 points6
+        if (p.active && p.totalRemaining > 0) return (true, _poolTotalPoints(p));
         return (false, 0);
     }
 
-    /// @notice 批量查询：输入 string[] codes，返回 (active[], points6[])，一次 RPC 完成
-    function getRedeemStatusBatch(string[] calldata codes) external view returns (bool[] memory active, uint128[] memory points6) {
+    /// @notice 批量查询：输入 string[] codes，返回 (active[], totalPoints6[])，totalPoints6 含 token bundle 中 POINTS_ID
+    function getRedeemStatusBatch(string[] calldata codes) external view returns (bool[] memory active, uint256[] memory totalPoints6) {
         uint256 n = codes.length;
         active = new bool[](n);
-        points6 = new uint128[](n);
+        totalPoints6 = new uint256[](n);
         RedeemStorage.Layout storage l = RedeemStorage.layout();
         for (uint256 i = 0; i < n; i++) {
             bytes32 hash = keccak256(bytes(codes[i]));
             RedeemStorage.Redeem storage r = l.redeems[hash];
             if (r.active) {
                 active[i] = true;
-                points6[i] = r.points6;
+                totalPoints6[i] = _redeemTotalPoints(r);
             } else {
                 RedeemStorage.RedeemPool storage p = l.pools[hash];
                 if (p.active && p.totalRemaining > 0) {
                     active[i] = true;
-                    points6[i] = 0;
+                    totalPoints6[i] = _poolTotalPoints(p);
                 }
             }
         }
     }
 
-    /// @notice 批量查询：输入 bytes32[] hashes（已有 hash 时使用，避免 on-chain keccak）
-    function getRedeemStatusBatch(bytes32[] calldata hashes) external view returns (bool[] memory active, uint128[] memory points6) {
+    /// @notice 批量查询：输入 bytes32[] hashes（已有 hash 时使用），返回 (active[], totalPoints6[])
+    function getRedeemStatusBatch(bytes32[] calldata hashes) external view returns (bool[] memory active, uint256[] memory totalPoints6) {
         uint256 n = hashes.length;
         active = new bool[](n);
-        points6 = new uint128[](n);
+        totalPoints6 = new uint256[](n);
         RedeemStorage.Layout storage l = RedeemStorage.layout();
         for (uint256 i = 0; i < n; i++) {
             bytes32 hash = hashes[i];
             RedeemStorage.Redeem storage r = l.redeems[hash];
             if (r.active) {
                 active[i] = true;
-                points6[i] = r.points6;
+                totalPoints6[i] = _redeemTotalPoints(r);
             } else {
                 RedeemStorage.RedeemPool storage p = l.pools[hash];
                 if (p.active && p.totalRemaining > 0) {
                     active[i] = true;
-                    points6[i] = 0;
+                    totalPoints6[i] = _poolTotalPoints(p);
                 }
             }
         }
