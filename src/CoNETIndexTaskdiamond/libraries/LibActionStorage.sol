@@ -4,43 +4,110 @@ pragma solidity ^0.8.20;
 library LibActionStorage {
     bytes32 internal constant STORAGE_POSITION = keccak256("beamio.action.storage.v1");
 
-    // token 动作类型（你也可以扩展更多 action）
-    uint8 internal constant ACTION_TOKEN_MINT = 1;
-    uint8 internal constant ACTION_TOKEN_BURN = 2;
-    uint8 internal constant ACTION_TOKEN_TRANSFER = 3;
+    // ===== Blockchain-ready transaction schema =====
+    enum AssetType { ERC20, ERC1155 }
+    enum RouteSource {
+        MainUSDC,
+        UserCardPoint,
+        UserCardCoupon,
+        UserCardCashVoucher,
+        TipAppend
+    }
+    enum GasChainType { ETH, SOLANA }
 
-    struct Action {
-        uint8 actionType;     // 1 mint, 2 burn, 3 transfer
-        address card;         // card/collection address
-        address from;         // mint: 0, burn/transfer: from
-        address to;           // burn: 0, mint/transfer: to
-        uint256 amount;       // token amount (points)
-        uint256 timestamp;    // used for hourIndex
+    struct RouteItem {
+        address asset;
+        uint256 amountE6;
+        AssetType assetType;
+        RouteSource source;
+        uint256 tokenId;
+        uint8 itemCurrencyType;
+        uint256 offsetInRequestCurrencyE6;
     }
 
-    struct ActionMeta {
-        string title;
-        string note;
+    struct FeeInfo {
+        uint16 gasChainType;
+        uint256 gasWei;
+        uint256 gasUSDC6;
+        uint256 serviceUSDC6;
+        uint256 bServiceUSDC6;
+        uint256 bServiceUnits6;
+        address feePayer;
+    }
 
-        uint256 tax;
-        uint256 tip;
-        uint256 beamioFee1;
-        uint256 beamioFee2;
-        uint256 cardServiceFee;
+    struct TransactionMeta {
+        uint256 requestAmountFiat6;
+        uint256 requestAmountUSDC6;
+        uint8 currencyFiat;
+        uint256 discountAmountFiat6;
+        uint16 discountRateBps;
+        uint256 taxAmountFiat6;
+        uint16 taxRateBps;
+        string afterNotePayer;
+        string afterNotePayee;
+    }
 
-        // afterTatch（创建后可修改）
-        string afterTatchNoteByFrom;
-        string afterTatchNoteByTo;
-        string afterTatchNoteByCardOwner;
+    struct TransactionRecord {
+        bytes32 id;
+        bytes32 originalPaymentHash;
+        uint256 chainId;
+        bytes32 txCategory;
+        string displayJson;
+        uint64 timestamp;
+        address payer;
+        address payee;
+        uint256 finalRequestAmountFiat6;
+        uint256 finalRequestAmountUSDC6;
+        bool isAAAccount;
+        FeeInfo fees;
+        TransactionMeta meta;
+        bool exists;
+    }
+
+    struct BalanceCheckpoint {
+        uint64 hourIndex;
+        uint256 balanceE6;
     }
 
     struct Layout {
-        Action[] allActions;                       // actionId == index
-        mapping(uint256 => ActionMeta) metaById;   // actionId => meta
+        uint256 txCount; // actionId = 0..txCount-1
 
-        // ✅ indexes for paging
-        mapping(address => uint256[]) cardActions; // card => [actionId...]
-        mapping(address => uint256[]) userActions; // user => [actionId...]
+        // actionId => blockchain-ready transaction data
+        mapping(uint256 => TransactionRecord) txRecordByActionId;
+        // tx id(bytes32) => actionId + 1
+        mapping(bytes32 => uint256) actionIdPlusOneByTxId;
+        // dynamic route data kept separate for simpler storage copying
+        mapping(uint256 => RouteItem[]) routeByActionId;
+
+        // account(payer/payee) => [actionId...]
+        mapping(address => uint256[]) accountActionIds;
+
+        // asset(route item address) => [actionId...]
+        mapping(address => uint256[]) assetActionIds;
+        // de-dup index per (asset, actionId)
+        mapping(address => mapping(uint256 => bool)) assetActionIndexed;
+
+        // asset + tokenId => [actionId...]
+        mapping(address => mapping(uint256 => uint256[])) assetTokenActionIds;
+        // de-dup index per (asset, tokenId, actionId)
+        mapping(address => mapping(uint256 => mapping(uint256 => bool))) assetTokenActionIndexed;
+
+        // asset + tokenId + account => indexed balance (E6)
+        mapping(address => mapping(uint256 => mapping(address => uint256))) indexedBalanceByAssetTokenAccount;
+        // asset + tokenId => holder address count (balance > 0)
+        mapping(address => mapping(uint256 => uint256)) indexedHolderCountByAssetToken;
+        // asset + tokenId => seen accounts (for historical top-N scan)
+        mapping(address => mapping(uint256 => address[])) assetTokenSeenAccounts;
+        // dedup seen account
+        mapping(address => mapping(uint256 => mapping(address => bool))) assetTokenSeenAccountIndexed;
+        // asset + tokenId + account => hourly balance checkpoints
+        mapping(address => mapping(uint256 => mapping(address => BalanceCheckpoint[]))) assetTokenBalanceCheckpoints;
+
+        // feePayer => [actionId...]
+        mapping(address => uint256[]) feePayerActionIds;
+        // seen feePayer accounts for bService top-N scan
+        address[] bServiceSeenAccounts;
+        mapping(address => bool) bServiceSeenAccountIndexed;
     }
 
     function layout() internal pure returns (Layout storage l) {
