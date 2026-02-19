@@ -3,9 +3,11 @@
 /* eslint-disable */
 export * as actionFacetSol from './ActionFacet.sol/index.js';
 export * as adminFacetSol from './AdminFacet.sol/index.js';
+export * as beamioUserCardStatsFacetSol from './BeamioUserCardStatsFacet.sol/index.js';
 export * as catalogFacetSol from './CatalogFacet.sol/index.js';
 export * as diamondCutFacetSol from './DiamondCutFacet.sol/index.js';
 export * as diamondLoupeFacetSol from './DiamondLoupeFacet.sol/index.js';
+export * as feeStatsFacetSol from './FeeStatsFacet.sol/index.js';
 export * as ownershipFacetSol from './OwnershipFacet.sol/index.js';
 export * as statsFacetSol from './StatsFacet.sol/index.js';
 export * as taskFacetSol from './TaskFacet.sol/index.js';

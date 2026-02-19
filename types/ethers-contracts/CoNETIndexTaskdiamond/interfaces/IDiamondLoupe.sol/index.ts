@@ -2,4 +2,4 @@
 /* tslint:disable */
 /* eslint-disable */
 export type { IDiamondLoupe } from './IDiamondLoupe.js';
-export type { IDiamondLoupe2 } from './IDiamondLoupe2.js';
+export type { IDiamondLoupe3 } from './IDiamondLoupe3.js';

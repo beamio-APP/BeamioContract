@@ -2,4 +2,4 @@
 /* tslint:disable */
 /* eslint-disable */
 export type { AccountRegistry } from './AccountRegistry.js';
-export type { AccountRegistry2 } from './AccountRegistry2.js';
+export type { AccountRegistry3 } from './AccountRegistry3.js';

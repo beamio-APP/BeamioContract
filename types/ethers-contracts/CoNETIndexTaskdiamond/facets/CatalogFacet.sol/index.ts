@@ -2,4 +2,4 @@
 /* tslint:disable */
 /* eslint-disable */
 export type { CatalogFacet } from './CatalogFacet.js';
-export type { CatalogFacet2 } from './CatalogFacet2.js';
+export type { CatalogFacet3 } from './CatalogFacet3.js';

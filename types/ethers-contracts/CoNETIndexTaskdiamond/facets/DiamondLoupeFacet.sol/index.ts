@@ -2,4 +2,4 @@
 /* tslint:disable */
 /* eslint-disable */
 export type { DiamondLoupeFacet } from './DiamondLoupeFacet.js';
-export type { DiamondLoupeFacet2 } from './DiamondLoupeFacet2.js';
+export type { DiamondLoupeFacet3 } from './DiamondLoupeFacet3.js';

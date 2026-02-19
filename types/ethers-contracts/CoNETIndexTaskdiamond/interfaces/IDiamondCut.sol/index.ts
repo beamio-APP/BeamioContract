@@ -2,4 +2,4 @@
 /* tslint:disable */
 /* eslint-disable */
 export type { IDiamondCut } from './IDiamondCut.js';
-export type { IDiamondCut2 } from './IDiamondCut2.js';
+export type { IDiamondCut3 } from './IDiamondCut3.js';

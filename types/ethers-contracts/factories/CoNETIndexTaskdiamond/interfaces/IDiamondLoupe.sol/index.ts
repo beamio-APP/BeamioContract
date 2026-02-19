@@ -2,4 +2,4 @@
 /* tslint:disable */
 /* eslint-disable */
 export { IDiamondLoupe__factory } from './IDiamondLoupe__factory.js';
-export { IDiamondLoupe2__factory } from './IDiamondLoupe2__factory.js';
+export { IDiamondLoupe3__factory } from './IDiamondLoupe3__factory.js';

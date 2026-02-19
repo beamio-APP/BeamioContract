@@ -10,6 +10,11 @@ export declare namespace StatsFacet {
 
     export type AggregatedStatsStructOutput = [totalNftMinted: bigint, totalTokenMinted: bigint, totalTokenBurned: bigint, totalTransfers: bigint] & {totalNftMinted: bigint, totalTokenMinted: bigint, totalTokenBurned: bigint, totalTransfers: bigint }
   
+
+    export type PeriodReportStruct = {periodStart: BigNumberish, periodEnd: BigNumberish, stats: StatsFacet.AggregatedStatsStruct}
+
+    export type PeriodReportStructOutput = [periodStart: bigint, periodEnd: bigint, stats: StatsFacet.AggregatedStatsStructOutput] & {periodStart: bigint, periodEnd: bigint, stats: StatsFacet.AggregatedStatsStructOutput }
+  
     }
 
 export declare namespace LibStatsStorage {
@@ -21,12 +26,20 @@ export declare namespace LibStatsStorage {
     }
 
   export interface StatsFacetInterface extends Interface {
-    getFunction(nameOrSignature: "MAX_HOURS" | "getAggregatedStats" | "getCardHourlyData" | "getHourlyData" | "getStatsSince" | "getUserHourlyData" | "recordDetailedActivity" | "recordDetailedActivityAt"): FunctionFragment;
+    getFunction(nameOrSignature: "MAX_HOURS" | "MAX_PERIODS" | "PERIOD_DAY" | "PERIOD_MONTH" | "PERIOD_QUARTER" | "PERIOD_WEEK" | "PERIOD_YEAR" | "getAggregatedStats" | "getAtomicHourStats" | "getBusinessPeriodReports" | "getCardHourlyData" | "getHourlyData" | "getStatsSince" | "getUserHourlyData" | "recordDetailedActivity" | "recordDetailedActivityAt"): FunctionFragment;
 
     getEvent(nameOrSignatureOrTopic: "StatsUpdated"): EventFragment;
 
     encodeFunctionData(functionFragment: 'MAX_HOURS', values?: undefined): string;
+encodeFunctionData(functionFragment: 'MAX_PERIODS', values?: undefined): string;
+encodeFunctionData(functionFragment: 'PERIOD_DAY', values?: undefined): string;
+encodeFunctionData(functionFragment: 'PERIOD_MONTH', values?: undefined): string;
+encodeFunctionData(functionFragment: 'PERIOD_QUARTER', values?: undefined): string;
+encodeFunctionData(functionFragment: 'PERIOD_WEEK', values?: undefined): string;
+encodeFunctionData(functionFragment: 'PERIOD_YEAR', values?: undefined): string;
 encodeFunctionData(functionFragment: 'getAggregatedStats', values: [BigNumberish, AddressLike, BigNumberish, BigNumberish]): string;
+encodeFunctionData(functionFragment: 'getAtomicHourStats', values: [BigNumberish, AddressLike, BigNumberish]): string;
+encodeFunctionData(functionFragment: 'getBusinessPeriodReports', values: [BigNumberish, AddressLike, BigNumberish, BigNumberish, BigNumberish]): string;
 encodeFunctionData(functionFragment: 'getCardHourlyData', values: [AddressLike, BigNumberish]): string;
 encodeFunctionData(functionFragment: 'getHourlyData', values: [BigNumberish]): string;
 encodeFunctionData(functionFragment: 'getStatsSince', values: [BigNumberish, AddressLike, BigNumberish]): string;
@@ -35,7 +48,15 @@ encodeFunctionData(functionFragment: 'recordDetailedActivity', values: [AddressL
 encodeFunctionData(functionFragment: 'recordDetailedActivityAt', values: [BigNumberish, AddressLike, AddressLike, BigNumberish, BigNumberish, BigNumberish, BigNumberish]): string;
 
     decodeFunctionResult(functionFragment: 'MAX_HOURS', data: BytesLike): Result;
+decodeFunctionResult(functionFragment: 'MAX_PERIODS', data: BytesLike): Result;
+decodeFunctionResult(functionFragment: 'PERIOD_DAY', data: BytesLike): Result;
+decodeFunctionResult(functionFragment: 'PERIOD_MONTH', data: BytesLike): Result;
+decodeFunctionResult(functionFragment: 'PERIOD_QUARTER', data: BytesLike): Result;
+decodeFunctionResult(functionFragment: 'PERIOD_WEEK', data: BytesLike): Result;
+decodeFunctionResult(functionFragment: 'PERIOD_YEAR', data: BytesLike): Result;
 decodeFunctionResult(functionFragment: 'getAggregatedStats', data: BytesLike): Result;
+decodeFunctionResult(functionFragment: 'getAtomicHourStats', data: BytesLike): Result;
+decodeFunctionResult(functionFragment: 'getBusinessPeriodReports', data: BytesLike): Result;
 decodeFunctionResult(functionFragment: 'getCardHourlyData', data: BytesLike): Result;
 decodeFunctionResult(functionFragment: 'getHourlyData', data: BytesLike): Result;
 decodeFunctionResult(functionFragment: 'getStatsSince', data: BytesLike): Result;
@@ -99,9 +120,73 @@ decodeFunctionResult(functionFragment: 'recordDetailedActivityAt', data: BytesLi
     
 
     
+    MAX_PERIODS: TypedContractMethod<
+      [],
+      [bigint],
+      'view'
+    >
+    
+
+    
+    PERIOD_DAY: TypedContractMethod<
+      [],
+      [bigint],
+      'view'
+    >
+    
+
+    
+    PERIOD_MONTH: TypedContractMethod<
+      [],
+      [bigint],
+      'view'
+    >
+    
+
+    
+    PERIOD_QUARTER: TypedContractMethod<
+      [],
+      [bigint],
+      'view'
+    >
+    
+
+    
+    PERIOD_WEEK: TypedContractMethod<
+      [],
+      [bigint],
+      'view'
+    >
+    
+
+    
+    PERIOD_YEAR: TypedContractMethod<
+      [],
+      [bigint],
+      'view'
+    >
+    
+
+    
     getAggregatedStats: TypedContractMethod<
       [mode: BigNumberish, account: AddressLike, startTimestamp: BigNumberish, endTimestamp: BigNumberish, ],
       [StatsFacet.AggregatedStatsStructOutput],
+      'view'
+    >
+    
+
+    
+    getAtomicHourStats: TypedContractMethod<
+      [mode: BigNumberish, account: AddressLike, hourIndex: BigNumberish, ],
+      [LibStatsStorage.HourlyStatsStructOutput],
+      'view'
+    >
+    
+
+    
+    getBusinessPeriodReports: TypedContractMethod<
+      [mode: BigNumberish, account: AddressLike, periodType: BigNumberish, periods: BigNumberish, anchorTs: BigNumberish, ],
+      [StatsFacet.PeriodReportStructOutput[]],
       'view'
     >
     
@@ -162,9 +247,49 @@ decodeFunctionResult(functionFragment: 'recordDetailedActivityAt', data: BytesLi
       [bigint],
       'view'
     >;
+getFunction(nameOrSignature: 'MAX_PERIODS'): TypedContractMethod<
+      [],
+      [bigint],
+      'view'
+    >;
+getFunction(nameOrSignature: 'PERIOD_DAY'): TypedContractMethod<
+      [],
+      [bigint],
+      'view'
+    >;
+getFunction(nameOrSignature: 'PERIOD_MONTH'): TypedContractMethod<
+      [],
+      [bigint],
+      'view'
+    >;
+getFunction(nameOrSignature: 'PERIOD_QUARTER'): TypedContractMethod<
+      [],
+      [bigint],
+      'view'
+    >;
+getFunction(nameOrSignature: 'PERIOD_WEEK'): TypedContractMethod<
+      [],
+      [bigint],
+      'view'
+    >;
+getFunction(nameOrSignature: 'PERIOD_YEAR'): TypedContractMethod<
+      [],
+      [bigint],
+      'view'
+    >;
 getFunction(nameOrSignature: 'getAggregatedStats'): TypedContractMethod<
       [mode: BigNumberish, account: AddressLike, startTimestamp: BigNumberish, endTimestamp: BigNumberish, ],
       [StatsFacet.AggregatedStatsStructOutput],
+      'view'
+    >;
+getFunction(nameOrSignature: 'getAtomicHourStats'): TypedContractMethod<
+      [mode: BigNumberish, account: AddressLike, hourIndex: BigNumberish, ],
+      [LibStatsStorage.HourlyStatsStructOutput],
+      'view'
+    >;
+getFunction(nameOrSignature: 'getBusinessPeriodReports'): TypedContractMethod<
+      [mode: BigNumberish, account: AddressLike, periodType: BigNumberish, periods: BigNumberish, anchorTs: BigNumberish, ],
+      [StatsFacet.PeriodReportStructOutput[]],
       'view'
     >;
 getFunction(nameOrSignature: 'getCardHourlyData'): TypedContractMethod<

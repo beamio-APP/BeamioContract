@@ -2,4 +2,4 @@
 /* tslint:disable */
 /* eslint-disable */
 export { Ownable__factory } from './Ownable__factory.js';
-export { Ownable2__factory } from './Ownable2__factory.js';
+export { Ownable3__factory } from './Ownable3__factory.js';

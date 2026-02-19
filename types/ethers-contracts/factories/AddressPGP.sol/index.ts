@@ -2,4 +2,4 @@
 /* tslint:disable */
 /* eslint-disable */
 export { AddressPGP__factory } from './AddressPGP__factory.js';
-export { AddressPGP2__factory } from './AddressPGP2__factory.js';
+export { AddressPGP3__factory } from './AddressPGP3__factory.js';

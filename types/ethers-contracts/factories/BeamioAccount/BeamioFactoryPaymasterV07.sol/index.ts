@@ -2,4 +2,4 @@
 /* tslint:disable */
 /* eslint-disable */
 export { BeamioFactoryPaymasterV07__factory } from './BeamioFactoryPaymasterV07__factory.js';
-export { BeamioFactoryPaymasterV072__factory } from './BeamioFactoryPaymasterV072__factory.js';
+export { BeamioFactoryPaymasterV073__factory } from './BeamioFactoryPaymasterV073__factory.js';

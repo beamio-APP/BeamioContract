@@ -2,4 +2,4 @@
 /* tslint:disable */
 /* eslint-disable */
 export type { Ownable } from './Ownable.js';
-export type { Ownable2 } from './Ownable2.js';
+export type { Ownable3 } from './Ownable3.js';

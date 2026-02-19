@@ -2,4 +2,4 @@
 /* tslint:disable */
 /* eslint-disable */
 export { AccessControl__factory } from './AccessControl__factory.js';
-export { AccessControl2__factory } from './AccessControl2__factory.js';
+export { AccessControl3__factory } from './AccessControl3__factory.js';

@@ -2,4 +2,4 @@
 /* tslint:disable */
 /* eslint-disable */
 export type { BeamioIndexerDiamond } from './BeamioIndexerDiamond.js';
-export type { BeamioIndexerDiamond2 } from './BeamioIndexerDiamond2.js';
+export type { BeamioIndexerDiamond3 } from './BeamioIndexerDiamond3.js';

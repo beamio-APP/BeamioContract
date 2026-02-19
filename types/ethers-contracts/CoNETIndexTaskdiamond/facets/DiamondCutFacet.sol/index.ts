@@ -2,4 +2,4 @@
 /* tslint:disable */
 /* eslint-disable */
 export type { DiamondCutFacet } from './DiamondCutFacet.js';
-export type { DiamondCutFacet2 } from './DiamondCutFacet2.js';
+export type { DiamondCutFacet3 } from './DiamondCutFacet3.js';

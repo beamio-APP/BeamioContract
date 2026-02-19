@@ -2,4 +2,4 @@
 /* tslint:disable */
 /* eslint-disable */
 export { BeamioAccountDeployer__factory } from './BeamioAccountDeployer__factory.js';
-export { BeamioAccountDeployer2__factory } from './BeamioAccountDeployer2__factory.js';
+export { BeamioAccountDeployer3__factory } from './BeamioAccountDeployer3__factory.js';

@@ -2,4 +2,4 @@
 /* tslint:disable */
 /* eslint-disable */
 export { ERC20Permit__factory } from './ERC20Permit__factory.js';
-export { ERC20Permit2__factory } from './ERC20Permit2__factory.js';
+export { ERC20Permit4__factory } from './ERC20Permit4__factory.js';

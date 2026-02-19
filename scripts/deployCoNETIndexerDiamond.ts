@@ -27,15 +27,8 @@ const DIAMOND_CUT_SELECTOR = "0x1f931c1c"; // diamondCut(bytes4[])
 function getSelectors(abi: any): string[] {
   const arr = Array.isArray(abi) ? abi : abi?.abi || abi;
   if (!Array.isArray(arr)) throw new Error("Bad ABI");
-  return [
-    ...new Set(
-      arr
-        .filter((f: any) => f.type === "function")
-        .map((f: any) =>
-          ethersLib.id(`${f.name}(${(f.inputs || []).map((i: any) => i.type).join(",")})`).slice(0, 10).toLowerCase()
-        )
-    ),
-  ];
+  const iface = new ethersLib.Interface(arr);
+  return [...new Set(iface.fragments.filter((f: any) => f.type === "function").map((f: any) => f.selector.toLowerCase()))];
 }
 
 async function main() {
@@ -70,7 +63,7 @@ async function main() {
   const diamondAddr = await diamond.getAddress();
   console.log("  BeamioIndexerDiamond:", diamondAddr);
 
-  // 3-9. 部署其他 Facets
+  // 3-N. 部署其他 Facets
   const facetNames = [
     "DiamondLoupeFacet",
     "OwnershipFacet",
@@ -78,12 +71,14 @@ async function main() {
     "StatsFacet",
     "CatalogFacet",
     "ActionFacet",
+    "FeeStatsFacet",
+    "BeamioUserCardStatsFacet",
     "AdminFacet",
   ];
   const facetAddrs: Record<string, string> = {};
 
   for (const name of facetNames) {
-    console.log(`\n[${facetNames.indexOf(name) + 3}/9] 部署 ${name}...`);
+    console.log(`\n[${facetNames.indexOf(name) + 3}/${facetNames.length + 2}] 部署 ${name}...`);
     const Facet = await ethers.getContractFactory(name);
     const facet = await Facet.deploy();
     await facet.waitForDeployment();
@@ -109,13 +104,23 @@ async function main() {
   }
 
   const cuts: { facetAddress: string; action: number; functionSelectors: string[] }[] = [];
+  const seenSelectors = new Set<string>();
   for (const name of facetNames) {
     const selectors = getSelectors(facetAbis[name]).filter((s) => s !== DIAMOND_CUT_SELECTOR);
-    if (selectors.length > 0) {
+    const uniqueSelectors = selectors.filter((s) => {
+      if (seenSelectors.has(s)) return false;
+      seenSelectors.add(s);
+      return true;
+    });
+    const skipped = selectors.length - uniqueSelectors.length;
+    if (skipped > 0) {
+      console.log(`  ${name}: 跳过重复 selector ${skipped} 个`);
+    }
+    if (uniqueSelectors.length > 0) {
       cuts.push({
         facetAddress: facetAddrs[name],
         action: 0, // Add
-        functionSelectors: selectors,
+        functionSelectors: uniqueSelectors,
       });
     }
   }

@@ -2,4 +2,4 @@
 /* tslint:disable */
 /* eslint-disable */
 export type { AccessControl } from './AccessControl.js';
-export type { AccessControl2 } from './AccessControl2.js';
+export type { AccessControl3 } from './AccessControl3.js';

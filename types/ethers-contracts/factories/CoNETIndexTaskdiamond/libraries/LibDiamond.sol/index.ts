@@ -2,4 +2,4 @@
 /* tslint:disable */
 /* eslint-disable */
 export { LibDiamond__factory } from './LibDiamond__factory.js';
-export { LibDiamond2__factory } from './LibDiamond2__factory.js';
+export { LibDiamond3__factory } from './LibDiamond3__factory.js';

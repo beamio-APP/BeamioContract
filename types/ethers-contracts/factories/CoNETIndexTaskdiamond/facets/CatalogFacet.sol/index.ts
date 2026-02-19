@@ -2,4 +2,4 @@
 /* tslint:disable */
 /* eslint-disable */
 export { CatalogFacet__factory } from './CatalogFacet__factory.js';
-export { CatalogFacet2__factory } from './CatalogFacet2__factory.js';
+export { CatalogFacet3__factory } from './CatalogFacet3__factory.js';

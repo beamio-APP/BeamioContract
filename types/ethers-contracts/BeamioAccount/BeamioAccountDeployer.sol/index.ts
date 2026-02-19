@@ -2,4 +2,4 @@
 /* tslint:disable */
 /* eslint-disable */
 export type { BeamioAccountDeployer } from './BeamioAccountDeployer.js';
-export type { BeamioAccountDeployer2 } from './BeamioAccountDeployer2.js';
+export type { BeamioAccountDeployer3 } from './BeamioAccountDeployer3.js';

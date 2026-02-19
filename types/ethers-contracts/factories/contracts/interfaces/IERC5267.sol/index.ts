@@ -2,4 +2,4 @@
 /* tslint:disable */
 /* eslint-disable */
 export { IERC5267__factory } from './IERC5267__factory.js';
-export { IERC52672__factory } from './IERC52672__factory.js';
+export { IERC52673__factory } from './IERC52673__factory.js';

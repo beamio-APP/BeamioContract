@@ -2,4 +2,4 @@
 /* tslint:disable */
 /* eslint-disable */
 export { DiamondCutFacet__factory } from './DiamondCutFacet__factory.js';
-export { DiamondCutFacet2__factory } from './DiamondCutFacet2__factory.js';
+export { DiamondCutFacet3__factory } from './DiamondCutFacet3__factory.js';

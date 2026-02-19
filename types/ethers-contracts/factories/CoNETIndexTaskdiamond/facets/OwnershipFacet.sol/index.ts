@@ -2,4 +2,4 @@
 /* tslint:disable */
 /* eslint-disable */
 export { OwnershipFacet__factory } from './OwnershipFacet__factory.js';
-export { OwnershipFacet2__factory } from './OwnershipFacet2__factory.js';
+export { OwnershipFacet3__factory } from './OwnershipFacet3__factory.js';

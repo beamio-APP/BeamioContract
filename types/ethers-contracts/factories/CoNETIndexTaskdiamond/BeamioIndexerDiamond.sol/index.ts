@@ -2,4 +2,4 @@
 /* tslint:disable */
 /* eslint-disable */
 export { BeamioIndexerDiamond__factory } from './BeamioIndexerDiamond__factory.js';
-export { BeamioIndexerDiamond2__factory } from './BeamioIndexerDiamond2__factory.js';
+export { BeamioIndexerDiamond3__factory } from './BeamioIndexerDiamond3__factory.js';

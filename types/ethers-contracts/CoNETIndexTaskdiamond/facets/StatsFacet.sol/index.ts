@@ -2,4 +2,4 @@
 /* tslint:disable */
 /* eslint-disable */
 export type { StatsFacet } from './StatsFacet.js';
-export type { StatsFacet2 } from './StatsFacet2.js';
+export type { StatsFacet4 } from './StatsFacet4.js';

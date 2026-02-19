@@ -2,4 +2,4 @@
 /* tslint:disable */
 /* eslint-disable */
 export type { IERC165 } from './IERC165.js';
-export type { IERC1652 } from './IERC1652.js';
+export type { IERC1653 } from './IERC1653.js';

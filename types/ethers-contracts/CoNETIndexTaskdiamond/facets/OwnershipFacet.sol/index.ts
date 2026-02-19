@@ -2,4 +2,4 @@
 /* tslint:disable */
 /* eslint-disable */
 export type { OwnershipFacet } from './OwnershipFacet.js';
-export type { OwnershipFacet2 } from './OwnershipFacet2.js';
+export type { OwnershipFacet3 } from './OwnershipFacet3.js';

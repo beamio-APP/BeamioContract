@@ -2,4 +2,4 @@
 /* tslint:disable */
 /* eslint-disable */
 export type { AdminFacet } from './AdminFacet.js';
-export type { AdminFacet2 } from './AdminFacet2.js';
+export type { AdminFacet3 } from './AdminFacet3.js';

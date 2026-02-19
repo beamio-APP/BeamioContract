@@ -2,4 +2,4 @@
 /* tslint:disable */
 /* eslint-disable */
 export type { ERC20Permit } from './ERC20Permit.js';
-export type { ERC20Permit2 } from './ERC20Permit2.js';
+export type { ERC20Permit4 } from './ERC20Permit4.js';

@@ -2,4 +2,4 @@
 /* tslint:disable */
 /* eslint-disable */
 export { StatsFacet__factory } from './StatsFacet__factory.js';
-export { StatsFacet2__factory } from './StatsFacet2__factory.js';
+export { StatsFacet4__factory } from './StatsFacet4__factory.js';

@@ -2,4 +2,4 @@
 /* tslint:disable */
 /* eslint-disable */
 export { IDiamondCut__factory } from './IDiamondCut__factory.js';
-export { IDiamondCut2__factory } from './IDiamondCut2__factory.js';
+export { IDiamondCut3__factory } from './IDiamondCut3__factory.js';

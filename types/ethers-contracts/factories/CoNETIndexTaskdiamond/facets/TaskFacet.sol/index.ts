@@ -2,4 +2,4 @@
 /* tslint:disable */
 /* eslint-disable */
 export { TaskFacet__factory } from './TaskFacet__factory.js';
-export { TaskFacet2__factory } from './TaskFacet2__factory.js';
+export { TaskFacet3__factory } from './TaskFacet3__factory.js';

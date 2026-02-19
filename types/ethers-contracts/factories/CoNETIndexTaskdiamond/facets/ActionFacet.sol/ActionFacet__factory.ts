@@ -18,7 +18,7 @@ import type { NonPayableOverrides } from "../../../../common.js"
         "type": "uint256"
       }
     ],
-    "name": "AfterTatchNoteUpdated",
+    "name": "AfterNotesUpdated",
     "type": "event"
   },
   {
@@ -33,13 +33,7 @@ import type { NonPayableOverrides } from "../../../../common.js"
       {
         "indexed": true,
         "internalType": "address",
-        "name": "card",
-        "type": "address"
-      },
-      {
-        "indexed": true,
-        "internalType": "address",
-        "name": "user",
+        "name": "account",
         "type": "address"
       }
     ],
@@ -57,84 +51,40 @@ import type { NonPayableOverrides } from "../../../../common.js"
       },
       {
         "indexed": true,
-        "internalType": "uint8",
-        "name": "actionType",
-        "type": "uint8"
+        "internalType": "bytes32",
+        "name": "txId",
+        "type": "bytes32"
       },
       {
         "indexed": true,
+        "internalType": "bytes32",
+        "name": "txCategory",
+        "type": "bytes32"
+      },
+      {
+        "indexed": false,
         "internalType": "address",
-        "name": "card",
+        "name": "payer",
         "type": "address"
       },
       {
         "indexed": false,
         "internalType": "address",
-        "name": "from",
+        "name": "payee",
         "type": "address"
-      },
-      {
-        "indexed": false,
-        "internalType": "address",
-        "name": "to",
-        "type": "address"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "amount",
-        "type": "uint256"
       }
     ],
-    "name": "TokenActionSynced",
+    "name": "TransactionRecordSynced",
     "type": "event"
   },
   {
-    "inputs": [
-      {
-        "internalType": "uint256",
-        "name": "actionId",
-        "type": "uint256"
-      }
-    ],
-    "name": "getAction",
+    "inputs": [],
+    "name": "ACCOUNT_MODE_AA",
     "outputs": [
       {
-        "components": [
-          {
-            "internalType": "uint8",
-            "name": "actionType",
-            "type": "uint8"
-          },
-          {
-            "internalType": "address",
-            "name": "card",
-            "type": "address"
-          },
-          {
-            "internalType": "address",
-            "name": "from",
-            "type": "address"
-          },
-          {
-            "internalType": "address",
-            "name": "to",
-            "type": "address"
-          },
-          {
-            "internalType": "uint256",
-            "name": "amount",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "timestamp",
-            "type": "uint256"
-          }
-        ],
-        "internalType": "struct LibActionStorage.Action",
+        "internalType": "uint8",
         "name": "",
-        "type": "tuple"
+        "type": "uint8"
       }
     ],
     "stateMutability": "view",
@@ -142,7 +92,33 @@ import type { NonPayableOverrides } from "../../../../common.js"
   },
   {
     "inputs": [],
-    "name": "getActionCount",
+    "name": "ACCOUNT_MODE_ALL",
+    "outputs": [
+      {
+        "internalType": "uint8",
+        "name": "",
+        "type": "uint8"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "ACCOUNT_MODE_EOA",
+    "outputs": [
+      {
+        "internalType": "uint8",
+        "name": "",
+        "type": "uint8"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "ATOMIC_BUCKET_SECONDS",
     "outputs": [
       {
         "internalType": "uint256",
@@ -154,179 +130,104 @@ import type { NonPayableOverrides } from "../../../../common.js"
     "type": "function"
   },
   {
-    "inputs": [
-      {
-        "internalType": "uint256",
-        "name": "actionId",
-        "type": "uint256"
-      }
-    ],
-    "name": "getActionMeta",
+    "inputs": [],
+    "name": "CHAIN_ID_FILTER_ALL",
     "outputs": [
       {
-        "components": [
-          {
-            "internalType": "string",
-            "name": "title",
-            "type": "string"
-          },
-          {
-            "internalType": "string",
-            "name": "note",
-            "type": "string"
-          },
-          {
-            "internalType": "uint256",
-            "name": "tax",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "tip",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "beamioFee1",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "beamioFee2",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "cardServiceFee",
-            "type": "uint256"
-          },
-          {
-            "internalType": "string",
-            "name": "afterTatchNoteByFrom",
-            "type": "string"
-          },
-          {
-            "internalType": "string",
-            "name": "afterTatchNoteByTo",
-            "type": "string"
-          },
-          {
-            "internalType": "string",
-            "name": "afterTatchNoteByCardOwner",
-            "type": "string"
-          }
-        ],
-        "internalType": "struct LibActionStorage.ActionMeta",
+        "internalType": "uint256",
         "name": "",
-        "type": "tuple"
+        "type": "uint256"
       }
     ],
     "stateMutability": "view",
     "type": "function"
   },
   {
-    "inputs": [
-      {
-        "internalType": "uint256",
-        "name": "actionId",
-        "type": "uint256"
-      }
-    ],
-    "name": "getActionWithMeta",
+    "inputs": [],
+    "name": "GAS_CHAIN_FILTER_ALL",
     "outputs": [
       {
-        "components": [
-          {
-            "internalType": "uint8",
-            "name": "actionType",
-            "type": "uint8"
-          },
-          {
-            "internalType": "address",
-            "name": "card",
-            "type": "address"
-          },
-          {
-            "internalType": "address",
-            "name": "from",
-            "type": "address"
-          },
-          {
-            "internalType": "address",
-            "name": "to",
-            "type": "address"
-          },
-          {
-            "internalType": "uint256",
-            "name": "amount",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "timestamp",
-            "type": "uint256"
-          }
-        ],
-        "internalType": "struct LibActionStorage.Action",
-        "name": "action_",
-        "type": "tuple"
-      },
+        "internalType": "uint16",
+        "name": "",
+        "type": "uint16"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "PERIOD_DAY",
+    "outputs": [
       {
-        "components": [
-          {
-            "internalType": "string",
-            "name": "title",
-            "type": "string"
-          },
-          {
-            "internalType": "string",
-            "name": "note",
-            "type": "string"
-          },
-          {
-            "internalType": "uint256",
-            "name": "tax",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "tip",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "beamioFee1",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "beamioFee2",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "cardServiceFee",
-            "type": "uint256"
-          },
-          {
-            "internalType": "string",
-            "name": "afterTatchNoteByFrom",
-            "type": "string"
-          },
-          {
-            "internalType": "string",
-            "name": "afterTatchNoteByTo",
-            "type": "string"
-          },
-          {
-            "internalType": "string",
-            "name": "afterTatchNoteByCardOwner",
-            "type": "string"
-          }
-        ],
-        "internalType": "struct LibActionStorage.ActionMeta",
-        "name": "meta_",
-        "type": "tuple"
+        "internalType": "uint8",
+        "name": "",
+        "type": "uint8"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "PERIOD_HOUR",
+    "outputs": [
+      {
+        "internalType": "uint8",
+        "name": "",
+        "type": "uint8"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "PERIOD_MONTH",
+    "outputs": [
+      {
+        "internalType": "uint8",
+        "name": "",
+        "type": "uint8"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "PERIOD_QUARTER",
+    "outputs": [
+      {
+        "internalType": "uint8",
+        "name": "",
+        "type": "uint8"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "PERIOD_WEEK",
+    "outputs": [
+      {
+        "internalType": "uint8",
+        "name": "",
+        "type": "uint8"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "PERIOD_YEAR",
+    "outputs": [
+      {
+        "internalType": "uint8",
+        "name": "",
+        "type": "uint8"
       }
     ],
     "stateMutability": "view",
@@ -336,7 +237,95 @@ import type { NonPayableOverrides } from "../../../../common.js"
     "inputs": [
       {
         "internalType": "address",
-        "name": "card",
+        "name": "account",
+        "type": "address"
+      }
+    ],
+    "name": "getAccountActionCount",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "account",
+        "type": "address"
+      },
+      {
+        "internalType": "uint8",
+        "name": "periodType",
+        "type": "uint8"
+      },
+      {
+        "internalType": "uint256",
+        "name": "anchorTs",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "offset",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "limit",
+        "type": "uint256"
+      },
+      {
+        "internalType": "bytes32",
+        "name": "txCategoryFilter",
+        "type": "bytes32"
+      },
+      {
+        "internalType": "uint16",
+        "name": "gasChainTypeFilter",
+        "type": "uint16"
+      },
+      {
+        "internalType": "uint256",
+        "name": "chainIdFilter",
+        "type": "uint256"
+      }
+    ],
+    "name": "getAccountActionIdsByPeriodPaged",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "total",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "periodStart",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "periodEnd",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256[]",
+        "name": "page",
+        "type": "uint256[]"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "account",
         "type": "address"
       },
       {
@@ -350,7 +339,7 @@ import type { NonPayableOverrides } from "../../../../common.js"
         "type": "uint256"
       }
     ],
-    "name": "getCardActionIdsPaged",
+    "name": "getAccountActionIdsPaged",
     "outputs": [
       {
         "internalType": "uint256[]",
@@ -365,11 +354,2606 @@ import type { NonPayableOverrides } from "../../../../common.js"
     "inputs": [
       {
         "internalType": "address",
-        "name": "card",
+        "name": "account",
         "type": "address"
+      },
+      {
+        "internalType": "uint8",
+        "name": "periodType",
+        "type": "uint8"
+      },
+      {
+        "internalType": "uint256",
+        "name": "periodOffset",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "pageOffset",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "pageLimit",
+        "type": "uint256"
+      },
+      {
+        "internalType": "bytes32",
+        "name": "txCategoryFilter",
+        "type": "bytes32"
+      },
+      {
+        "internalType": "uint8",
+        "name": "accountMode",
+        "type": "uint8"
       }
     ],
-    "name": "getCardActionsCount",
+    "name": "getAccountTransactionsByCurrentPeriodOffsetAndAccountModePaged",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "total",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "periodStart",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "periodEnd",
+        "type": "uint256"
+      },
+      {
+        "components": [
+          {
+            "internalType": "bytes32",
+            "name": "id",
+            "type": "bytes32"
+          },
+          {
+            "internalType": "bytes32",
+            "name": "originalPaymentHash",
+            "type": "bytes32"
+          },
+          {
+            "internalType": "uint256",
+            "name": "chainId",
+            "type": "uint256"
+          },
+          {
+            "internalType": "bytes32",
+            "name": "txCategory",
+            "type": "bytes32"
+          },
+          {
+            "internalType": "string",
+            "name": "displayJson",
+            "type": "string"
+          },
+          {
+            "internalType": "uint64",
+            "name": "timestamp",
+            "type": "uint64"
+          },
+          {
+            "internalType": "address",
+            "name": "payer",
+            "type": "address"
+          },
+          {
+            "internalType": "address",
+            "name": "payee",
+            "type": "address"
+          },
+          {
+            "internalType": "uint256",
+            "name": "finalRequestAmountFiat6",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "finalRequestAmountUSDC6",
+            "type": "uint256"
+          },
+          {
+            "internalType": "bool",
+            "name": "isAAAccount",
+            "type": "bool"
+          },
+          {
+            "components": [
+              {
+                "internalType": "uint16",
+                "name": "gasChainType",
+                "type": "uint16"
+              },
+              {
+                "internalType": "uint256",
+                "name": "gasWei",
+                "type": "uint256"
+              },
+              {
+                "internalType": "uint256",
+                "name": "gasUSDC6",
+                "type": "uint256"
+              },
+              {
+                "internalType": "uint256",
+                "name": "serviceUSDC6",
+                "type": "uint256"
+              },
+              {
+                "internalType": "uint256",
+                "name": "bServiceUSDC6",
+                "type": "uint256"
+              },
+              {
+                "internalType": "uint256",
+                "name": "bServiceUnits6",
+                "type": "uint256"
+              },
+              {
+                "internalType": "address",
+                "name": "feePayer",
+                "type": "address"
+              }
+            ],
+            "internalType": "struct LibActionStorage.FeeInfo",
+            "name": "fees",
+            "type": "tuple"
+          },
+          {
+            "components": [
+              {
+                "internalType": "uint256",
+                "name": "requestAmountFiat6",
+                "type": "uint256"
+              },
+              {
+                "internalType": "uint256",
+                "name": "requestAmountUSDC6",
+                "type": "uint256"
+              },
+              {
+                "internalType": "uint8",
+                "name": "currencyFiat",
+                "type": "uint8"
+              },
+              {
+                "internalType": "uint256",
+                "name": "discountAmountFiat6",
+                "type": "uint256"
+              },
+              {
+                "internalType": "uint16",
+                "name": "discountRateBps",
+                "type": "uint16"
+              },
+              {
+                "internalType": "uint256",
+                "name": "taxAmountFiat6",
+                "type": "uint256"
+              },
+              {
+                "internalType": "uint16",
+                "name": "taxRateBps",
+                "type": "uint16"
+              },
+              {
+                "internalType": "string",
+                "name": "afterNotePayer",
+                "type": "string"
+              },
+              {
+                "internalType": "string",
+                "name": "afterNotePayee",
+                "type": "string"
+              }
+            ],
+            "internalType": "struct LibActionStorage.TransactionMeta",
+            "name": "meta",
+            "type": "tuple"
+          },
+          {
+            "internalType": "bool",
+            "name": "exists",
+            "type": "bool"
+          }
+        ],
+        "internalType": "struct LibActionStorage.TransactionRecord[]",
+        "name": "page",
+        "type": "tuple[]"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "account",
+        "type": "address"
+      },
+      {
+        "internalType": "uint8",
+        "name": "periodType",
+        "type": "uint8"
+      },
+      {
+        "internalType": "uint256",
+        "name": "periodOffset",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "pageOffset",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "pageLimit",
+        "type": "uint256"
+      },
+      {
+        "internalType": "bytes32",
+        "name": "txCategoryFilter",
+        "type": "bytes32"
+      },
+      {
+        "internalType": "uint8",
+        "name": "accountMode",
+        "type": "uint8"
+      }
+    ],
+    "name": "getAccountTransactionsByCurrentPeriodOffsetAndAccountModePagedFull",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "total",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "periodStart",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "periodEnd",
+        "type": "uint256"
+      },
+      {
+        "components": [
+          {
+            "internalType": "bytes32",
+            "name": "id",
+            "type": "bytes32"
+          },
+          {
+            "internalType": "bytes32",
+            "name": "originalPaymentHash",
+            "type": "bytes32"
+          },
+          {
+            "internalType": "uint256",
+            "name": "chainId",
+            "type": "uint256"
+          },
+          {
+            "internalType": "bytes32",
+            "name": "txCategory",
+            "type": "bytes32"
+          },
+          {
+            "internalType": "string",
+            "name": "displayJson",
+            "type": "string"
+          },
+          {
+            "internalType": "uint64",
+            "name": "timestamp",
+            "type": "uint64"
+          },
+          {
+            "internalType": "address",
+            "name": "payer",
+            "type": "address"
+          },
+          {
+            "internalType": "address",
+            "name": "payee",
+            "type": "address"
+          },
+          {
+            "internalType": "uint256",
+            "name": "finalRequestAmountFiat6",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "finalRequestAmountUSDC6",
+            "type": "uint256"
+          },
+          {
+            "internalType": "bool",
+            "name": "isAAAccount",
+            "type": "bool"
+          },
+          {
+            "components": [
+              {
+                "internalType": "address",
+                "name": "asset",
+                "type": "address"
+              },
+              {
+                "internalType": "uint256",
+                "name": "amountE6",
+                "type": "uint256"
+              },
+              {
+                "internalType": "enum LibActionStorage.AssetType",
+                "name": "assetType",
+                "type": "uint8"
+              },
+              {
+                "internalType": "enum LibActionStorage.RouteSource",
+                "name": "source",
+                "type": "uint8"
+              },
+              {
+                "internalType": "uint256",
+                "name": "tokenId",
+                "type": "uint256"
+              },
+              {
+                "internalType": "uint8",
+                "name": "itemCurrencyType",
+                "type": "uint8"
+              },
+              {
+                "internalType": "uint256",
+                "name": "offsetInRequestCurrencyE6",
+                "type": "uint256"
+              }
+            ],
+            "internalType": "struct LibActionStorage.RouteItem[]",
+            "name": "route",
+            "type": "tuple[]"
+          },
+          {
+            "components": [
+              {
+                "internalType": "uint16",
+                "name": "gasChainType",
+                "type": "uint16"
+              },
+              {
+                "internalType": "uint256",
+                "name": "gasWei",
+                "type": "uint256"
+              },
+              {
+                "internalType": "uint256",
+                "name": "gasUSDC6",
+                "type": "uint256"
+              },
+              {
+                "internalType": "uint256",
+                "name": "serviceUSDC6",
+                "type": "uint256"
+              },
+              {
+                "internalType": "uint256",
+                "name": "bServiceUSDC6",
+                "type": "uint256"
+              },
+              {
+                "internalType": "uint256",
+                "name": "bServiceUnits6",
+                "type": "uint256"
+              },
+              {
+                "internalType": "address",
+                "name": "feePayer",
+                "type": "address"
+              }
+            ],
+            "internalType": "struct LibActionStorage.FeeInfo",
+            "name": "fees",
+            "type": "tuple"
+          },
+          {
+            "components": [
+              {
+                "internalType": "uint256",
+                "name": "requestAmountFiat6",
+                "type": "uint256"
+              },
+              {
+                "internalType": "uint256",
+                "name": "requestAmountUSDC6",
+                "type": "uint256"
+              },
+              {
+                "internalType": "uint8",
+                "name": "currencyFiat",
+                "type": "uint8"
+              },
+              {
+                "internalType": "uint256",
+                "name": "discountAmountFiat6",
+                "type": "uint256"
+              },
+              {
+                "internalType": "uint16",
+                "name": "discountRateBps",
+                "type": "uint16"
+              },
+              {
+                "internalType": "uint256",
+                "name": "taxAmountFiat6",
+                "type": "uint256"
+              },
+              {
+                "internalType": "uint16",
+                "name": "taxRateBps",
+                "type": "uint16"
+              },
+              {
+                "internalType": "string",
+                "name": "afterNotePayer",
+                "type": "string"
+              },
+              {
+                "internalType": "string",
+                "name": "afterNotePayee",
+                "type": "string"
+              }
+            ],
+            "internalType": "struct LibActionStorage.TransactionMeta",
+            "name": "meta",
+            "type": "tuple"
+          }
+        ],
+        "internalType": "struct ActionFacet.TransactionFull[]",
+        "name": "page",
+        "type": "tuple[]"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "account",
+        "type": "address"
+      },
+      {
+        "internalType": "uint8",
+        "name": "periodType",
+        "type": "uint8"
+      },
+      {
+        "internalType": "uint256",
+        "name": "periodOffset",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "pageOffset",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "pageLimit",
+        "type": "uint256"
+      },
+      {
+        "internalType": "bytes32",
+        "name": "txCategoryFilter",
+        "type": "bytes32"
+      }
+    ],
+    "name": "getAccountTransactionsByCurrentPeriodOffsetPaged",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "total",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "periodStart",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "periodEnd",
+        "type": "uint256"
+      },
+      {
+        "components": [
+          {
+            "internalType": "bytes32",
+            "name": "id",
+            "type": "bytes32"
+          },
+          {
+            "internalType": "bytes32",
+            "name": "originalPaymentHash",
+            "type": "bytes32"
+          },
+          {
+            "internalType": "uint256",
+            "name": "chainId",
+            "type": "uint256"
+          },
+          {
+            "internalType": "bytes32",
+            "name": "txCategory",
+            "type": "bytes32"
+          },
+          {
+            "internalType": "string",
+            "name": "displayJson",
+            "type": "string"
+          },
+          {
+            "internalType": "uint64",
+            "name": "timestamp",
+            "type": "uint64"
+          },
+          {
+            "internalType": "address",
+            "name": "payer",
+            "type": "address"
+          },
+          {
+            "internalType": "address",
+            "name": "payee",
+            "type": "address"
+          },
+          {
+            "internalType": "uint256",
+            "name": "finalRequestAmountFiat6",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "finalRequestAmountUSDC6",
+            "type": "uint256"
+          },
+          {
+            "internalType": "bool",
+            "name": "isAAAccount",
+            "type": "bool"
+          },
+          {
+            "components": [
+              {
+                "internalType": "uint16",
+                "name": "gasChainType",
+                "type": "uint16"
+              },
+              {
+                "internalType": "uint256",
+                "name": "gasWei",
+                "type": "uint256"
+              },
+              {
+                "internalType": "uint256",
+                "name": "gasUSDC6",
+                "type": "uint256"
+              },
+              {
+                "internalType": "uint256",
+                "name": "serviceUSDC6",
+                "type": "uint256"
+              },
+              {
+                "internalType": "uint256",
+                "name": "bServiceUSDC6",
+                "type": "uint256"
+              },
+              {
+                "internalType": "uint256",
+                "name": "bServiceUnits6",
+                "type": "uint256"
+              },
+              {
+                "internalType": "address",
+                "name": "feePayer",
+                "type": "address"
+              }
+            ],
+            "internalType": "struct LibActionStorage.FeeInfo",
+            "name": "fees",
+            "type": "tuple"
+          },
+          {
+            "components": [
+              {
+                "internalType": "uint256",
+                "name": "requestAmountFiat6",
+                "type": "uint256"
+              },
+              {
+                "internalType": "uint256",
+                "name": "requestAmountUSDC6",
+                "type": "uint256"
+              },
+              {
+                "internalType": "uint8",
+                "name": "currencyFiat",
+                "type": "uint8"
+              },
+              {
+                "internalType": "uint256",
+                "name": "discountAmountFiat6",
+                "type": "uint256"
+              },
+              {
+                "internalType": "uint16",
+                "name": "discountRateBps",
+                "type": "uint16"
+              },
+              {
+                "internalType": "uint256",
+                "name": "taxAmountFiat6",
+                "type": "uint256"
+              },
+              {
+                "internalType": "uint16",
+                "name": "taxRateBps",
+                "type": "uint16"
+              },
+              {
+                "internalType": "string",
+                "name": "afterNotePayer",
+                "type": "string"
+              },
+              {
+                "internalType": "string",
+                "name": "afterNotePayee",
+                "type": "string"
+              }
+            ],
+            "internalType": "struct LibActionStorage.TransactionMeta",
+            "name": "meta",
+            "type": "tuple"
+          },
+          {
+            "internalType": "bool",
+            "name": "exists",
+            "type": "bool"
+          }
+        ],
+        "internalType": "struct LibActionStorage.TransactionRecord[]",
+        "name": "page",
+        "type": "tuple[]"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "account",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "periodOffset",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "pageOffset",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "pageLimit",
+        "type": "uint256"
+      },
+      {
+        "internalType": "bytes32",
+        "name": "txCategoryFilter",
+        "type": "bytes32"
+      }
+    ],
+    "name": "getAccountTransactionsByDayOffsetPaged",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "total",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "periodStart",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "periodEnd",
+        "type": "uint256"
+      },
+      {
+        "components": [
+          {
+            "internalType": "bytes32",
+            "name": "id",
+            "type": "bytes32"
+          },
+          {
+            "internalType": "bytes32",
+            "name": "originalPaymentHash",
+            "type": "bytes32"
+          },
+          {
+            "internalType": "uint256",
+            "name": "chainId",
+            "type": "uint256"
+          },
+          {
+            "internalType": "bytes32",
+            "name": "txCategory",
+            "type": "bytes32"
+          },
+          {
+            "internalType": "string",
+            "name": "displayJson",
+            "type": "string"
+          },
+          {
+            "internalType": "uint64",
+            "name": "timestamp",
+            "type": "uint64"
+          },
+          {
+            "internalType": "address",
+            "name": "payer",
+            "type": "address"
+          },
+          {
+            "internalType": "address",
+            "name": "payee",
+            "type": "address"
+          },
+          {
+            "internalType": "uint256",
+            "name": "finalRequestAmountFiat6",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "finalRequestAmountUSDC6",
+            "type": "uint256"
+          },
+          {
+            "internalType": "bool",
+            "name": "isAAAccount",
+            "type": "bool"
+          },
+          {
+            "components": [
+              {
+                "internalType": "uint16",
+                "name": "gasChainType",
+                "type": "uint16"
+              },
+              {
+                "internalType": "uint256",
+                "name": "gasWei",
+                "type": "uint256"
+              },
+              {
+                "internalType": "uint256",
+                "name": "gasUSDC6",
+                "type": "uint256"
+              },
+              {
+                "internalType": "uint256",
+                "name": "serviceUSDC6",
+                "type": "uint256"
+              },
+              {
+                "internalType": "uint256",
+                "name": "bServiceUSDC6",
+                "type": "uint256"
+              },
+              {
+                "internalType": "uint256",
+                "name": "bServiceUnits6",
+                "type": "uint256"
+              },
+              {
+                "internalType": "address",
+                "name": "feePayer",
+                "type": "address"
+              }
+            ],
+            "internalType": "struct LibActionStorage.FeeInfo",
+            "name": "fees",
+            "type": "tuple"
+          },
+          {
+            "components": [
+              {
+                "internalType": "uint256",
+                "name": "requestAmountFiat6",
+                "type": "uint256"
+              },
+              {
+                "internalType": "uint256",
+                "name": "requestAmountUSDC6",
+                "type": "uint256"
+              },
+              {
+                "internalType": "uint8",
+                "name": "currencyFiat",
+                "type": "uint8"
+              },
+              {
+                "internalType": "uint256",
+                "name": "discountAmountFiat6",
+                "type": "uint256"
+              },
+              {
+                "internalType": "uint16",
+                "name": "discountRateBps",
+                "type": "uint16"
+              },
+              {
+                "internalType": "uint256",
+                "name": "taxAmountFiat6",
+                "type": "uint256"
+              },
+              {
+                "internalType": "uint16",
+                "name": "taxRateBps",
+                "type": "uint16"
+              },
+              {
+                "internalType": "string",
+                "name": "afterNotePayer",
+                "type": "string"
+              },
+              {
+                "internalType": "string",
+                "name": "afterNotePayee",
+                "type": "string"
+              }
+            ],
+            "internalType": "struct LibActionStorage.TransactionMeta",
+            "name": "meta",
+            "type": "tuple"
+          },
+          {
+            "internalType": "bool",
+            "name": "exists",
+            "type": "bool"
+          }
+        ],
+        "internalType": "struct LibActionStorage.TransactionRecord[]",
+        "name": "page",
+        "type": "tuple[]"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "account",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "periodOffset",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "pageOffset",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "pageLimit",
+        "type": "uint256"
+      },
+      {
+        "internalType": "bytes32",
+        "name": "txCategoryFilter",
+        "type": "bytes32"
+      }
+    ],
+    "name": "getAccountTransactionsByHourOffsetPaged",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "total",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "periodStart",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "periodEnd",
+        "type": "uint256"
+      },
+      {
+        "components": [
+          {
+            "internalType": "bytes32",
+            "name": "id",
+            "type": "bytes32"
+          },
+          {
+            "internalType": "bytes32",
+            "name": "originalPaymentHash",
+            "type": "bytes32"
+          },
+          {
+            "internalType": "uint256",
+            "name": "chainId",
+            "type": "uint256"
+          },
+          {
+            "internalType": "bytes32",
+            "name": "txCategory",
+            "type": "bytes32"
+          },
+          {
+            "internalType": "string",
+            "name": "displayJson",
+            "type": "string"
+          },
+          {
+            "internalType": "uint64",
+            "name": "timestamp",
+            "type": "uint64"
+          },
+          {
+            "internalType": "address",
+            "name": "payer",
+            "type": "address"
+          },
+          {
+            "internalType": "address",
+            "name": "payee",
+            "type": "address"
+          },
+          {
+            "internalType": "uint256",
+            "name": "finalRequestAmountFiat6",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "finalRequestAmountUSDC6",
+            "type": "uint256"
+          },
+          {
+            "internalType": "bool",
+            "name": "isAAAccount",
+            "type": "bool"
+          },
+          {
+            "components": [
+              {
+                "internalType": "uint16",
+                "name": "gasChainType",
+                "type": "uint16"
+              },
+              {
+                "internalType": "uint256",
+                "name": "gasWei",
+                "type": "uint256"
+              },
+              {
+                "internalType": "uint256",
+                "name": "gasUSDC6",
+                "type": "uint256"
+              },
+              {
+                "internalType": "uint256",
+                "name": "serviceUSDC6",
+                "type": "uint256"
+              },
+              {
+                "internalType": "uint256",
+                "name": "bServiceUSDC6",
+                "type": "uint256"
+              },
+              {
+                "internalType": "uint256",
+                "name": "bServiceUnits6",
+                "type": "uint256"
+              },
+              {
+                "internalType": "address",
+                "name": "feePayer",
+                "type": "address"
+              }
+            ],
+            "internalType": "struct LibActionStorage.FeeInfo",
+            "name": "fees",
+            "type": "tuple"
+          },
+          {
+            "components": [
+              {
+                "internalType": "uint256",
+                "name": "requestAmountFiat6",
+                "type": "uint256"
+              },
+              {
+                "internalType": "uint256",
+                "name": "requestAmountUSDC6",
+                "type": "uint256"
+              },
+              {
+                "internalType": "uint8",
+                "name": "currencyFiat",
+                "type": "uint8"
+              },
+              {
+                "internalType": "uint256",
+                "name": "discountAmountFiat6",
+                "type": "uint256"
+              },
+              {
+                "internalType": "uint16",
+                "name": "discountRateBps",
+                "type": "uint16"
+              },
+              {
+                "internalType": "uint256",
+                "name": "taxAmountFiat6",
+                "type": "uint256"
+              },
+              {
+                "internalType": "uint16",
+                "name": "taxRateBps",
+                "type": "uint16"
+              },
+              {
+                "internalType": "string",
+                "name": "afterNotePayer",
+                "type": "string"
+              },
+              {
+                "internalType": "string",
+                "name": "afterNotePayee",
+                "type": "string"
+              }
+            ],
+            "internalType": "struct LibActionStorage.TransactionMeta",
+            "name": "meta",
+            "type": "tuple"
+          },
+          {
+            "internalType": "bool",
+            "name": "exists",
+            "type": "bool"
+          }
+        ],
+        "internalType": "struct LibActionStorage.TransactionRecord[]",
+        "name": "page",
+        "type": "tuple[]"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "account",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "periodOffset",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "pageOffset",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "pageLimit",
+        "type": "uint256"
+      },
+      {
+        "internalType": "bytes32",
+        "name": "txCategoryFilter",
+        "type": "bytes32"
+      }
+    ],
+    "name": "getAccountTransactionsByMonthOffsetPaged",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "total",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "periodStart",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "periodEnd",
+        "type": "uint256"
+      },
+      {
+        "components": [
+          {
+            "internalType": "bytes32",
+            "name": "id",
+            "type": "bytes32"
+          },
+          {
+            "internalType": "bytes32",
+            "name": "originalPaymentHash",
+            "type": "bytes32"
+          },
+          {
+            "internalType": "uint256",
+            "name": "chainId",
+            "type": "uint256"
+          },
+          {
+            "internalType": "bytes32",
+            "name": "txCategory",
+            "type": "bytes32"
+          },
+          {
+            "internalType": "string",
+            "name": "displayJson",
+            "type": "string"
+          },
+          {
+            "internalType": "uint64",
+            "name": "timestamp",
+            "type": "uint64"
+          },
+          {
+            "internalType": "address",
+            "name": "payer",
+            "type": "address"
+          },
+          {
+            "internalType": "address",
+            "name": "payee",
+            "type": "address"
+          },
+          {
+            "internalType": "uint256",
+            "name": "finalRequestAmountFiat6",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "finalRequestAmountUSDC6",
+            "type": "uint256"
+          },
+          {
+            "internalType": "bool",
+            "name": "isAAAccount",
+            "type": "bool"
+          },
+          {
+            "components": [
+              {
+                "internalType": "uint16",
+                "name": "gasChainType",
+                "type": "uint16"
+              },
+              {
+                "internalType": "uint256",
+                "name": "gasWei",
+                "type": "uint256"
+              },
+              {
+                "internalType": "uint256",
+                "name": "gasUSDC6",
+                "type": "uint256"
+              },
+              {
+                "internalType": "uint256",
+                "name": "serviceUSDC6",
+                "type": "uint256"
+              },
+              {
+                "internalType": "uint256",
+                "name": "bServiceUSDC6",
+                "type": "uint256"
+              },
+              {
+                "internalType": "uint256",
+                "name": "bServiceUnits6",
+                "type": "uint256"
+              },
+              {
+                "internalType": "address",
+                "name": "feePayer",
+                "type": "address"
+              }
+            ],
+            "internalType": "struct LibActionStorage.FeeInfo",
+            "name": "fees",
+            "type": "tuple"
+          },
+          {
+            "components": [
+              {
+                "internalType": "uint256",
+                "name": "requestAmountFiat6",
+                "type": "uint256"
+              },
+              {
+                "internalType": "uint256",
+                "name": "requestAmountUSDC6",
+                "type": "uint256"
+              },
+              {
+                "internalType": "uint8",
+                "name": "currencyFiat",
+                "type": "uint8"
+              },
+              {
+                "internalType": "uint256",
+                "name": "discountAmountFiat6",
+                "type": "uint256"
+              },
+              {
+                "internalType": "uint16",
+                "name": "discountRateBps",
+                "type": "uint16"
+              },
+              {
+                "internalType": "uint256",
+                "name": "taxAmountFiat6",
+                "type": "uint256"
+              },
+              {
+                "internalType": "uint16",
+                "name": "taxRateBps",
+                "type": "uint16"
+              },
+              {
+                "internalType": "string",
+                "name": "afterNotePayer",
+                "type": "string"
+              },
+              {
+                "internalType": "string",
+                "name": "afterNotePayee",
+                "type": "string"
+              }
+            ],
+            "internalType": "struct LibActionStorage.TransactionMeta",
+            "name": "meta",
+            "type": "tuple"
+          },
+          {
+            "internalType": "bool",
+            "name": "exists",
+            "type": "bool"
+          }
+        ],
+        "internalType": "struct LibActionStorage.TransactionRecord[]",
+        "name": "page",
+        "type": "tuple[]"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "account",
+        "type": "address"
+      },
+      {
+        "internalType": "uint8",
+        "name": "periodType",
+        "type": "uint8"
+      },
+      {
+        "internalType": "uint256",
+        "name": "anchorTs",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "offset",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "limit",
+        "type": "uint256"
+      },
+      {
+        "internalType": "bytes32",
+        "name": "txCategoryFilter",
+        "type": "bytes32"
+      },
+      {
+        "internalType": "uint16",
+        "name": "gasChainTypeFilter",
+        "type": "uint16"
+      },
+      {
+        "internalType": "uint256",
+        "name": "chainIdFilter",
+        "type": "uint256"
+      }
+    ],
+    "name": "getAccountTransactionsByPeriodPaged",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "total",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "periodStart",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "periodEnd",
+        "type": "uint256"
+      },
+      {
+        "components": [
+          {
+            "internalType": "bytes32",
+            "name": "id",
+            "type": "bytes32"
+          },
+          {
+            "internalType": "bytes32",
+            "name": "originalPaymentHash",
+            "type": "bytes32"
+          },
+          {
+            "internalType": "uint256",
+            "name": "chainId",
+            "type": "uint256"
+          },
+          {
+            "internalType": "bytes32",
+            "name": "txCategory",
+            "type": "bytes32"
+          },
+          {
+            "internalType": "string",
+            "name": "displayJson",
+            "type": "string"
+          },
+          {
+            "internalType": "uint64",
+            "name": "timestamp",
+            "type": "uint64"
+          },
+          {
+            "internalType": "address",
+            "name": "payer",
+            "type": "address"
+          },
+          {
+            "internalType": "address",
+            "name": "payee",
+            "type": "address"
+          },
+          {
+            "internalType": "uint256",
+            "name": "finalRequestAmountFiat6",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "finalRequestAmountUSDC6",
+            "type": "uint256"
+          },
+          {
+            "internalType": "bool",
+            "name": "isAAAccount",
+            "type": "bool"
+          },
+          {
+            "components": [
+              {
+                "internalType": "uint16",
+                "name": "gasChainType",
+                "type": "uint16"
+              },
+              {
+                "internalType": "uint256",
+                "name": "gasWei",
+                "type": "uint256"
+              },
+              {
+                "internalType": "uint256",
+                "name": "gasUSDC6",
+                "type": "uint256"
+              },
+              {
+                "internalType": "uint256",
+                "name": "serviceUSDC6",
+                "type": "uint256"
+              },
+              {
+                "internalType": "uint256",
+                "name": "bServiceUSDC6",
+                "type": "uint256"
+              },
+              {
+                "internalType": "uint256",
+                "name": "bServiceUnits6",
+                "type": "uint256"
+              },
+              {
+                "internalType": "address",
+                "name": "feePayer",
+                "type": "address"
+              }
+            ],
+            "internalType": "struct LibActionStorage.FeeInfo",
+            "name": "fees",
+            "type": "tuple"
+          },
+          {
+            "components": [
+              {
+                "internalType": "uint256",
+                "name": "requestAmountFiat6",
+                "type": "uint256"
+              },
+              {
+                "internalType": "uint256",
+                "name": "requestAmountUSDC6",
+                "type": "uint256"
+              },
+              {
+                "internalType": "uint8",
+                "name": "currencyFiat",
+                "type": "uint8"
+              },
+              {
+                "internalType": "uint256",
+                "name": "discountAmountFiat6",
+                "type": "uint256"
+              },
+              {
+                "internalType": "uint16",
+                "name": "discountRateBps",
+                "type": "uint16"
+              },
+              {
+                "internalType": "uint256",
+                "name": "taxAmountFiat6",
+                "type": "uint256"
+              },
+              {
+                "internalType": "uint16",
+                "name": "taxRateBps",
+                "type": "uint16"
+              },
+              {
+                "internalType": "string",
+                "name": "afterNotePayer",
+                "type": "string"
+              },
+              {
+                "internalType": "string",
+                "name": "afterNotePayee",
+                "type": "string"
+              }
+            ],
+            "internalType": "struct LibActionStorage.TransactionMeta",
+            "name": "meta",
+            "type": "tuple"
+          },
+          {
+            "internalType": "bool",
+            "name": "exists",
+            "type": "bool"
+          }
+        ],
+        "internalType": "struct LibActionStorage.TransactionRecord[]",
+        "name": "page",
+        "type": "tuple[]"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "account",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "periodOffset",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "pageOffset",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "pageLimit",
+        "type": "uint256"
+      },
+      {
+        "internalType": "bytes32",
+        "name": "txCategoryFilter",
+        "type": "bytes32"
+      }
+    ],
+    "name": "getAccountTransactionsByQuarterOffsetPaged",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "total",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "periodStart",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "periodEnd",
+        "type": "uint256"
+      },
+      {
+        "components": [
+          {
+            "internalType": "bytes32",
+            "name": "id",
+            "type": "bytes32"
+          },
+          {
+            "internalType": "bytes32",
+            "name": "originalPaymentHash",
+            "type": "bytes32"
+          },
+          {
+            "internalType": "uint256",
+            "name": "chainId",
+            "type": "uint256"
+          },
+          {
+            "internalType": "bytes32",
+            "name": "txCategory",
+            "type": "bytes32"
+          },
+          {
+            "internalType": "string",
+            "name": "displayJson",
+            "type": "string"
+          },
+          {
+            "internalType": "uint64",
+            "name": "timestamp",
+            "type": "uint64"
+          },
+          {
+            "internalType": "address",
+            "name": "payer",
+            "type": "address"
+          },
+          {
+            "internalType": "address",
+            "name": "payee",
+            "type": "address"
+          },
+          {
+            "internalType": "uint256",
+            "name": "finalRequestAmountFiat6",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "finalRequestAmountUSDC6",
+            "type": "uint256"
+          },
+          {
+            "internalType": "bool",
+            "name": "isAAAccount",
+            "type": "bool"
+          },
+          {
+            "components": [
+              {
+                "internalType": "uint16",
+                "name": "gasChainType",
+                "type": "uint16"
+              },
+              {
+                "internalType": "uint256",
+                "name": "gasWei",
+                "type": "uint256"
+              },
+              {
+                "internalType": "uint256",
+                "name": "gasUSDC6",
+                "type": "uint256"
+              },
+              {
+                "internalType": "uint256",
+                "name": "serviceUSDC6",
+                "type": "uint256"
+              },
+              {
+                "internalType": "uint256",
+                "name": "bServiceUSDC6",
+                "type": "uint256"
+              },
+              {
+                "internalType": "uint256",
+                "name": "bServiceUnits6",
+                "type": "uint256"
+              },
+              {
+                "internalType": "address",
+                "name": "feePayer",
+                "type": "address"
+              }
+            ],
+            "internalType": "struct LibActionStorage.FeeInfo",
+            "name": "fees",
+            "type": "tuple"
+          },
+          {
+            "components": [
+              {
+                "internalType": "uint256",
+                "name": "requestAmountFiat6",
+                "type": "uint256"
+              },
+              {
+                "internalType": "uint256",
+                "name": "requestAmountUSDC6",
+                "type": "uint256"
+              },
+              {
+                "internalType": "uint8",
+                "name": "currencyFiat",
+                "type": "uint8"
+              },
+              {
+                "internalType": "uint256",
+                "name": "discountAmountFiat6",
+                "type": "uint256"
+              },
+              {
+                "internalType": "uint16",
+                "name": "discountRateBps",
+                "type": "uint16"
+              },
+              {
+                "internalType": "uint256",
+                "name": "taxAmountFiat6",
+                "type": "uint256"
+              },
+              {
+                "internalType": "uint16",
+                "name": "taxRateBps",
+                "type": "uint16"
+              },
+              {
+                "internalType": "string",
+                "name": "afterNotePayer",
+                "type": "string"
+              },
+              {
+                "internalType": "string",
+                "name": "afterNotePayee",
+                "type": "string"
+              }
+            ],
+            "internalType": "struct LibActionStorage.TransactionMeta",
+            "name": "meta",
+            "type": "tuple"
+          },
+          {
+            "internalType": "bool",
+            "name": "exists",
+            "type": "bool"
+          }
+        ],
+        "internalType": "struct LibActionStorage.TransactionRecord[]",
+        "name": "page",
+        "type": "tuple[]"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "account",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "periodOffset",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "pageOffset",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "pageLimit",
+        "type": "uint256"
+      },
+      {
+        "internalType": "bytes32",
+        "name": "txCategoryFilter",
+        "type": "bytes32"
+      },
+      {
+        "internalType": "uint8",
+        "name": "accountMode",
+        "type": "uint8"
+      }
+    ],
+    "name": "getAccountTransactionsByWeekOffsetAndAccountModePaged",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "total",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "periodStart",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "periodEnd",
+        "type": "uint256"
+      },
+      {
+        "components": [
+          {
+            "internalType": "bytes32",
+            "name": "id",
+            "type": "bytes32"
+          },
+          {
+            "internalType": "bytes32",
+            "name": "originalPaymentHash",
+            "type": "bytes32"
+          },
+          {
+            "internalType": "uint256",
+            "name": "chainId",
+            "type": "uint256"
+          },
+          {
+            "internalType": "bytes32",
+            "name": "txCategory",
+            "type": "bytes32"
+          },
+          {
+            "internalType": "string",
+            "name": "displayJson",
+            "type": "string"
+          },
+          {
+            "internalType": "uint64",
+            "name": "timestamp",
+            "type": "uint64"
+          },
+          {
+            "internalType": "address",
+            "name": "payer",
+            "type": "address"
+          },
+          {
+            "internalType": "address",
+            "name": "payee",
+            "type": "address"
+          },
+          {
+            "internalType": "uint256",
+            "name": "finalRequestAmountFiat6",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "finalRequestAmountUSDC6",
+            "type": "uint256"
+          },
+          {
+            "internalType": "bool",
+            "name": "isAAAccount",
+            "type": "bool"
+          },
+          {
+            "components": [
+              {
+                "internalType": "uint16",
+                "name": "gasChainType",
+                "type": "uint16"
+              },
+              {
+                "internalType": "uint256",
+                "name": "gasWei",
+                "type": "uint256"
+              },
+              {
+                "internalType": "uint256",
+                "name": "gasUSDC6",
+                "type": "uint256"
+              },
+              {
+                "internalType": "uint256",
+                "name": "serviceUSDC6",
+                "type": "uint256"
+              },
+              {
+                "internalType": "uint256",
+                "name": "bServiceUSDC6",
+                "type": "uint256"
+              },
+              {
+                "internalType": "uint256",
+                "name": "bServiceUnits6",
+                "type": "uint256"
+              },
+              {
+                "internalType": "address",
+                "name": "feePayer",
+                "type": "address"
+              }
+            ],
+            "internalType": "struct LibActionStorage.FeeInfo",
+            "name": "fees",
+            "type": "tuple"
+          },
+          {
+            "components": [
+              {
+                "internalType": "uint256",
+                "name": "requestAmountFiat6",
+                "type": "uint256"
+              },
+              {
+                "internalType": "uint256",
+                "name": "requestAmountUSDC6",
+                "type": "uint256"
+              },
+              {
+                "internalType": "uint8",
+                "name": "currencyFiat",
+                "type": "uint8"
+              },
+              {
+                "internalType": "uint256",
+                "name": "discountAmountFiat6",
+                "type": "uint256"
+              },
+              {
+                "internalType": "uint16",
+                "name": "discountRateBps",
+                "type": "uint16"
+              },
+              {
+                "internalType": "uint256",
+                "name": "taxAmountFiat6",
+                "type": "uint256"
+              },
+              {
+                "internalType": "uint16",
+                "name": "taxRateBps",
+                "type": "uint16"
+              },
+              {
+                "internalType": "string",
+                "name": "afterNotePayer",
+                "type": "string"
+              },
+              {
+                "internalType": "string",
+                "name": "afterNotePayee",
+                "type": "string"
+              }
+            ],
+            "internalType": "struct LibActionStorage.TransactionMeta",
+            "name": "meta",
+            "type": "tuple"
+          },
+          {
+            "internalType": "bool",
+            "name": "exists",
+            "type": "bool"
+          }
+        ],
+        "internalType": "struct LibActionStorage.TransactionRecord[]",
+        "name": "page",
+        "type": "tuple[]"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "account",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "periodOffset",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "pageOffset",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "pageLimit",
+        "type": "uint256"
+      },
+      {
+        "internalType": "bytes32",
+        "name": "txCategoryFilter",
+        "type": "bytes32"
+      }
+    ],
+    "name": "getAccountTransactionsByWeekOffsetPaged",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "total",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "periodStart",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "periodEnd",
+        "type": "uint256"
+      },
+      {
+        "components": [
+          {
+            "internalType": "bytes32",
+            "name": "id",
+            "type": "bytes32"
+          },
+          {
+            "internalType": "bytes32",
+            "name": "originalPaymentHash",
+            "type": "bytes32"
+          },
+          {
+            "internalType": "uint256",
+            "name": "chainId",
+            "type": "uint256"
+          },
+          {
+            "internalType": "bytes32",
+            "name": "txCategory",
+            "type": "bytes32"
+          },
+          {
+            "internalType": "string",
+            "name": "displayJson",
+            "type": "string"
+          },
+          {
+            "internalType": "uint64",
+            "name": "timestamp",
+            "type": "uint64"
+          },
+          {
+            "internalType": "address",
+            "name": "payer",
+            "type": "address"
+          },
+          {
+            "internalType": "address",
+            "name": "payee",
+            "type": "address"
+          },
+          {
+            "internalType": "uint256",
+            "name": "finalRequestAmountFiat6",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "finalRequestAmountUSDC6",
+            "type": "uint256"
+          },
+          {
+            "internalType": "bool",
+            "name": "isAAAccount",
+            "type": "bool"
+          },
+          {
+            "components": [
+              {
+                "internalType": "uint16",
+                "name": "gasChainType",
+                "type": "uint16"
+              },
+              {
+                "internalType": "uint256",
+                "name": "gasWei",
+                "type": "uint256"
+              },
+              {
+                "internalType": "uint256",
+                "name": "gasUSDC6",
+                "type": "uint256"
+              },
+              {
+                "internalType": "uint256",
+                "name": "serviceUSDC6",
+                "type": "uint256"
+              },
+              {
+                "internalType": "uint256",
+                "name": "bServiceUSDC6",
+                "type": "uint256"
+              },
+              {
+                "internalType": "uint256",
+                "name": "bServiceUnits6",
+                "type": "uint256"
+              },
+              {
+                "internalType": "address",
+                "name": "feePayer",
+                "type": "address"
+              }
+            ],
+            "internalType": "struct LibActionStorage.FeeInfo",
+            "name": "fees",
+            "type": "tuple"
+          },
+          {
+            "components": [
+              {
+                "internalType": "uint256",
+                "name": "requestAmountFiat6",
+                "type": "uint256"
+              },
+              {
+                "internalType": "uint256",
+                "name": "requestAmountUSDC6",
+                "type": "uint256"
+              },
+              {
+                "internalType": "uint8",
+                "name": "currencyFiat",
+                "type": "uint8"
+              },
+              {
+                "internalType": "uint256",
+                "name": "discountAmountFiat6",
+                "type": "uint256"
+              },
+              {
+                "internalType": "uint16",
+                "name": "discountRateBps",
+                "type": "uint16"
+              },
+              {
+                "internalType": "uint256",
+                "name": "taxAmountFiat6",
+                "type": "uint256"
+              },
+              {
+                "internalType": "uint16",
+                "name": "taxRateBps",
+                "type": "uint16"
+              },
+              {
+                "internalType": "string",
+                "name": "afterNotePayer",
+                "type": "string"
+              },
+              {
+                "internalType": "string",
+                "name": "afterNotePayee",
+                "type": "string"
+              }
+            ],
+            "internalType": "struct LibActionStorage.TransactionMeta",
+            "name": "meta",
+            "type": "tuple"
+          },
+          {
+            "internalType": "bool",
+            "name": "exists",
+            "type": "bool"
+          }
+        ],
+        "internalType": "struct LibActionStorage.TransactionRecord[]",
+        "name": "page",
+        "type": "tuple[]"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "account",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "periodOffset",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "pageOffset",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "pageLimit",
+        "type": "uint256"
+      },
+      {
+        "internalType": "bytes32",
+        "name": "txCategoryFilter",
+        "type": "bytes32"
+      }
+    ],
+    "name": "getAccountTransactionsByYearOffsetPaged",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "total",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "periodStart",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "periodEnd",
+        "type": "uint256"
+      },
+      {
+        "components": [
+          {
+            "internalType": "bytes32",
+            "name": "id",
+            "type": "bytes32"
+          },
+          {
+            "internalType": "bytes32",
+            "name": "originalPaymentHash",
+            "type": "bytes32"
+          },
+          {
+            "internalType": "uint256",
+            "name": "chainId",
+            "type": "uint256"
+          },
+          {
+            "internalType": "bytes32",
+            "name": "txCategory",
+            "type": "bytes32"
+          },
+          {
+            "internalType": "string",
+            "name": "displayJson",
+            "type": "string"
+          },
+          {
+            "internalType": "uint64",
+            "name": "timestamp",
+            "type": "uint64"
+          },
+          {
+            "internalType": "address",
+            "name": "payer",
+            "type": "address"
+          },
+          {
+            "internalType": "address",
+            "name": "payee",
+            "type": "address"
+          },
+          {
+            "internalType": "uint256",
+            "name": "finalRequestAmountFiat6",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "finalRequestAmountUSDC6",
+            "type": "uint256"
+          },
+          {
+            "internalType": "bool",
+            "name": "isAAAccount",
+            "type": "bool"
+          },
+          {
+            "components": [
+              {
+                "internalType": "uint16",
+                "name": "gasChainType",
+                "type": "uint16"
+              },
+              {
+                "internalType": "uint256",
+                "name": "gasWei",
+                "type": "uint256"
+              },
+              {
+                "internalType": "uint256",
+                "name": "gasUSDC6",
+                "type": "uint256"
+              },
+              {
+                "internalType": "uint256",
+                "name": "serviceUSDC6",
+                "type": "uint256"
+              },
+              {
+                "internalType": "uint256",
+                "name": "bServiceUSDC6",
+                "type": "uint256"
+              },
+              {
+                "internalType": "uint256",
+                "name": "bServiceUnits6",
+                "type": "uint256"
+              },
+              {
+                "internalType": "address",
+                "name": "feePayer",
+                "type": "address"
+              }
+            ],
+            "internalType": "struct LibActionStorage.FeeInfo",
+            "name": "fees",
+            "type": "tuple"
+          },
+          {
+            "components": [
+              {
+                "internalType": "uint256",
+                "name": "requestAmountFiat6",
+                "type": "uint256"
+              },
+              {
+                "internalType": "uint256",
+                "name": "requestAmountUSDC6",
+                "type": "uint256"
+              },
+              {
+                "internalType": "uint8",
+                "name": "currencyFiat",
+                "type": "uint8"
+              },
+              {
+                "internalType": "uint256",
+                "name": "discountAmountFiat6",
+                "type": "uint256"
+              },
+              {
+                "internalType": "uint16",
+                "name": "discountRateBps",
+                "type": "uint16"
+              },
+              {
+                "internalType": "uint256",
+                "name": "taxAmountFiat6",
+                "type": "uint256"
+              },
+              {
+                "internalType": "uint16",
+                "name": "taxRateBps",
+                "type": "uint16"
+              },
+              {
+                "internalType": "string",
+                "name": "afterNotePayer",
+                "type": "string"
+              },
+              {
+                "internalType": "string",
+                "name": "afterNotePayee",
+                "type": "string"
+              }
+            ],
+            "internalType": "struct LibActionStorage.TransactionMeta",
+            "name": "meta",
+            "type": "tuple"
+          },
+          {
+            "internalType": "bool",
+            "name": "exists",
+            "type": "bool"
+          }
+        ],
+        "internalType": "struct LibActionStorage.TransactionRecord[]",
+        "name": "page",
+        "type": "tuple[]"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "account",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "offset",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "limit",
+        "type": "uint256"
+      }
+    ],
+    "name": "getAccountTransactionsPaged",
+    "outputs": [
+      {
+        "components": [
+          {
+            "internalType": "bytes32",
+            "name": "id",
+            "type": "bytes32"
+          },
+          {
+            "internalType": "bytes32",
+            "name": "originalPaymentHash",
+            "type": "bytes32"
+          },
+          {
+            "internalType": "uint256",
+            "name": "chainId",
+            "type": "uint256"
+          },
+          {
+            "internalType": "bytes32",
+            "name": "txCategory",
+            "type": "bytes32"
+          },
+          {
+            "internalType": "string",
+            "name": "displayJson",
+            "type": "string"
+          },
+          {
+            "internalType": "uint64",
+            "name": "timestamp",
+            "type": "uint64"
+          },
+          {
+            "internalType": "address",
+            "name": "payer",
+            "type": "address"
+          },
+          {
+            "internalType": "address",
+            "name": "payee",
+            "type": "address"
+          },
+          {
+            "internalType": "uint256",
+            "name": "finalRequestAmountFiat6",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "finalRequestAmountUSDC6",
+            "type": "uint256"
+          },
+          {
+            "internalType": "bool",
+            "name": "isAAAccount",
+            "type": "bool"
+          },
+          {
+            "components": [
+              {
+                "internalType": "uint16",
+                "name": "gasChainType",
+                "type": "uint16"
+              },
+              {
+                "internalType": "uint256",
+                "name": "gasWei",
+                "type": "uint256"
+              },
+              {
+                "internalType": "uint256",
+                "name": "gasUSDC6",
+                "type": "uint256"
+              },
+              {
+                "internalType": "uint256",
+                "name": "serviceUSDC6",
+                "type": "uint256"
+              },
+              {
+                "internalType": "uint256",
+                "name": "bServiceUSDC6",
+                "type": "uint256"
+              },
+              {
+                "internalType": "uint256",
+                "name": "bServiceUnits6",
+                "type": "uint256"
+              },
+              {
+                "internalType": "address",
+                "name": "feePayer",
+                "type": "address"
+              }
+            ],
+            "internalType": "struct LibActionStorage.FeeInfo",
+            "name": "fees",
+            "type": "tuple"
+          },
+          {
+            "components": [
+              {
+                "internalType": "uint256",
+                "name": "requestAmountFiat6",
+                "type": "uint256"
+              },
+              {
+                "internalType": "uint256",
+                "name": "requestAmountUSDC6",
+                "type": "uint256"
+              },
+              {
+                "internalType": "uint8",
+                "name": "currencyFiat",
+                "type": "uint8"
+              },
+              {
+                "internalType": "uint256",
+                "name": "discountAmountFiat6",
+                "type": "uint256"
+              },
+              {
+                "internalType": "uint16",
+                "name": "discountRateBps",
+                "type": "uint16"
+              },
+              {
+                "internalType": "uint256",
+                "name": "taxAmountFiat6",
+                "type": "uint256"
+              },
+              {
+                "internalType": "uint16",
+                "name": "taxRateBps",
+                "type": "uint16"
+              },
+              {
+                "internalType": "string",
+                "name": "afterNotePayer",
+                "type": "string"
+              },
+              {
+                "internalType": "string",
+                "name": "afterNotePayee",
+                "type": "string"
+              }
+            ],
+            "internalType": "struct LibActionStorage.TransactionMeta",
+            "name": "meta",
+            "type": "tuple"
+          },
+          {
+            "internalType": "bool",
+            "name": "exists",
+            "type": "bool"
+          }
+        ],
+        "internalType": "struct LibActionStorage.TransactionRecord[]",
+        "name": "page",
+        "type": "tuple[]"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bytes32",
+        "name": "txId",
+        "type": "bytes32"
+      }
+    ],
+    "name": "getTransactionActionId",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "actionId",
+        "type": "uint256"
+      },
+      {
+        "internalType": "bool",
+        "name": "exists",
+        "type": "bool"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "getTransactionCount",
     "outputs": [
       {
         "internalType": "uint256",
@@ -383,58 +2967,638 @@ import type { NonPayableOverrides } from "../../../../common.js"
   {
     "inputs": [
       {
-        "internalType": "address",
-        "name": "card",
-        "type": "address"
-      },
-      {
         "internalType": "uint256",
-        "name": "offset",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint256",
-        "name": "limit",
+        "name": "actionId",
         "type": "uint256"
       }
     ],
-    "name": "getCardActionsPaged",
+    "name": "getTransactionFull",
     "outputs": [
       {
         "components": [
           {
-            "internalType": "uint8",
-            "name": "actionType",
+            "internalType": "bytes32",
+            "name": "id",
+            "type": "bytes32"
+          },
+          {
+            "internalType": "bytes32",
+            "name": "originalPaymentHash",
+            "type": "bytes32"
+          },
+          {
+            "internalType": "uint256",
+            "name": "chainId",
+            "type": "uint256"
+          },
+          {
+            "internalType": "bytes32",
+            "name": "txCategory",
+            "type": "bytes32"
+          },
+          {
+            "internalType": "string",
+            "name": "displayJson",
+            "type": "string"
+          },
+          {
+            "internalType": "uint64",
+            "name": "timestamp",
+            "type": "uint64"
+          },
+          {
+            "internalType": "address",
+            "name": "payer",
+            "type": "address"
+          },
+          {
+            "internalType": "address",
+            "name": "payee",
+            "type": "address"
+          },
+          {
+            "internalType": "uint256",
+            "name": "finalRequestAmountFiat6",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "finalRequestAmountUSDC6",
+            "type": "uint256"
+          },
+          {
+            "internalType": "bool",
+            "name": "isAAAccount",
+            "type": "bool"
+          },
+          {
+            "components": [
+              {
+                "internalType": "address",
+                "name": "asset",
+                "type": "address"
+              },
+              {
+                "internalType": "uint256",
+                "name": "amountE6",
+                "type": "uint256"
+              },
+              {
+                "internalType": "enum LibActionStorage.AssetType",
+                "name": "assetType",
+                "type": "uint8"
+              },
+              {
+                "internalType": "enum LibActionStorage.RouteSource",
+                "name": "source",
+                "type": "uint8"
+              },
+              {
+                "internalType": "uint256",
+                "name": "tokenId",
+                "type": "uint256"
+              },
+              {
+                "internalType": "uint8",
+                "name": "itemCurrencyType",
+                "type": "uint8"
+              },
+              {
+                "internalType": "uint256",
+                "name": "offsetInRequestCurrencyE6",
+                "type": "uint256"
+              }
+            ],
+            "internalType": "struct LibActionStorage.RouteItem[]",
+            "name": "route",
+            "type": "tuple[]"
+          },
+          {
+            "components": [
+              {
+                "internalType": "uint16",
+                "name": "gasChainType",
+                "type": "uint16"
+              },
+              {
+                "internalType": "uint256",
+                "name": "gasWei",
+                "type": "uint256"
+              },
+              {
+                "internalType": "uint256",
+                "name": "gasUSDC6",
+                "type": "uint256"
+              },
+              {
+                "internalType": "uint256",
+                "name": "serviceUSDC6",
+                "type": "uint256"
+              },
+              {
+                "internalType": "uint256",
+                "name": "bServiceUSDC6",
+                "type": "uint256"
+              },
+              {
+                "internalType": "uint256",
+                "name": "bServiceUnits6",
+                "type": "uint256"
+              },
+              {
+                "internalType": "address",
+                "name": "feePayer",
+                "type": "address"
+              }
+            ],
+            "internalType": "struct LibActionStorage.FeeInfo",
+            "name": "fees",
+            "type": "tuple"
+          },
+          {
+            "components": [
+              {
+                "internalType": "uint256",
+                "name": "requestAmountFiat6",
+                "type": "uint256"
+              },
+              {
+                "internalType": "uint256",
+                "name": "requestAmountUSDC6",
+                "type": "uint256"
+              },
+              {
+                "internalType": "uint8",
+                "name": "currencyFiat",
+                "type": "uint8"
+              },
+              {
+                "internalType": "uint256",
+                "name": "discountAmountFiat6",
+                "type": "uint256"
+              },
+              {
+                "internalType": "uint16",
+                "name": "discountRateBps",
+                "type": "uint16"
+              },
+              {
+                "internalType": "uint256",
+                "name": "taxAmountFiat6",
+                "type": "uint256"
+              },
+              {
+                "internalType": "uint16",
+                "name": "taxRateBps",
+                "type": "uint16"
+              },
+              {
+                "internalType": "string",
+                "name": "afterNotePayer",
+                "type": "string"
+              },
+              {
+                "internalType": "string",
+                "name": "afterNotePayee",
+                "type": "string"
+              }
+            ],
+            "internalType": "struct LibActionStorage.TransactionMeta",
+            "name": "meta",
+            "type": "tuple"
+          }
+        ],
+        "internalType": "struct ActionFacet.TransactionFull",
+        "name": "full_",
+        "type": "tuple"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bytes32",
+        "name": "txId",
+        "type": "bytes32"
+      }
+    ],
+    "name": "getTransactionFullByTxId",
+    "outputs": [
+      {
+        "components": [
+          {
+            "internalType": "bytes32",
+            "name": "id",
+            "type": "bytes32"
+          },
+          {
+            "internalType": "bytes32",
+            "name": "originalPaymentHash",
+            "type": "bytes32"
+          },
+          {
+            "internalType": "uint256",
+            "name": "chainId",
+            "type": "uint256"
+          },
+          {
+            "internalType": "bytes32",
+            "name": "txCategory",
+            "type": "bytes32"
+          },
+          {
+            "internalType": "string",
+            "name": "displayJson",
+            "type": "string"
+          },
+          {
+            "internalType": "uint64",
+            "name": "timestamp",
+            "type": "uint64"
+          },
+          {
+            "internalType": "address",
+            "name": "payer",
+            "type": "address"
+          },
+          {
+            "internalType": "address",
+            "name": "payee",
+            "type": "address"
+          },
+          {
+            "internalType": "uint256",
+            "name": "finalRequestAmountFiat6",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "finalRequestAmountUSDC6",
+            "type": "uint256"
+          },
+          {
+            "internalType": "bool",
+            "name": "isAAAccount",
+            "type": "bool"
+          },
+          {
+            "components": [
+              {
+                "internalType": "address",
+                "name": "asset",
+                "type": "address"
+              },
+              {
+                "internalType": "uint256",
+                "name": "amountE6",
+                "type": "uint256"
+              },
+              {
+                "internalType": "enum LibActionStorage.AssetType",
+                "name": "assetType",
+                "type": "uint8"
+              },
+              {
+                "internalType": "enum LibActionStorage.RouteSource",
+                "name": "source",
+                "type": "uint8"
+              },
+              {
+                "internalType": "uint256",
+                "name": "tokenId",
+                "type": "uint256"
+              },
+              {
+                "internalType": "uint8",
+                "name": "itemCurrencyType",
+                "type": "uint8"
+              },
+              {
+                "internalType": "uint256",
+                "name": "offsetInRequestCurrencyE6",
+                "type": "uint256"
+              }
+            ],
+            "internalType": "struct LibActionStorage.RouteItem[]",
+            "name": "route",
+            "type": "tuple[]"
+          },
+          {
+            "components": [
+              {
+                "internalType": "uint16",
+                "name": "gasChainType",
+                "type": "uint16"
+              },
+              {
+                "internalType": "uint256",
+                "name": "gasWei",
+                "type": "uint256"
+              },
+              {
+                "internalType": "uint256",
+                "name": "gasUSDC6",
+                "type": "uint256"
+              },
+              {
+                "internalType": "uint256",
+                "name": "serviceUSDC6",
+                "type": "uint256"
+              },
+              {
+                "internalType": "uint256",
+                "name": "bServiceUSDC6",
+                "type": "uint256"
+              },
+              {
+                "internalType": "uint256",
+                "name": "bServiceUnits6",
+                "type": "uint256"
+              },
+              {
+                "internalType": "address",
+                "name": "feePayer",
+                "type": "address"
+              }
+            ],
+            "internalType": "struct LibActionStorage.FeeInfo",
+            "name": "fees",
+            "type": "tuple"
+          },
+          {
+            "components": [
+              {
+                "internalType": "uint256",
+                "name": "requestAmountFiat6",
+                "type": "uint256"
+              },
+              {
+                "internalType": "uint256",
+                "name": "requestAmountUSDC6",
+                "type": "uint256"
+              },
+              {
+                "internalType": "uint8",
+                "name": "currencyFiat",
+                "type": "uint8"
+              },
+              {
+                "internalType": "uint256",
+                "name": "discountAmountFiat6",
+                "type": "uint256"
+              },
+              {
+                "internalType": "uint16",
+                "name": "discountRateBps",
+                "type": "uint16"
+              },
+              {
+                "internalType": "uint256",
+                "name": "taxAmountFiat6",
+                "type": "uint256"
+              },
+              {
+                "internalType": "uint16",
+                "name": "taxRateBps",
+                "type": "uint16"
+              },
+              {
+                "internalType": "string",
+                "name": "afterNotePayer",
+                "type": "string"
+              },
+              {
+                "internalType": "string",
+                "name": "afterNotePayee",
+                "type": "string"
+              }
+            ],
+            "internalType": "struct LibActionStorage.TransactionMeta",
+            "name": "meta",
+            "type": "tuple"
+          }
+        ],
+        "internalType": "struct ActionFacet.TransactionFull",
+        "name": "full_",
+        "type": "tuple"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "actionId",
+        "type": "uint256"
+      }
+    ],
+    "name": "getTransactionRecord",
+    "outputs": [
+      {
+        "components": [
+          {
+            "internalType": "bytes32",
+            "name": "id",
+            "type": "bytes32"
+          },
+          {
+            "internalType": "bytes32",
+            "name": "originalPaymentHash",
+            "type": "bytes32"
+          },
+          {
+            "internalType": "uint256",
+            "name": "chainId",
+            "type": "uint256"
+          },
+          {
+            "internalType": "bytes32",
+            "name": "txCategory",
+            "type": "bytes32"
+          },
+          {
+            "internalType": "string",
+            "name": "displayJson",
+            "type": "string"
+          },
+          {
+            "internalType": "uint64",
+            "name": "timestamp",
+            "type": "uint64"
+          },
+          {
+            "internalType": "address",
+            "name": "payer",
+            "type": "address"
+          },
+          {
+            "internalType": "address",
+            "name": "payee",
+            "type": "address"
+          },
+          {
+            "internalType": "uint256",
+            "name": "finalRequestAmountFiat6",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "finalRequestAmountUSDC6",
+            "type": "uint256"
+          },
+          {
+            "internalType": "bool",
+            "name": "isAAAccount",
+            "type": "bool"
+          },
+          {
+            "components": [
+              {
+                "internalType": "uint16",
+                "name": "gasChainType",
+                "type": "uint16"
+              },
+              {
+                "internalType": "uint256",
+                "name": "gasWei",
+                "type": "uint256"
+              },
+              {
+                "internalType": "uint256",
+                "name": "gasUSDC6",
+                "type": "uint256"
+              },
+              {
+                "internalType": "uint256",
+                "name": "serviceUSDC6",
+                "type": "uint256"
+              },
+              {
+                "internalType": "uint256",
+                "name": "bServiceUSDC6",
+                "type": "uint256"
+              },
+              {
+                "internalType": "uint256",
+                "name": "bServiceUnits6",
+                "type": "uint256"
+              },
+              {
+                "internalType": "address",
+                "name": "feePayer",
+                "type": "address"
+              }
+            ],
+            "internalType": "struct LibActionStorage.FeeInfo",
+            "name": "fees",
+            "type": "tuple"
+          },
+          {
+            "components": [
+              {
+                "internalType": "uint256",
+                "name": "requestAmountFiat6",
+                "type": "uint256"
+              },
+              {
+                "internalType": "uint256",
+                "name": "requestAmountUSDC6",
+                "type": "uint256"
+              },
+              {
+                "internalType": "uint8",
+                "name": "currencyFiat",
+                "type": "uint8"
+              },
+              {
+                "internalType": "uint256",
+                "name": "discountAmountFiat6",
+                "type": "uint256"
+              },
+              {
+                "internalType": "uint16",
+                "name": "discountRateBps",
+                "type": "uint16"
+              },
+              {
+                "internalType": "uint256",
+                "name": "taxAmountFiat6",
+                "type": "uint256"
+              },
+              {
+                "internalType": "uint16",
+                "name": "taxRateBps",
+                "type": "uint16"
+              },
+              {
+                "internalType": "string",
+                "name": "afterNotePayer",
+                "type": "string"
+              },
+              {
+                "internalType": "string",
+                "name": "afterNotePayee",
+                "type": "string"
+              }
+            ],
+            "internalType": "struct LibActionStorage.TransactionMeta",
+            "name": "meta",
+            "type": "tuple"
+          },
+          {
+            "internalType": "bool",
+            "name": "exists",
+            "type": "bool"
+          }
+        ],
+        "internalType": "struct LibActionStorage.TransactionRecord",
+        "name": "tx_",
+        "type": "tuple"
+      },
+      {
+        "components": [
+          {
+            "internalType": "address",
+            "name": "asset",
+            "type": "address"
+          },
+          {
+            "internalType": "uint256",
+            "name": "amountE6",
+            "type": "uint256"
+          },
+          {
+            "internalType": "enum LibActionStorage.AssetType",
+            "name": "assetType",
             "type": "uint8"
           },
           {
-            "internalType": "address",
-            "name": "card",
-            "type": "address"
-          },
-          {
-            "internalType": "address",
-            "name": "from",
-            "type": "address"
-          },
-          {
-            "internalType": "address",
-            "name": "to",
-            "type": "address"
+            "internalType": "enum LibActionStorage.RouteSource",
+            "name": "source",
+            "type": "uint8"
           },
           {
             "internalType": "uint256",
-            "name": "amount",
+            "name": "tokenId",
             "type": "uint256"
           },
           {
+            "internalType": "uint8",
+            "name": "itemCurrencyType",
+            "type": "uint8"
+          },
+          {
             "internalType": "uint256",
-            "name": "timestamp",
+            "name": "offsetInRequestCurrencyE6",
             "type": "uint256"
           }
         ],
-        "internalType": "struct LibActionStorage.Action[]",
-        "name": "page",
+        "internalType": "struct LibActionStorage.RouteItem[]",
+        "name": "route_",
         "type": "tuple[]"
       }
     ],
@@ -444,106 +3608,214 @@ import type { NonPayableOverrides } from "../../../../common.js"
   {
     "inputs": [
       {
-        "internalType": "address",
-        "name": "user",
-        "type": "address"
-      },
-      {
-        "internalType": "uint256",
-        "name": "offset",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint256",
-        "name": "limit",
-        "type": "uint256"
+        "internalType": "bytes32",
+        "name": "txId",
+        "type": "bytes32"
       }
     ],
-    "name": "getUserActionIdsPaged",
-    "outputs": [
-      {
-        "internalType": "uint256[]",
-        "name": "page",
-        "type": "uint256[]"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "user",
-        "type": "address"
-      }
-    ],
-    "name": "getUserActionsCount",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "user",
-        "type": "address"
-      },
-      {
-        "internalType": "uint256",
-        "name": "offset",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint256",
-        "name": "limit",
-        "type": "uint256"
-      }
-    ],
-    "name": "getUserActionsPaged",
+    "name": "getTransactionRecordByTxId",
     "outputs": [
       {
         "components": [
           {
-            "internalType": "uint8",
-            "name": "actionType",
+            "internalType": "bytes32",
+            "name": "id",
+            "type": "bytes32"
+          },
+          {
+            "internalType": "bytes32",
+            "name": "originalPaymentHash",
+            "type": "bytes32"
+          },
+          {
+            "internalType": "uint256",
+            "name": "chainId",
+            "type": "uint256"
+          },
+          {
+            "internalType": "bytes32",
+            "name": "txCategory",
+            "type": "bytes32"
+          },
+          {
+            "internalType": "string",
+            "name": "displayJson",
+            "type": "string"
+          },
+          {
+            "internalType": "uint64",
+            "name": "timestamp",
+            "type": "uint64"
+          },
+          {
+            "internalType": "address",
+            "name": "payer",
+            "type": "address"
+          },
+          {
+            "internalType": "address",
+            "name": "payee",
+            "type": "address"
+          },
+          {
+            "internalType": "uint256",
+            "name": "finalRequestAmountFiat6",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "finalRequestAmountUSDC6",
+            "type": "uint256"
+          },
+          {
+            "internalType": "bool",
+            "name": "isAAAccount",
+            "type": "bool"
+          },
+          {
+            "components": [
+              {
+                "internalType": "uint16",
+                "name": "gasChainType",
+                "type": "uint16"
+              },
+              {
+                "internalType": "uint256",
+                "name": "gasWei",
+                "type": "uint256"
+              },
+              {
+                "internalType": "uint256",
+                "name": "gasUSDC6",
+                "type": "uint256"
+              },
+              {
+                "internalType": "uint256",
+                "name": "serviceUSDC6",
+                "type": "uint256"
+              },
+              {
+                "internalType": "uint256",
+                "name": "bServiceUSDC6",
+                "type": "uint256"
+              },
+              {
+                "internalType": "uint256",
+                "name": "bServiceUnits6",
+                "type": "uint256"
+              },
+              {
+                "internalType": "address",
+                "name": "feePayer",
+                "type": "address"
+              }
+            ],
+            "internalType": "struct LibActionStorage.FeeInfo",
+            "name": "fees",
+            "type": "tuple"
+          },
+          {
+            "components": [
+              {
+                "internalType": "uint256",
+                "name": "requestAmountFiat6",
+                "type": "uint256"
+              },
+              {
+                "internalType": "uint256",
+                "name": "requestAmountUSDC6",
+                "type": "uint256"
+              },
+              {
+                "internalType": "uint8",
+                "name": "currencyFiat",
+                "type": "uint8"
+              },
+              {
+                "internalType": "uint256",
+                "name": "discountAmountFiat6",
+                "type": "uint256"
+              },
+              {
+                "internalType": "uint16",
+                "name": "discountRateBps",
+                "type": "uint16"
+              },
+              {
+                "internalType": "uint256",
+                "name": "taxAmountFiat6",
+                "type": "uint256"
+              },
+              {
+                "internalType": "uint16",
+                "name": "taxRateBps",
+                "type": "uint16"
+              },
+              {
+                "internalType": "string",
+                "name": "afterNotePayer",
+                "type": "string"
+              },
+              {
+                "internalType": "string",
+                "name": "afterNotePayee",
+                "type": "string"
+              }
+            ],
+            "internalType": "struct LibActionStorage.TransactionMeta",
+            "name": "meta",
+            "type": "tuple"
+          },
+          {
+            "internalType": "bool",
+            "name": "exists",
+            "type": "bool"
+          }
+        ],
+        "internalType": "struct LibActionStorage.TransactionRecord",
+        "name": "tx_",
+        "type": "tuple"
+      },
+      {
+        "components": [
+          {
+            "internalType": "address",
+            "name": "asset",
+            "type": "address"
+          },
+          {
+            "internalType": "uint256",
+            "name": "amountE6",
+            "type": "uint256"
+          },
+          {
+            "internalType": "enum LibActionStorage.AssetType",
+            "name": "assetType",
             "type": "uint8"
           },
           {
-            "internalType": "address",
-            "name": "card",
-            "type": "address"
-          },
-          {
-            "internalType": "address",
-            "name": "from",
-            "type": "address"
-          },
-          {
-            "internalType": "address",
-            "name": "to",
-            "type": "address"
+            "internalType": "enum LibActionStorage.RouteSource",
+            "name": "source",
+            "type": "uint8"
           },
           {
             "internalType": "uint256",
-            "name": "amount",
+            "name": "tokenId",
             "type": "uint256"
           },
           {
+            "internalType": "uint8",
+            "name": "itemCurrencyType",
+            "type": "uint8"
+          },
+          {
             "internalType": "uint256",
-            "name": "timestamp",
+            "name": "offsetInRequestCurrencyE6",
             "type": "uint256"
           }
         ],
-        "internalType": "struct LibActionStorage.Action[]",
-        "name": "page",
+        "internalType": "struct LibActionStorage.RouteItem[]",
+        "name": "route_",
         "type": "tuple[]"
       }
     ],
@@ -559,75 +3831,16 @@ import type { NonPayableOverrides } from "../../../../common.js"
       },
       {
         "internalType": "string",
-        "name": "note",
+        "name": "afterNotePayer",
+        "type": "string"
+      },
+      {
+        "internalType": "string",
+        "name": "afterNotePayee",
         "type": "string"
       }
     ],
-    "name": "setAfterTatchNoteByCardOwner",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "uint256",
-        "name": "actionId",
-        "type": "uint256"
-      },
-      {
-        "internalType": "string",
-        "name": "note",
-        "type": "string"
-      }
-    ],
-    "name": "setAfterTatchNoteByFrom",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "uint256",
-        "name": "actionId",
-        "type": "uint256"
-      },
-      {
-        "internalType": "string",
-        "name": "note",
-        "type": "string"
-      }
-    ],
-    "name": "setAfterTatchNoteByTo",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "uint256",
-        "name": "actionId",
-        "type": "uint256"
-      },
-      {
-        "internalType": "string",
-        "name": "byFrom",
-        "type": "string"
-      },
-      {
-        "internalType": "string",
-        "name": "byTo",
-        "type": "string"
-      },
-      {
-        "internalType": "string",
-        "name": "byCardOwner",
-        "type": "string"
-      }
-    ],
-    "name": "setAfterTatchNotes",
+    "name": "setAfterNotes",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
@@ -637,87 +3850,198 @@ import type { NonPayableOverrides } from "../../../../common.js"
       {
         "components": [
           {
-            "internalType": "uint8",
-            "name": "actionType",
-            "type": "uint8"
+            "internalType": "bytes32",
+            "name": "txId",
+            "type": "bytes32"
+          },
+          {
+            "internalType": "bytes32",
+            "name": "originalPaymentHash",
+            "type": "bytes32"
+          },
+          {
+            "internalType": "uint256",
+            "name": "chainId",
+            "type": "uint256"
+          },
+          {
+            "internalType": "bytes32",
+            "name": "txCategory",
+            "type": "bytes32"
+          },
+          {
+            "internalType": "string",
+            "name": "displayJson",
+            "type": "string"
+          },
+          {
+            "internalType": "uint64",
+            "name": "timestamp",
+            "type": "uint64"
           },
           {
             "internalType": "address",
-            "name": "card",
+            "name": "payer",
             "type": "address"
           },
           {
             "internalType": "address",
-            "name": "from",
-            "type": "address"
-          },
-          {
-            "internalType": "address",
-            "name": "to",
+            "name": "payee",
             "type": "address"
           },
           {
             "internalType": "uint256",
-            "name": "amount",
+            "name": "finalRequestAmountFiat6",
             "type": "uint256"
           },
           {
             "internalType": "uint256",
-            "name": "ts",
+            "name": "finalRequestAmountUSDC6",
             "type": "uint256"
           },
           {
-            "internalType": "string",
-            "name": "title",
-            "type": "string"
+            "internalType": "bool",
+            "name": "isAAAccount",
+            "type": "bool"
           },
           {
-            "internalType": "string",
-            "name": "note",
-            "type": "string"
+            "components": [
+              {
+                "internalType": "address",
+                "name": "asset",
+                "type": "address"
+              },
+              {
+                "internalType": "uint256",
+                "name": "amountE6",
+                "type": "uint256"
+              },
+              {
+                "internalType": "uint8",
+                "name": "assetType",
+                "type": "uint8"
+              },
+              {
+                "internalType": "uint8",
+                "name": "source",
+                "type": "uint8"
+              },
+              {
+                "internalType": "uint256",
+                "name": "tokenId",
+                "type": "uint256"
+              },
+              {
+                "internalType": "uint8",
+                "name": "itemCurrencyType",
+                "type": "uint8"
+              },
+              {
+                "internalType": "uint256",
+                "name": "offsetInRequestCurrencyE6",
+                "type": "uint256"
+              }
+            ],
+            "internalType": "struct ActionFacet.RouteItemInput[]",
+            "name": "route",
+            "type": "tuple[]"
           },
           {
-            "internalType": "uint256",
-            "name": "tax",
-            "type": "uint256"
+            "components": [
+              {
+                "internalType": "uint16",
+                "name": "gasChainType",
+                "type": "uint16"
+              },
+              {
+                "internalType": "uint256",
+                "name": "gasWei",
+                "type": "uint256"
+              },
+              {
+                "internalType": "uint256",
+                "name": "gasUSDC6",
+                "type": "uint256"
+              },
+              {
+                "internalType": "uint256",
+                "name": "serviceUSDC6",
+                "type": "uint256"
+              },
+              {
+                "internalType": "uint256",
+                "name": "bServiceUSDC6",
+                "type": "uint256"
+              },
+              {
+                "internalType": "uint256",
+                "name": "bServiceUnits6",
+                "type": "uint256"
+              },
+              {
+                "internalType": "address",
+                "name": "feePayer",
+                "type": "address"
+              }
+            ],
+            "internalType": "struct ActionFacet.FeeInfoInput",
+            "name": "fees",
+            "type": "tuple"
           },
           {
-            "internalType": "uint256",
-            "name": "tip",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "beamioFee1",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "beamioFee2",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "cardServiceFee",
-            "type": "uint256"
-          },
-          {
-            "internalType": "string",
-            "name": "afterTatchNoteByFrom",
-            "type": "string"
-          },
-          {
-            "internalType": "string",
-            "name": "afterTatchNoteByTo",
-            "type": "string"
-          },
-          {
-            "internalType": "string",
-            "name": "afterTatchNoteByCardOwner",
-            "type": "string"
+            "components": [
+              {
+                "internalType": "uint256",
+                "name": "requestAmountFiat6",
+                "type": "uint256"
+              },
+              {
+                "internalType": "uint256",
+                "name": "requestAmountUSDC6",
+                "type": "uint256"
+              },
+              {
+                "internalType": "uint8",
+                "name": "currencyFiat",
+                "type": "uint8"
+              },
+              {
+                "internalType": "uint256",
+                "name": "discountAmountFiat6",
+                "type": "uint256"
+              },
+              {
+                "internalType": "uint16",
+                "name": "discountRateBps",
+                "type": "uint16"
+              },
+              {
+                "internalType": "uint256",
+                "name": "taxAmountFiat6",
+                "type": "uint256"
+              },
+              {
+                "internalType": "uint16",
+                "name": "taxRateBps",
+                "type": "uint16"
+              },
+              {
+                "internalType": "string",
+                "name": "afterNotePayer",
+                "type": "string"
+              },
+              {
+                "internalType": "string",
+                "name": "afterNotePayee",
+                "type": "string"
+              }
+            ],
+            "internalType": "struct ActionFacet.TransactionMetaInput",
+            "name": "meta",
+            "type": "tuple"
           }
         ],
-        "internalType": "struct ActionFacet.TokenActionInput",
+        "internalType": "struct ActionFacet.TransactionInput",
         "name": "in_",
         "type": "tuple"
       }
@@ -735,7 +4059,7 @@ import type { NonPayableOverrides } from "../../../../common.js"
   }
 ] as const;
 
-  const _bytecode = "0x608080604052346015576123db908161001a8239f35b5f80fdfe60806040526004361015610011575f80fd5b5f3560e01c80630d630d52146117d057806324bf7a6f1461169b57806332a66c5c1461167857806343c22220146109b15780635961b08e1461098b5780635eecd2181461096257806366f721bd146105905780637488d4ad14610564578063846e0b981461054a57806385ce9b5f14610415578063b6e76873146103d3578063b934cb231461033f578063bbe9ca8c146101cf578063fc08e7d6146101a95763fcd73fee146100be575f80fd5b346101a55760203660031901126101a5576004356100da611fcc565b506100e4816121b7565b5f525f5160206123665f395f51905f526020526101a160405f2061018760096040519261011084611b16565b61011981612016565b845261012760018201612016565b6020850152600281015460408501526003810154606085015260048101546080850152600581015460a0850152600681015460c085015261016a60078201612016565b60e085015261017b60088201612016565b61010085015201612016565b610120820152604051918291602083526020830190611977565b0390f35b5f80fd5b346101a5576101a16101c36101bd36611800565b916120b6565b60405191829182611910565b346101a5576101dd36611890565b6101e892919261211f565b6101f1826121b7565b815f525f5160206123665f395f51905f52602052600760405f2001906001600160401b03811161032b576102258254611caa565b601f81116102da575b505f601f821160011461027857819293945f9261026d575b50508160011b915f199060031b1c19161790555b5f5160206123265f395f51905f525f80a2005b013590508480610246565b601f19821694835f5260205f20915f5b8781106102c25750836001959697106102a9575b505050811b01905561025a565b01355f19600384901b60f8161c1916905584808061029c565b90926020600181928686013581550194019101610288565b8181111561022e57825f5260205f20601f830160051c9060208410610323575b81601f9101920160051c03905f5b82811061031657505061022e565b5f82820155600101610308565b5f91506102fa565b634e487b7160e01b5f52604160045260245ffd5b346101a55760203660031901126101a5576103c260043561035e611e30565b50610367611fcc565b50610371816121b7565b61038361037d82611d6b565b50611ee8565b905f525f5160206123665f395f51905f526020526101a160405f206103b060096040519261011084611b16565b610120820152604051938480946118c3565b60e060c084015260e0830190611977565b346101a55760203660031901126101a55760c061040661037d6004356103f7611e30565b50610401816121b7565b611d6b565b61041360405180926118c3565bf35b346101a55761042336611890565b61042e92919261211f565b610437826121b7565b815f525f5160206123665f395f51905f52602052600860405f2001906001600160401b03811161032b5761046b8254611caa565b601f81116104f9575b505f601f82116001146104b157819293945f9261026d5750508160011b915f199060031b1c19161790555f5160206123265f395f51905f525f80a2005b601f19821694835f5260205f20915f5b8781106104e15750836001959697106102a957505050811b01905561025a565b909260206001819286860135815501940191016104c1565b8181111561047457825f5260205f20601f830160051c9060208410610542575b81601f9101920160051c03905f5b828110610535575050610474565b5f82820155600101610527565b5f9150610519565b346101a5576101a16101c361055e36611800565b91611f3f565b346101a55760203660031901126101a55760206105876105826117ea565b611a53565b54604051908152f35b346101a55760803660031901126101a5576004356024356001600160401b0381116101a5576105c3903690600401611863565b6044929192356001600160401b0381116101a5576105e5903690600401611863565b91906064356001600160401b0381116101a557610606903690600401611863565b93909561061161211f565b61061a866121b7565b855f525f5160206123665f395f51905f5260205260405f209360078501916001600160401b03821161032b5781906106528454611caa565b601f8111610909575b505f90601f83116001146108a2575f92610897575b50508160011b915f199060031b1c19161790555b60088301916001600160401b03821161032b576106a18354611caa565b601f8111610846575b505f90601f83116001146107de576009949392915f91836107d3575b50508160011b915f199060031b1c19161790555b01906001600160401b03811161032b576106f48254611caa565b601f8111610782575b505f601f821160011461073a57819293945f9261026d5750508160011b915f199060031b1c19161790555f5160206123265f395f51905f525f80a2005b601f19821694835f5260205f20915f5b87811061076a5750836001959697106102a957505050811b01905561025a565b9092602060018192868601358155019401910161074a565b818111156106fd57825f5260205f20601f830160051c90602084106107cb575b81601f9101920160051c03905f5b8281106107be5750506106fd565b5f828201556001016107b0565b5f91506107a2565b0135905088806106c6565b601f19831691845f5260205f20925f5b81811061082e575091600193918560099897969410610815575b505050811b0190556106da565b01355f19600384901b60f8161c19169055888080610808565b919360206001819287870135815501950192016107ee565b828111156106aa57835f5260205f20601f840160051c906020851061088f575b81601f9101920160051c03905f5b8281106108825750506106aa565b5f82820155600101610874565b5f9150610866565b013590508980610670565b909150601f19831691845f5260205f20925f5b8181106108f157509084600195949392106108d8575b505050811b019055610684565b01355f19600384901b60f8161c191690558980806108cb565b919360206001819287870135815501950192016108b5565b8281111561065b57909150835f5260205f20601f840160051c906020851061095a575b849392601f0160051c82900391015f5b82811061094a57505061065b565b5f8183015585945060010161093c565b5f915061092c565b346101a5575f3660031901126101a55760205f5160206123865f395f51905f5254604051908152f35b346101a5576101a16109a561099f36611800565b91611dd1565b6040519182918261182a565b346101a55760203660031901126101a5576004356001600160401b0381116101a5578060040161020060031983360301126101a5576109ee61211f565b602482016001600160a01b03610a0382611ce2565b161561164a57608483013591821561161a57600160ff610a2283611cf6565b16148015611605575b80156115f0575b156115ba57600160ff610a4483611cf6565b160361155557610a696001600160a01b03610a6160648701611ce2565b161515611d39565b60a4840135806115505750425b5f5160206123865f395f51905f525493610a8f83611cf6565b92610a9985611ce2565b926044880193610aa885611ce2565b9560648a0196610ab788611ce2565b60ff60405193610ac685611afb565b1683526001600160a01b0393841660208401908152918416604084019081529316606083019081526080830187815260a084018681529294909190600160401b8d101561032b5760018d015f5160206123865f395f51905f5255610b298d611d6b565b96909661153d579451865495516001600160a81b031990961660ff919091161760089590951b610100600160a81b031694909417855592516001850180546001600160a01b03199081166001600160a01b039384161790915593516002860180549095169116179092559051600383015551600491909101555f8781525f5160206123665f395f51905f526020526040902097610bc960c4820184611d9f565b906001600160401b03821161032b578190610be48c54611caa565b601f81116114e4575b505f90601f831160011461147d575f92611472575b50508160011b915f199060031b1c19161789555b610c2360e4820184611d9f565b60018b01916001600160401b03821161032b578190610c428454611caa565b601f8111611419575b505f90601f83116001146113b2575f926113a7575b50508160011b915f199060031b1c19161790555b61010481013560028a015561012481013560038a015561014481013560048a015561016481013560058a015561018481013560068a0155610cb96101a4820184611d9f565b60078b01916001600160401b03821161032b578190610cd88454611caa565b601f811161134e575b505f90601f83116001146112e7575f926112dc575b50508160011b915f199060031b1c19161790555b610d186101c4820184611d9f565b60088b01916001600160401b03821161032b57610d358354611caa565b601f811161128b575b505f90601f831160011461121d5792826101e49360099693610d7c965f92611212575b50508160011b915f199060031b1c19161790555b0184611d9f565b91909901906001600160401b03811161032b57610d998254611caa565b601f81116111c1575b5087899695949392889260209c5f90601f83116001146110fa579689967f37744d81676f19d79a7f550a9c6f14146059167c167a1269f3c309ab0186d7d89a60609a97610e70610f2f988f610f29998960ff9f9a610f1d9a610f239c5f926110ef575b50508160011b915f199060031b1c19161790555b610e2282611ce2565b90610e2c88611cf6565b918f610e3788611ce2565b93610e5384610e4e610e488b611ce2565b95611a1b565b612206565b166001810361109f5750610e6b9250610e4e90611a53565b611ce2565b928b610e10610e90610e8a610e8489611cf6565b96611ce2565b94611ce2565b9204931660018103610f5b57509050815f5260205f5160206123465f395f51905f529052610ec18960405f206122bb565b610eca83611a8b565b825f52602052610edd8960405f206122bb565b610ee681611ac3565b825f52602052610ef98960405f206122bb565b6001600160a01b039081169216905f5160206123065f395f51905f525f80a4611cf6565b9a611ce2565b93611ce2565b97611ce2565b604080516001600160a01b03998a1681529189168c8301528101919091529516951693a4604051908152f35b600203610fbd5750815f5260205f5160206123465f395f51905f529052610f858960405f20612271565b610f8e83611a8b565b825f52602052610fa18960405f20612271565b610faa81611ac3565b825f52602052610ef98960405f20612271565b92825f9392935260205f5160206123465f395f51905f529052610fe260405f2061223a565b610feb81611a8b565b825f52602052610ffd60405f2061223a565b61100683611ac3565b825f5260205261101860405f2061223a565b6001600160a01b03928316939216918383835f5160206123065f395f51905f525f80a46001600160a01b038116938415159081611094575b5061105f575b50505050611cf6565b61106890611ac3565b815f5260205261107a60405f2061223a565b5f5160206123065f395f51905f525f80a48f808080611056565b90508414155f611050565b6002036110b35750610e4e610e6b92611a53565b916110c182610e4e83611a53565b6001600160a01b03908116908316036110dc575b5050611ce2565b610e4e6110e892611a53565b8f806110d5565b013590505f80610e05565b99989796959493929190601f19821690835f528f5f20915f5b818110611191575099610f2f96610e70610f29978e9f9e7f37744d81676f19d79a7f550a9c6f14146059167c167a1269f3c309ab0186d7d89f9860609f60ff9f9d9799879f99610f239c610f1d9c8360019510611178575b505050811b019055610e19565b01355f19600384901b60f8161c191690555f808061116b565b94989a9c95509296989a5094508e600181928787013581550195019201938c939a9896928e9a9896928d96611113565b81811115610da25799825f5260205f20601f830160051c906020841061120a575b81019b601f0160051c035f5b8181106111fd57505099610da2565b5f8d8201556001016111ee565b5f91506111e2565b013590508f80610d61565b601f19831691845f5260205f20925f5b81811061127357509360099693610d7c9693600193836101e4981061125a575b505050811b019055610d75565b01355f19600384901b60f8161c191690558f808061124d565b9193602060018192878701358155019501920161122d565b82811115610d3e57835f5260205f20601f840160051c90602085106112d4575b81601f9101920160051c03905f5b8281106112c7575050610d3e565b5f828201556001016112b9565b5f91506112ab565b013590508c80610cf6565b909150601f19831691845f5260205f20925f5b818110611336575090846001959493921061131d575b505050811b019055610d0a565b01355f19600384901b60f8161c191690558c8080611310565b919360206001819287870135815501950192016112fa565b82811115610ce157909150835f5260205f20601f840160051c906020851061139f575b849392601f0160051c82900391015f5b82811061138f575050610ce1565b5f81830155859450600101611381565b5f9150611371565b013590508c80610c60565b909150601f19831691845f5260205f20925f5b81811061140157509084600195949392106113e8575b505050811b019055610c74565b01355f19600384901b60f8161c191690558c80806113db565b919360206001819287870135815501950192016113c5565b82811115610c4b57909150835f5260205f20601f840160051c906020851061146a575b849392601f0160051c82900391015f5b82811061145a575050610c4b565b5f8183015585945060010161144c565b5f915061143c565b013590508b80610c02565b909150601f198316918c5f5260205f20925f5b8181106114cc57509084600195949392106114b3575b505050811b018955610c16565b01355f19600384901b60f8161c191690558b80806114a6565b91936020600181928787013581550195019201611490565b82811115610bed579091508b5f5260205f20601f840160051c9060208510611535575b849392601f0160051c82900391015f5b828110611525575050610bed565b5f81830155859450600101611517565b5f9150611507565b634e487b7160e01b5f525f60045260245ffd5b610a76565b600260ff61156283611cf6565b160361158c576115876001600160a01b0361157f60448701611ce2565b161515611d04565b610a69565b6115a36001600160a01b0361157f60448701611ce2565b6115876001600160a01b03610a6160648701611ce2565b60405162461bcd60e51b815260206004820152600e60248201526d62616420616374696f6e5479706560901b6044820152606490fd5b50600360ff6115fe83611cf6565b1614610a32565b50600260ff61161383611cf6565b1614610a2b565b60405162461bcd60e51b81526020600482015260086024820152670616d6f756e743d360c41b6044820152606490fd5b60405162461bcd60e51b81526020600482015260066024820152650636172643d360d41b6044820152606490fd5b346101a55760203660031901126101a55760206105876116966117ea565b611a1b565b346101a5576116a936611890565b6116b492919261211f565b6116bd826121b7565b815f525f5160206123665f395f51905f52602052600960405f2001906001600160401b03811161032b576116f18254611caa565b601f811161177f575b505f601f821160011461173757819293945f9261026d5750508160011b915f199060031b1c19161790555f5160206123265f395f51905f525f80a2005b601f19821694835f5260205f20915f5b8781106117675750836001959697106102a957505050811b01905561025a565b90926020600181928686013581550194019101611747565b818111156116fa57825f5260205f20601f830160051c90602084106117c8575b81601f9101920160051c03905f5b8281106117bb5750506116fa565b5f828201556001016117ad565b5f915061179f565b346101a5576101a16109a56117e436611800565b91611c07565b600435906001600160a01b03821682036101a557565b60609060031901126101a5576004356001600160a01b03811681036101a557906024359060443590565b60206040818301928281528451809452019201905f5b81811061184d5750505090565b8251845260209384019390920191600101611840565b9181601f840112156101a5578235916001600160401b0383116101a557602083818601950101116101a557565b9060406003198301126101a55760043591602435906001600160401b0382116101a5576118bf91600401611863565b9091565b805160ff1682526020808201516001600160a01b0390811691840191909152604080830151821690840152606080830151909116908301526080808201519083015260a090810151910152565b60206040818301928281528451809452019201905f5b8181106119335750505090565b909192602060c08261194860019488516118c3565b019401929101611926565b805180835260209291819084018484015e5f828201840152601f01601f1916010190565b611a1891610120611a066119f26119ae61199c86516101408752610140870190611953565b60208701518682036020880152611953565b60408601516040860152606086015160608601526080860151608086015260a086015160a086015260c086015160c086015260e086015185820360e0870152611953565b610100850151848203610100860152611953565b92015190610120818403910152611953565b90565b6001600160a01b03165f9081527f5c6cf2dec0dde3ad0b8c43b754eaaa7f2103acece85ec89a2a20521975da16246020526040902090565b6001600160a01b03165f9081527f5c6cf2dec0dde3ad0b8c43b754eaaa7f2103acece85ec89a2a20521975da16256020526040902090565b6001600160a01b03165f9081527fd7b873e4ef7729fc94d2ec673b82a501adf6aa5027119656d3a99fc63c6dda6f6020526040902090565b6001600160a01b03165f9081527fd7b873e4ef7729fc94d2ec673b82a501adf6aa5027119656d3a99fc63c6dda706020526040902090565b60c081019081106001600160401b0382111761032b57604052565b61014081019081106001600160401b0382111761032b57604052565b90601f801991011681019081106001600160401b0382111761032b57604052565b6001600160401b03811161032b5760051b60200190565b90611b7482611b53565b611b816040519182611b32565b8281528092611b92601f1991611b53565b0190602036910137565b91908201809211611ba957565b634e487b7160e01b5f52601160045260245ffd5b91908203918211611ba957565b8054821015611bdf575f5260205f2001905f90565b634e487b7160e01b5f52603260045260245ffd5b8051821015611bdf5760209160051b010190565b611c149093929193611a53565b9081549081851015611c8d5784611c4692611c32611c419383611b9c565b90808211611c85575b50611bbd565b611b6a565b925f5b8451811015611c805780611c68611c6260019385611b9c565b85611bca565b90549060031b1c611c798288611bf3565b5201611c49565b505050565b90505f611c3b565b5050509050604051611ca0602082611b32565b5f81525f36813790565b90600182811c92168015611cd8575b6020831014611cc457565b634e487b7160e01b5f52602260045260245ffd5b91607f1691611cb9565b356001600160a01b03811681036101a55790565b3560ff811681036101a55790565b15611d0b57565b60405162461bcd60e51b8152602060048201526006602482015265066726f6d3d360d41b6044820152606490fd5b15611d4057565b606460405162461bcd60e51b81526020600482015260046024820152630746f3d360e41b6044820152fd5b5f5160206123865f395f51905f5254811015611bdf575f5160206123865f395f51905f525f52600560205f20910201905f90565b903590601e19813603018212156101a557018035906001600160401b0382116101a5576020019181360383136101a557565b611dde9093929193611a1b565b9081549081851015611c8d5784611dfc92611c32611c419383611b9c565b925f5b8451811015611c805780611e18611c6260019385611b9c565b90549060031b1c611e298288611bf3565b5201611dff565b60405190611e3d82611afb565b5f60a0838281528260208201528260408201528260608201528260808201520152565b60405190611e6f602083611b32565b5f80835282815b828110611e8257505050565b602090611e8d611e30565b82828501015201611e76565b90611ea382611b53565b611eb06040519182611b32565b8281528092611ec1601f1991611b53565b01905f5b828110611ed157505050565b602090611edc611e30565b82828501015201611ec5565b90604051611ef581611afb565b825460ff8116825260081c6001600160a01b0390811660208301526001840154811660408301526002840154166060820152600383015460808201526004929092015460a0830152565b611f4c9093929193611a1b565b9081549081851015611fbf5784611f6f92611c32611f6a9383611b9c565b611e99565b925f5b8451811015611c805780611fa361037d611f97611f9160019587611b9c565b87611bca565b90549060031b1c611d6b565b611fad8288611bf3565b52611fb88187611bf3565b5001611f72565b5050509050611a18611e60565b60405190611fd982611b16565b6060610120838281528260208201525f60408201525f838201525f60808201525f60a08201525f60c08201528260e0820152826101008201520152565b9060405191825f82549261202984611caa565b80845293600181169081156120945750600114612050575b5061204e92500383611b32565b565b90505f9291925260205f20905f915b81831061207857505090602061204e928201015f612041565b602091935080600191548385890101520191019091849261205f565b90506020925061204e94915060ff191682840152151560051b8201015f612041565b6120c39093929193611a53565b9081549081851015611fbf57846120e192611c32611f6a9383611b9c565b925f5b8451811015611c80578061210361037d611f97611f9160019587611b9c565b61210d8288611bf3565b526121188187611bf3565b50016120e4565b7f8c0e6e23b66bcd818f8470f5e8795fd1507dfcdbb6df280fe9d69d7e117947f6546001600160a01b0316331461204e57335f527fe83cd0fbe570872a7bdc14c964678da619d8e628cf1cf0182e4616d372340e4960205260ff60405f2054161561218657565b60405162461bcd60e51b81526020600482015260096024820152683737ba1030b236b4b760b91b6044820152606490fd5b5f5160206123865f395f51905f525411156121ce57565b60405162461bcd60e51b815260206004820152601060248201526f1a5b9d985b1a59081858dd1a5bdb925960821b6044820152606490fd5b8054600160401b81101561032b5761222391600182018155611bca565b819291549060031b91821b915f19901b1916179055565b60039060048101805460ff811615612261575b50500180546001810191908210611ba95755565b60ff191660011790555f8061224d565b60039160048201805460ff8116156122ab575b5050600282018054909161229791611b9c565b90550180549060018201809211611ba95755565b60ff191660011790555f80612284565b60039160048201805460ff8116156122f5575b505060018201805490916122e191611b9c565b90550180546001810191908210611ba95755565b60ff191660011790555f806122ce56fec0ef08b82fd46a7c8b1236f17d3b03b93607b17663045de222912bf6fa670125c6f9d03f3ab31c2231c040cff7b92bfaf6148bdb28059517a35c4c3f003c431dd7b873e4ef7729fc94d2ec673b82a501adf6aa5027119656d3a99fc63c6dda6e5c6cf2dec0dde3ad0b8c43b754eaaa7f2103acece85ec89a2a20521975da16235c6cf2dec0dde3ad0b8c43b754eaaa7f2103acece85ec89a2a20521975da1622a264697066735822122016a307facc11798dda01f02e0772db23360fccd08ec33da393123a973c9f4ea764736f6c63430008210033";
+  const _bytecode = "0x60808060405234601557614f76908161001a8239f35b5f80fdfe6080806040526004361015610012575f80fd5b5f3560e01c90816309967a5814612012575080630e3b572114611ddf5780630e986e1b14611db157806311db633c14611d8a57806314fbde7514611d365780631b884b3814611d1a5780632228d9ae14611ca55780632b62062d14611c795780632c800a26146109dd5780632e7700f014611c505780633437a06114611bee578063355d1ee614611b9e5780633c1e6f4c14611b5457806347a1788014611b3957806361b7cd4c14611ac8578063676f7a121461019d5780636b4b1cbd14611a535780637b1f3ef9146109e25780637bd8ad89146109dd5780638527f255146109095780638de32a91146108db578063996f1cc614610866578063a4b1c537146106f0578063a6fb23fe146107cf578063a804ee531461072b578063b81a4e9414610710578063c55f98e4146106f5578063cc7f8372146106f0578063d0b393fc146106d5578063df65ee5a14610639578063ea51aef0146105b7578063f21c019714610446578063f429d72f146101c2578063f7675df6146101a25763fe66f35f1461019d575f80fd5b6125f8565b346101be575f3660031901126101be57602060405161ffff8152f35b5f80fd5b346101be5760ff61ffff6101d5366125a4565b979698909585929594939415801561043a575b6101f190613084565b604051630f079bd360e21b81526001600160a01b03909a1660048b015216602489015260448801526064870152608486015260a48501521660c483015260e48201525f8161010481305afa90811561042f575f5f5f925f94610388575b5061025984516134ce565b915f5b8551811015610372578061027260019288612bf8565b515f525f516020614ee15f395f51905f5260205260405f2060ff601a6040519261029b8461262d565b8054845285810154602085015260028101546040850152600381015460608501526102c860048201612ecf565b608085015260058101546001600160401b03811660a0860152868060a01b039060401c1660c0850152858060a01b0360068201541660e085015260078101546101008501526008810154610120850152826009820154161515610140850152610333600a8201612f6f565b61016085015261034560118201612fcc565b61018085015201541615156101a08201526103608287612bf8565b5261036b8186612bf8565b500161025c565b506103848385604051948594856122ec565b0390f35b93505050503d805f833e61039c8183612680565b81016080828203126101be5781516020830151906040840151936060810151906001600160401b0382116101be57019280601f850112156101be5783516103e2816126a1565b946103f06040519687612680565b81865260208087019260051b8201019283116101be57602001905b82821061041f57505050909291928461024e565b815181526020918201910161040b565b6040513d5f823e3d90fd5b50610e108306156101e8565b346101be5760203660031901126101be5761045f612e5a565b506004355f525f516020614e815f395f51905f5260205260405f205461048681151561368b565b5f1981019081116105a357805f525f516020614ee15f395f51905f5260205260405f209060ff601a604051936104bb8561262d565b805485526001810154602086015260028101546040860152600381015460608601526104e960048201612ecf565b608086015260058101546001600160401b03811660a087015260401c6001600160a01b0390811660c087015260068201541660e086015260078101546101008601526008810154610120860152600981015483161515610140860152610551600a8201612f6f565b61016086015261056360118201612fcc565b61018086015201541615156101a08301525f525f516020614ea15f395f51905f5260205261059360405f2061404d565b906103846040519283928361257f565b634e487b7160e01b5f52601160045260245ffd5b346101be5760c03660031901126101be576105d0612081565b6024359060ff821682036101be576105ef6105ea836137d2565b612cb9565b61038461062b610617610610610605864261385c565b508660443591613a04565b9485613aad565b9260a4359060843590858760643592613b70565b9092604051948594856122ec565b346101be5760203660031901126101be57610652612de3565b506004355f525f516020614e815f395f51905f5260205260405f205461067981151561368b565b5f1981019081116105a3576106c181610384925f525f516020614ee15f395f51905f5260205260405f20905f525f516020614ea15f395f51905f5260205260405f2090613f82565b6040519182916020835260208301906124a1565b346101be575f3660031901126101be5760206040515f198152f35b612612565b346101be575f3660031901126101be57602060405160058152f35b346101be575f3660031901126101be57602060405160048152f35b346101be5761073936612097565b604051630ea51aef60e41b81526001600160a01b0390951660048601526005602486015260448501939093526064840191909152608483015260a48201525f8160c481305afa801561042f575f5f915f5f916107a1575b9061038491604051948594856122ec565b505050506107c3610384913d805f833e6107bb8183612680565b810190612749565b91935083929190610790565b346101be5760c03660031901126101be576107e8612081565b60a43560ff81168091036101be57604051916314fbde7560e01b835260018060a01b031660048301526002602483015260243560448301526044356064830152606435608483015260843560a483015260c48201525f8160e481305afa801561042f575f5f915f5f916107a1579061038491604051948594856122ec565b346101be5761087436612097565b604051630ea51aef60e41b81526001600160a01b0390951660048601525f6024860181905260448601949094526064850192909252608484015260a48301528160c481305afa801561042f575f5f915f5f916107a1579061038491604051948594856122ec565b346101be576103846108f56108ef3661233c565b9161351d565b604051918291602083526020830190612294565b346101be5761095d61095461096561092036612399565b9591936109326105ea879a93976137d2565b61094361093e88613832565b612cf6565b8861094e814261385c565b50613a04565b97889788613aad565b9788916144dd565b90604051938493608085019285526020850152604084015260806060840152815180915260a0830190602060a08260051b8601019301915f905b8282106109ae57505050500390f35b919360019193955060206109cd8192609f198a820301865288516124a1565b960192019201859493919261099f565b6123e7565b346101be5760203660031901126101be576004356001600160401b0381116101be5761028060031982360301126101be57610a1b6136c6565b806004013515611a2557604481013580156119f4576001600160a01b03610a4460c48401613337565b16156119c5576001600160a01b03610a5e60e48401613337565b161561199657610a71610144830161334b565b611949575b610a93600161ffff610a8b610184860161338d565b161115613045565b81600401355f525f516020614e815f395f51905f5260205260405f2054611918575f516020614f215f395f51905f5254916001830183116105a357600183015f516020614f215f395f51905f525560a481016001600160401b03610af68261339c565b16611900575042915b835f525f516020614ee15f395f51905f5260205260405f20908260040135825560248301356001830155600282015560648201356003820155610b4860848301836004016133b0565b60048301916001600160401b03821161136157610b6f82610b698554612a21565b85612a59565b5f90601f831160011461189c57610b9d92915f9183611891575b50508160011b915f199060031b1c19161790565b90555b60058101805467ffffffffffffffff19166001600160401b038516178155610bca60c48401613337565b8154600160401b600160e01b03191660409190911b600160401b600160e01b0316179055610bfa60e48301613337565b6006820180546001600160a01b0319166001600160a01b0390921691909117905561010482013560078201556101248201356008820155610c3e610144830161334b565b60098201805491151560ff1660ff19928316179055601a820180549091166001179055610c6e610184830161338d565b6102048301356101e48401356101c48501356101a4860135610c936102448801613337565b60405195610ca087612649565b61ffff168087526020870183905260408701849052606087018590526080870186905261022489013560a088018190526001600160a01b0390921660c0909701879052600a8801805461ffff19169091179055600b870191909155600c860191909155600d850191909155600e840191909155600f8301556010820180546001600160a01b0319169091179055610264820190610d4082600485016133e2565b3591610d4f81600486016133e2565b60200135610d6082600487016133e2565b604001610d6c906133f8565b610d7983600488016133e2565b60600135610d8a84600489016133e2565b608001610d969061338d565b90610da48560048a016133e2565b60a0013592610db68660048b016133e2565b60c001610dc29061338d565b94610dd08760048c016133e2565b60e08101610ddd916133b0565b9097610dec9060048d016133e2565b6101008101610dfa916133b0565b9890916040519b610e0a8d612664565b8c5260208c0193845260408c019460ff16855260608c0195865260808c019661ffff16875260a08c0197885260c08c019861ffff1689523690610e4c92613406565b9760e08b019889523690610e5f92613406565b986101008101998a525160118901555160128801555160ff16601387019060ff1660ff198254161790555160148601555161ffff16601585019061ffff1661ffff198254161790555160168401555161ffff16601783019061ffff1661ffff198254161790556018820190518051906001600160401b03821161136157610eea82610b698554612a21565b602090601f831160011461182a579180610f1d9260199695945f9261181f5750508160011b915f199060031b1c19161790565b90555b0190518051906001600160401b03821161136157610f4282610b698554612a21565b602090601f83116001146117bc57610f7092915f91836117b15750508160011b915f199060031b1c19161790565b90555b825f525f516020614ea15f395f51905f5260205260405f20905f5b610f9f610164830183600401613358565b905081101561146157610fb9610164830183600401613358565b829192101561144d576001600160a01b03610fd860e083028401613337565b161561141857602060e0820283010135156113e257604060e08202830101600160ff611003836133f8565b16116113ad57600460ff61101e606060e086028701016133f8565b16116113755760ff61103d61103760e085028601613337565b926133f8565b169261104884612402565b60ff61105b606060e086028401016133f8565b1691600583101561133a5761107760a060e086028401016133f8565b926040519161108583612649565b6001600160a01b03168252602060e08602840181013590830190815260408301966110af81612402565b87526110bf60608401928361343c565b60808301608060e0880286010135815260ff60a085019616865260c084019160c060e089028701013583528a54600160401b8110156113615780600161110892018d558c613448565b95909561134e575185546001600160a01b0319166001600160a01b039190911617855551600185015596516002840197909561114387612402565b61114c87612402565b8854935191600583101561133a576001996112549860059660ff61ff00819760081b1692169061ffff191617179055516003860155511660ff60048501911660ff19825416179055519101556111a660e084028201613337565b6111af81612aef565b895f5260205260ff60405f205416156112dd575b506111d260e084028201613337565b6111db81612b27565b608060e08602840101355f5260205260405f20895f5260205260ff60405f2054161561125a575b5061121160e084028201613337565b9061121e60c48701613337565b61122a60e48801613337565b906001600160401b03610e108b0416936080602060e08902860101359460e08902010135906142a9565b01610f8e565b61126381612b27565b608060e08602840101355f5260205260405f20895f5260205260405f208560ff19825416179055848060a01b03165f527f5c6cf2dec0dde3ad0b8c43b754eaaa7f2103acece85ec89a2a20521975da162960205260405f20608060e08502830101355f526020526112d78860405f20613461565b88611202565b6112e681612aef565b895f5260205260405f208560ff19825416179055848060a01b03165f527f5c6cf2dec0dde3ad0b8c43b754eaaa7f2103acece85ec89a2a20521975da16276020526113348860405f20613461565b886111c3565b634e487b7160e01b5f52602160045260245ffd5b634e487b7160e01b5f525f60045260245ffd5b634e487b7160e01b5f52604160045260245ffd5b60405162461bcd60e51b815260206004820152601060248201526f62616420726f75746520736f7572636560801b6044820152606490fd5b60405162461bcd60e51b815260206004820152600d60248201526c6261642061737365745479706560981b6044820152606490fd5b60405162461bcd60e51b815260206004820152600e60248201526d0726f7574652e616d6f756e743d360941b6044820152606490fd5b60405162461bcd60e51b815260206004820152600d60248201526c0726f7574652e61737365743d3609c1b6044820152606490fd5b634e487b7160e01b5f52603260045260245ffd5b83858380600401355f525f516020614e815f395f51905f526020526001820160405f20556114a28261149d61149860c48501613337565b612ab7565b613461565b6114ae60e48201613337565b6001600160a01b036114c260c48401613337565b166001600160a01b0390911603611799575b6001600160a01b036114e96102448301613337565b16611651575b6020926114fe60c48301613337565b610e1061150d60e48501613337565b920490815f527fd7b873e4ef7729fc94d2ec673b82a501adf6aa5027119656d3a99fc63c6dda6e865261154260405f20614e49565b61154b81612b5f565b825f52865261155c60405f20614e49565b6001600160a01b03169182827f80ca226d311619945fb059c2b8d9470fd2cb1e9167bcfa482d32a0b94c818c4c5f80a36001600160a01b03811692830361160b575b5050506115ad60c48201613337565b6115b960e48301613337565b604080516001600160a01b0393841681529190921685820152606483013592600401359184917fd8909d4e485439adc0038083f2cf6cbffbfd989cc77b8fa98be0da8f2ff290589190a4604051908152f35b61161490612b5f565b815f52855261162560405f20614e49565b7f80ca226d311619945fb059c2b8d9470fd2cb1e9167bcfa482d32a0b94c818c4c5f80a383808061159e565b61165e6102448201613337565b60018060a01b03165f527f5c6cf2dec0dde3ad0b8c43b754eaaa7f2103acece85ec89a2a20521975da16306020526116998260405f20613461565b61022481013515158061177e575b156114ef576116f46116bc6102448301613337565b6001600160a01b03165f9081527f5c6cf2dec0dde3ad0b8c43b754eaaa7f2103acece85ec89a2a20521975da16326020526040902090565b805460ff1916600117905561170c6102448201613337565b5f516020614ec15f395f51905f52549390600160401b85101561136157611755856001602097015f516020614ec15f395f51905f52555f516020614ec15f395f51905f52612be3565b81546001600160a01b0393841660039290921b91821b9390911b191691909117905592506114ef565b5060ff6117916116bc6102448401613337565b5416156116a7565b6117ac8261149d61149860e48501613337565b6114d4565b015190508780610b89565b90601f19831691845f52815f20925f5b81811061180757509084600195949392106117ef575b505050811b019055610f73565b01515f1960f88460031b161c191690558680806117e2565b929360206001819287860151815501950193016117cc565b015190508a80610b89565b90601f19831691845f52815f20925f5b818110611879575091600193918560199897969410611861575b505050811b019055610f20565b01515f1960f88460031b161c19169055898080611854565b9293602060018192878601518155019501930161183a565b013590508880610b89565b601f19831691845f5260205f20925f5b8181106118e857509084600195949392106118cf575b505050811b019055610ba0565b01355f19600384901b60f8161c191690558780806118c2565b919360206001819287870135815501950192016118ac565b6119116001600160401b039161339c565b1691610aff565b60405162461bcd60e51b815260206004820152600960248201526874782065786973747360b81b6044820152606490fd5b61195a610164830183600401613358565b9050610a765760405162461bcd60e51b815260206004820152600e60248201526d1c9bdd5d19481c995c5d5a5c995960921b6044820152606490fd5b60405162461bcd60e51b8152602060048201526007602482015266070617965653d360cc1b6044820152606490fd5b60405162461bcd60e51b8152602060048201526007602482015266070617965723d360cc1b6044820152606490fd5b60405162461bcd60e51b81526020600482015260096024820152680636861696e49643d360bc1b6044820152606490fd5b60405162461bcd60e51b81526020600482015260066024820152650747849643d360d41b6044820152606490fd5b346101be57611a6136612097565b604051630ea51aef60e41b81526001600160a01b0390951660048601526003602486015260448501939093526064840191909152608483015260a48201525f8160c481305afa801561042f575f5f915f5f916107a1579061038491604051948594856122ec565b346101be57611ad636612097565b9260409291925194630ea51aef60e41b865260018060a01b031660048601526004602486015260448501526064840152608483015260a48201525f8160c481305afa801561042f575f5f915f5f916107a1579061038491604051948594856122ec565b346101be575f3660031901126101be57602060405160038152f35b346101be57610384611b77611b68366125a4565b969590959491949392936130d8565b90604094929451948594855260208501526040840152608060608401526080830190612366565b346101be5760203660031901126101be57600435611bba612e5a565b50611bc48161375e565b805f525f516020614ee15f395f51905f5260205260405f209060ff601a604051936104bb8561262d565b346101be5760203660031901126101be576103846106c1600435611c10612de3565b50611c1a8161375e565b805f525f516020614ee15f395f51905f5260205260405f20905f525f516020614ea15f395f51905f5260205260405f2090613f82565b346101be575f3660031901126101be5760205f516020614f215f395f51905f5254604051908152f35b346101be5760203660031901126101be576040611c97600435612d34565b825191825215156020820152f35b346101be57611cb336612097565b604051630ea51aef60e41b81526001600160a01b0390951660048601526001602486015260448501939093526064840191909152608483015260a48201525f8160c481305afa801561042f575f5f915f5f916107a1579061038491604051948594856122ec565b346101be575f3660031901126101be576020604051610e108152f35b346101be57611d82611d7961038461062b611d5036612399565b959193611d626105ea879b93976137d2565b611d6e61093e88613832565b8961094e814261385c565b98899889613aad565b978891613de0565b346101be5760203660031901126101be576020611da8611498612081565b54604051908152f35b346101be57610384611dcb611dc53661233c565b91612c0c565b604051918291602083526020830190612366565b346101be5760603660031901126101be576004356024356001600160401b0381116101be57611e1290369060040161230f565b6044929192356001600160401b0381116101be57611e3490369060040161230f565b919093611e3f6136c6565b611e488461375e565b835f525f516020614ee15f395f51905f5260205260405f209160188301916001600160401b03821161136157611e8282610b698554612a21565b5f90601f8311600114611faa579180611eb49260199695945f92611f9f5750508160011b915f199060031b1c19161790565b90555b01906001600160401b03811161136157611edb81611ed58454612a21565b84612a59565b5f601f8211600114611f3d578190611f099394955f92611f325750508160011b915f199060031b1c19161790565b90555b7fd917092eb79edcc74fe2fcfd960f4485c24c525badf24c6d92339827fcd838005f80a2005b013590508580610b89565b601f19821694835f5260205f20915f5b878110611f87575083600195969710611f6e575b505050811b019055611f0c565b01355f19600384901b60f8161c19169055848080611f61565b90926020600181928686013581550194019101611f4d565b013590508980610b89565b601f19831691845f5260205f20925f5b818110611ffa575091600193918560199897969410611fe1575b505050811b019055611eb7565b01355f19600384901b60f8161c19169055888080611fd4565b91936020600181928787013581550195019201611fba565b346101be5761202036612097565b630ea51aef60e41b86526001600160a01b0390941660048601526002602486015260448501929092526064840152608483015260a48201525f8160c481305afa801561042f575f5f915f5f916107a1579061038491604051948594856122ec565b600435906001600160a01b03821682036101be57565b60a09060031901126101be576004356001600160a01b03811681036101be579060243590604435906064359060843590565b805180835260209291819084018484015e5f828201840152601f01601f1916010190565b60c09061ffff81511683526020810151602084015260408101516040840152606081015160608401526080810151608084015260a081015160a08401528160018060a01b0391015116910152565b6121ba91815181526020820151602082015260ff60408301511660408201526060820151606082015261ffff608083015116608082015260a082015160a082015261ffff60c08301511660c08201526101006121a860e084015161012060e08501526101208401906120c9565b920151906101008184039101526120c9565b90565b90815181526020820151602082015260408201516040820152606082015160608201526102606101a0612289612204608086015161028060808701526102808601906120c9565b6001600160401b0360a08701511660a086015260018060a01b0360c08701511660c086015260018060a01b0360e08701511660e086015261010086015161010086015261012086015161012086015261014086015115156101408601526122756101608701516101608701906120ed565b61018086015185820361024087015261213b565b930151151591015290565b9080602083519182815201916020808360051b8301019401925f915b8383106122bf57505050505090565b90919293946020806122dd600193601f1986820301875289516121bd565b970193019301919392906122b0565b90926080926121ba95948352602083015260408201528160608201520190612294565b9181601f840112156101be578235916001600160401b0383116101be57602083818601950101116101be57565b60609060031901126101be576004356001600160a01b03811681036101be57906024359060443590565b90602080835192838152019201905f5b8181106123835750505090565b8251845260209384019390920191600101612376565b60e09060031901126101be576004356001600160a01b03811681036101be579060243560ff811681036101be579060443590606435906084359060a4359060c43560ff811681036101be5790565b346101be575f3660031901126101be57602060405160018152f35b6002111561133a57565b90602080835192838152019201905f5b8181106124295750505090565b909192835160018060a01b03815116825260208101516020830152604081015161245281612402565b6040830152606081015190600582101561133a578260c060e092602094606060019701526080810151608084015260ff60a08201511660a0840152015160c0820152019401910191909161241c565b6121ba91815181526020820151602082015260408201516040820152606082015160608201526101a06125596124e8608085015161028060808601526102808501906120c9565b6001600160401b0360a08601511660a085015260018060a01b0360c08601511660c085015260018060a01b0360e08601511660e0850152610100850151610100850152610120850151610120850152610140850151151561014085015261016085015184820361016086015261240c565b9261256e6101808201516101808501906120ed565b01519061026081840391015261213b565b90916125966121ba936040845260408401906121bd565b91602081840391015261240c565b6101009060031901126101be576004356001600160a01b03811681036101be579060243560ff811681036101be579060443590606435906084359060a4359060c43561ffff811681036101be579060e43590565b346101be575f3660031901126101be5760206040515f8152f35b346101be575f3660031901126101be57602060405160028152f35b6101c081019081106001600160401b0382111761136157604052565b60e081019081106001600160401b0382111761136157604052565b61012081019081106001600160401b0382111761136157604052565b90601f801991011681019081106001600160401b0382111761136157604052565b6001600160401b0381116113615760051b60200190565b6001600160401b03811161136157601f01601f191660200190565b81601f820112156101be578051906126ea826126b8565b926126f86040519485612680565b828452602083830101116101be57815f9260208093018386015e8301015290565b51906001600160a01b03821682036101be57565b519081151582036101be57565b519061ffff821682036101be57565b6080818303126101be578051926020820151926040830151926060810151906001600160401b0382116101be570181601f820112156101be5780519061278e826126a1565b9261279c6040519485612680565b82845260208085019360051b830101918183116101be5760208101935b8385106127c857505050505090565b84516001600160401b0381116101be57820190818403601f19019061028082126101be57604051916127f98361262d565b6020840151835260408401516020840152606084015160408401526080840151606084015260a08401516001600160401b0381116101be57866020612840928701016126d3565b608084015260c0840151906001600160401b03821682036101be5760e09160a085015261286e828601612719565b60c08501526128806101008601612719565b828501526101208501516101008501526101408501516101208501526128a9610160860161272d565b61014085015261015f1901126101be576040516128c581612649565b6128d2610180850161273a565b81526101a084015160208201526101c084015160408201526101e08401516060820152610200840151608082015261022084015160a08201526129186102408501612719565b60c08201526101608301526102608301516001600160401b0381116101be5760209084010191610120838703126101be576040519261295684612664565b8051845260208101516020850152604081015160ff811681036101be5760408501526060810151606085015261298e6080820161273a565b608085015260a081015160a08501526129a960c0820161273a565b60c085015260e08101516001600160401b0381116101be57876129cd9183016126d3565b60e0850152610100810151906001600160401b0382116101be5760209586956129fe8a612a109561028095016126d3565b6101008201526101808501520161272d565b6101a08201528152019401936127b9565b90600182811c92168015612a4f575b6020831014612a3b57565b634e487b7160e01b5f52602260045260245ffd5b91607f1691612a30565b919091601f8311612a6a575b505050565b818311612a7657505050565b5f5260205f206020601f830160051c9210612aaf575b81601f9101920160051c03905f5b82811015612a65575f82820155600101612a9a565b5f9150612a8c565b6001600160a01b03165f9081527f5c6cf2dec0dde3ad0b8c43b754eaaa7f2103acece85ec89a2a20521975da16266020526040902090565b6001600160a01b03165f9081527f5c6cf2dec0dde3ad0b8c43b754eaaa7f2103acece85ec89a2a20521975da16286020526040902090565b6001600160a01b03165f9081527f5c6cf2dec0dde3ad0b8c43b754eaaa7f2103acece85ec89a2a20521975da162a6020526040902090565b6001600160a01b03165f9081527fd7b873e4ef7729fc94d2ec673b82a501adf6aa5027119656d3a99fc63c6dda706020526040902090565b90612ba1826126a1565b612bae6040519182612680565b8281528092612bbf601f19916126a1565b0190602036910137565b919082018092116105a357565b919082039182116105a357565b805482101561144d575f5260205f2001905f90565b805182101561144d5760209160051b010190565b612c199093929193612ab7565b90815490818510801590612cb1575b612c945784612c5292612c3e612c4d9383612bc9565b90808211612c8c575b50612bd6565b612b97565b925f5b8451811015612a655780612c74612c6e60019385612bc9565b85612be3565b90549060031b1c612c858288612bf8565b5201612c55565b90505f612c47565b5050509050604051612ca7602082612680565b5f81525f36813790565b508015612c28565b15612cc057565b60405162461bcd60e51b815260206004820152600e60248201526d62616420706572696f645479706560901b6044820152606490fd5b15612cfd57565b60405162461bcd60e51b815260206004820152600f60248201526e626164206163636f756e744d6f646560881b6044820152606490fd5b5f525f516020614e815f395f51905f5260205260405f20548015612d63575f1981019081116105a35790600190565b505f905f90565b60405190612d7782612649565b5f60c0838281528260208201528260408201528260608201528260808201528260a08201520152565b60405190612dad82612664565b6060610100835f81525f60208201525f60408201525f838201525f60808201525f60a08201525f60c08201528260e08201520152565b60405190612df08261262d565b815f81525f60208201525f60408201525f6060820152606060808201525f60a08201525f60c08201525f60e08201525f6101008201525f6101208201525f6101408201526060610160820152612e44612d6a565b6101808201526101a0612e55612da0565b910152565b60405190612e678261262d565b5f6101a083828152826020820152826040820152826060820152606060808201528260a08201528260c08201528260e0820152826101008201528261012082015282610140820152612eb7612d6a565b610160820152612ec5612da0565b6101808201520152565b9060405191825f825492612ee284612a21565b8084529360018116908115612f4d5750600114612f09575b50612f0792500383612680565b565b90505f9291925260205f20905f915b818310612f31575050906020612f07928201015f612efa565b6020919350806001915483858901015201910190918492612f18565b905060209250612f0794915060ff191682840152151560051b8201015f612efa565b90604051612f7c81612649565b825461ffff16815260018301546020820152600283015460408201526003830154606082015260048301546080820152600583015460a08201526006909201546001600160a01b031660c0830152565b90604051612fd981612664565b610100612e5560088395805485526001810154602086015260ff60028201541660408601526003810154606086015261ffff6004820154166080860152600581015460a086015261ffff60068201541660c086015261303a60078201612ecf565b60e086015201612ecf565b1561304c57565b60405162461bcd60e51b815260206004820152601060248201526f62616420676173436861696e5479706560801b6044820152606490fd5b1561308b57565b60405162461bcd60e51b8152602060048201526017602482015276185b98da1bdc881b9bdd081a1bdd5c8b585b1a59db9959604a1b6044820152606490fd5b5f1981146105a35760010190565b9590979291969394965f986130ef6105ea826137d2565b61310a61ffff841661ffff811490811561332b575b50613045565b5f1986148015613322575b156132ef578161313d92158080156132e3575b61313190613084565b156132de57504261385c565b9790889661314b8299612ab7565b915f9a83549b5b8c811061328857508c8710801590613280575b6132575750506131759085612bc9565b938a851161324f575b61318b612c4d8287612bd6565b965f948593845b8d88106131aa575b5050505050505050509091929350565b8c6131e285858f8b906131bd8e89612be3565b90549060031b1c95865f525f516020614ee15f395f51905f5260205260405f2061413c565b15613245578b868310158061323c575b61321b575b5050613202906130ca565b9688881015613216576001905b0196613192565b61319a565b966132349161322e82613202959a612bf8565b526130ca565b95908b6131f7565b508a83106131f2565b509660019061320f565b8a945061317e565b9a509a9850505050505091505060405191613273602084612680565b5f83525f36813793929190565b508215613165565b6132928186612be3565b90549060031b1c5f525f516020614ee15f395f51905f526020526132bd8a8888858760405f2061413c565b6132ca575b600101613152565b9c6132d66001916130ca565b9d90506132c2565b61385c565b50610e10820615613128565b60405162461bcd60e51b815260206004820152600b60248201526a1898590818da185a5b925960aa1b6044820152606490fd5b50851515613115565b6001915011155f613104565b356001600160a01b03811681036101be5790565b3580151581036101be5790565b903590601e19813603018212156101be57018035906001600160401b0382116101be576020019160e08202360383136101be57565b3561ffff811681036101be5790565b356001600160401b03811681036101be5790565b903590601e19813603018212156101be57018035906001600160401b0382116101be576020019181360383136101be57565b90359061011e19813603018212156101be570190565b3560ff811681036101be5790565b929192613412826126b8565b916134206040519384612680565b8294818452818301116101be578281602093845f960137010152565b600582101561133a5752565b805482101561144d575f52600660205f20910201905f90565b8054600160401b8110156113615761347e91600182018155612be3565b819291549060031b91821b915f19901b1916179055565b604051906134a4602083612680565b5f80835282815b8281106134b757505050565b6020906134c2612e5a565b828285010152016134ab565b906134d8826126a1565b6134e56040519182612680565b82815280926134f6601f19916126a1565b01905f5b82811061350657505050565b602090613511612e5a565b828285010152016134fa565b61352a9093929193612ab7565b90815490818510801590613683575b613676578461355492612c3e61354f9383612bc9565b6134ce565b925f5b8451811015612a655780613570612c6e60019385612bc9565b90549060031b1c5f525f516020614ee15f395f51905f5260205260405f2060ff601a6040519261359f8461262d565b8054845285810154602085015260028101546040850152600381015460608501526135cc60048201612ecf565b608085015260058101546001600160401b03811660a0860152868060a01b039060401c1660c0850152858060a01b0360068201541660e085015260078101546101008501526008810154610120850152826009820154161515610140850152613637600a8201612f6f565b61016085015261364960118201612fcc565b61018085015201541615156101a08201526136648288612bf8565b5261366f8187612bf8565b5001613557565b50505090506121ba613495565b508015613539565b1561369257565b60405162461bcd60e51b815260206004820152600c60248201526b1d1e081b9bdd08199bdd5b9960a21b6044820152606490fd5b7f8c0e6e23b66bcd818f8470f5e8795fd1507dfcdbb6df280fe9d69d7e117947f6546001600160a01b03163314612f0757335f527fe83cd0fbe570872a7bdc14c964678da619d8e628cf1cf0182e4616d372340e4960205260ff60405f2054161561372d57565b60405162461bcd60e51b81526020600482015260096024820152683737ba1030b236b4b760b91b6044820152606490fd5b5f516020614f215f395f51905f525481101561379a575f525f516020614ee15f395f51905f52602052612f0760ff601a60405f2001541661368b565b60405162461bcd60e51b815260206004820152601060248201526f1a5b9d985b1a59081858dd1a5bdb925960821b6044820152606490fd5b60ff168015908115613827575b811561381c575b8115613811575b8115613806575b81156137fe575090565b600591501490565b6004811491506137f4565b6003811491506137ed565b6002811491506137e6565b6001811491506137df565b60ff168015908115613851575b8115613849575090565b600291501490565b60018114915061383f565b919060ff169182156139ca576001831461398b5762015180900460028314613938576138879061481a565b50909260038114613920576004146138c657506138a382614a82565b91600181018091116105a3576138b890614a82565b5f1981019081116105a35790565b5f1981019081116105a357600390046003810290808204600314901517156105a357600181018091116105a35761390a81613904613910938661499e565b94614b70565b9061499e565b5f198101929083116105a3579190565b5061390a81613932613910938661499e565b94614b03565b90915060038101908181116105a3576007613954920690612bd6565b90620151808202918083046201518014901517156105a35762093a808201918281116105a35762093a7f81019283116105a3579190565b620151809192500490620151808202918083046201518014901517156105a357620151808201918281116105a3576201517f81019283116105a3579190565b610e109192500490610e10820291808304610e1014901517156105a357610e108201918281116105a357610e0f81019283116105a3579190565b9190918115613aa75760ff83168015613a8b5760018114613a6d57600214613a505791905f915b818310613a385750505090565b909192613a4782600192614b85565b93019190613a2b565b915062093a80810290810462093a80036105a3576121ba91612bd6565b50915062015180810290810462015180036105a3576121ba91612bd6565b509150610e108102908104610e10036105a3576121ba91612bd6565b91505090565b9060ff16908115613b545760018214613b365760028214613b185762015180613ad6910461481a565b50909160038114613b0a57600414613afd5750600181018091116105a3576138b890614a82565b61390a906138b892614b70565b5061390a906138b892614b03565b62093a80810191508181116105a35762093a7f019081116105a35790565b62015180810191508181116105a3576201517f019081116105a35790565b610e10810191508181116105a357610e0f019081116105a35790565b95929190949394613b815f97612ab7565b8054965f5b888110613d8b5750888510801590613d83575b613d7357613ba79085612bc9565b93888511613d6b575b613bbd61354f8287612bd6565b965f948593845b8b8810613bda575b505050505050505050909150565b8a613be58984612be3565b90549060031b1c805f525f516020614ee15f395f51905f52602052613c105f87878c60408420614206565b15613d60578683101580613d57575b613c48575b5050613c2f906130ca565b9688881015613c43576001905b0196613bc4565b613bcc565b96613d4781613d4d93613c2f959a5f525f516020614ee15f395f51905f5260205260405f2060ff601a60405192613c7e8461262d565b80548452600181015460208501526002810154604085015260038101546060850152613cac60048201612ecf565b608085015260058101546001600160401b03811660a086015260401c6001600160a01b0390811660c086015260068201541660e085015260078101546101008501526008810154610120850152600981015483161515610140850152613d14600a8201612f6f565b610160850152613d2660118201612fcc565b61018085015201541615156101a0820152613d418383612bf8565b52612bf8565b506130ca565b9590508a5f613c24565b508a8310613c1f565b505096600190613c3c565b889450613bb0565b50505050509150506121ba613495565b508015613b99565b613d958184612be3565b90549060031b1c5f525f516020614ee15f395f51905f52602052613dbf5f89878760408420614206565b613dcc575b600101613b86565b98613dd86001916130ca565b999050613dc4565b96939592613dee5f98612ab7565b905f978254985b898110613f2d5750898210801590613f25575b613f1457613e169082612bc9565b94898611613f0c575b613e2c61354f8388612bd6565b975f958694855b8c8910613e4a575b50505050505050505050909150565b8b613e558a84612be3565b90549060031b1c805f525f516020614ee15f395f51905f52602052613e808787878d60405f20614206565b15613f01578783101580613ef8575b613eb8575b5050613e9f906130ca565b9789891015613eb3576001905b0197613e33565b613e3b565b97613d4781613eee93613e9f959b5f525f516020614ee15f395f51905f5260205260405f2060ff601a60405192613c7e8461262d565b9690508b5f613e94565b508b8310613e8f565b505097600190613eac565b899550613e1f565b5050505050509150506121ba613495565b508015613e08565b613f378185612be3565b90549060031b1c5f525f516020614ee15f395f51905f52602052613f61878a888860405f20614206565b613f6e575b600101613df5565b99613f7a6001916130ca565b9a9050613f66565b601161404591939293614027613f96612de3565b9582548752600183015460208801526002830154604088015260038301546060880152613fc560048401612ecf565b608088015260058301546001600160401b03811660a089015260401c6001600160a01b0390811660c089015260068401541660e088015260078301546101008801526008830154610120880152600983015460ff16151561014088015261404d565b610160860152614039600a8201612f6f565b61018086015201612fcc565b6101a0830152565b908154614059816126a1565b6140666040519182612680565b818152601f19614075836126a1565b015f5b81811061412557505080935f5b8381106140925750505050565b8061409f60019284613448565b506005604051916140af83612649565b848060a01b0381541683528481015460208401526140eb60ff60028301548181166140d981612402565b604087015260081c166060850161343c565b6003810154608084015260ff60048201541660a0840152015460c08201526141138286612bf8565b5261411e8185612bf8565b5001614085565b602090614130612d6a565b82828601015201614078565b9493929160ff601a87015416156141fc576001600160401b036005870154169182109182156141f2575b50506141ea5780151590816141db575b506141d45761ffff1661ffff81141590816141c1575b506141bb575f1981141591826141ac575b50506141a857600190565b5f90565b60020154141590505f8061419d565b50505f90565b905061ffff600a8401541614155f61418c565b5050505f90565b9050600384015414155f614176565b505050505f90565b1190505f80614166565b5050505050505f90565b93929160ff601a86015416156142a0576001600160401b03600586015416918210918215614296575b50506141d4578015159081614287575b506141bb5760ff166001811480614279575b6141bb576002149081614269575b506141a857600190565b60ff91506009015416155f61425f565b5060ff600983015416614251565b9050600383015414155f61423f565b1190505f8061422f565b50505050505f90565b949394929192851580156144c8575b6144c05760018060a01b03811693845f525f516020614f015f395f51905f5260205260405f20835f5260205260405f2060018060a01b0382165f5260205260405f2054968781115f146144ba5750865b87156144b0578061431a898993612bd6565b90875f525f516020614f015f395f51905f5260205260405f20865f5260205260405f2060018060a01b0385165f526020528160405f20551515806144a8575b614457575b6143779285855f516020614f215f395f51905f52614c73565b835f525f516020614f015f395f51905f5260205260405f20825f5260205260405f2060018060a01b0384165f5260205260405f205495861561440a575b6143c190612f0797612bc9565b935f525f516020614f015f395f51905f5260205260405f20825f5260205260405f2060018060a01b0384165f526020528360405f20555f516020614f215f395f51905f52614c73565b845f527f5c6cf2dec0dde3ad0b8c43b754eaaa7f2103acece85ec89a2a20521975da162c60205260405f20835f5260205260405f2090815497600189018099116105a357979091556143b4565b9050855f527f5c6cf2dec0dde3ad0b8c43b754eaaa7f2103acece85ec89a2a20521975da162c60205260405f20845f5260205260405f20908154925f1984019384116105a35792909155869061435e565b508015614359565b5050505050505050565b96614308565b505050505050565b506001600160a01b03848116908416146142b8565b9693956144ea5f98612ab7565b905f978254985b8981106146c057508986108015906146b8575b614675576145129086612bc9565b9489861161466d575b6145258187612bd6565b9161452f836126a1565b9261453d6040519485612680565b80845261454c601f19916126a1565b015f5b81811061465657505082985f965f955f985b8d8a10614579575b5050505050505050505050909150565b6145838a83612be3565b90549060031b1c805f525f516020614ee15f395f51905f526020526145ae8686868d60405f20614206565b1561464c578682101580614643575b6145e5575b506145cc906130ca565b988a8a10156145e0576001905b0198614561565b614569565b6145cc91986146278261463c935f525f516020614ee15f395f51905f5260205260405f20905f525f516020614ea15f395f51905f5260205260405f2090613f82565b614631828b612bf8565b52613d47818a612bf8565b97906145c2565b508b82106145bd565b50986001906145d9565b602090614661612de3565b8282880101520161454f565b89955061451b565b509496505050505050506040519161468e602084612680565b5f83525f805b8181106146a15750509190565b6020906146ac612de3565b82828801015201614694565b508015614504565b6146ca8185612be3565b90549060031b1c5f525f516020614ee15f395f51905f526020526146f4838a888860405f20614206565b614701575b6001016144f1565b9961470d6001916130ca565b9a90506146f9565b906112c08201915f6112c0841291129080158216911516176105a357565b906113248201915f611324841291129080158216911516176105a357565b9190915f83820193841291129080158216911516176105a357565b90816105b502916105b58305036105a357565b90600c820291808305600c14901517156105a357565b908161016f029161016f8305036105a357565b90816003029160038305036105a357565b90600d1982019182136001166105a357565b6001198101919082136001166105a357565b9062253d8b1982019182136001166105a357565b905f1982019182136001166105a357565b81810392915f1380158285131691841216176105a357565b9062010bd982019162010bd983125f82129080158216911516176105a3576226496501915f62253d8c841291129080158216911516176105a3578160021b6004810583036105a35762023ab19005918262023ab1029062023ab1820584036105a35760038201915f6003841291129080158216911516176105a35760046148a2920590614802565b9060018201600181125f84129080158216911516176105a35780610fa00290610fa08205036105a35762164b096148e791059260046148e08561476c565b0590614802565b91601f8301925f601f851291129080158216911516176105a357826050026050810584036105a35761098f9005928361098f029061098f820585036105a3576050614933920590614802565b92600b81059060028101905f6002831291129080158216911516176105a35781600c02600c810583036105a35761496991614802565b9460301981019081136001166105a357806064029060648205036105a3576149999261499491614751565b614751565b929190565b6107b28110614a5157617d49199060046148e06064614a2c614a3796600c6149e6614a26614a206149f2614a329b8a6149e66149ed6149dc8f614715565b896149e68c6147b9565b0590614751565b61476c565b846149e6614a1b614a02896147cb565b614a1584614a0f8c6147b9565b0561477f565b90614802565b614795565b98614733565b926147b9565b056147a8565b6147dd565b620151808102908082046201518014901517156105a35790565b60405162461bcd60e51b81526020600482015260096024820152680796561723c313937360bc1b6044820152606490fd5b6107b28110614a5157617d4919614a9882614715565b91600c1991614ab49060046149e66149ed600c87058098614751565b5f1990600184136001166105a357614add614ae391600c6149e6614a1b600196614a158b61477f565b92614733565b92136001166105a35760046148e06064614a2c614a3796614a3296614751565b614994614b18614b1d9361499460019461477f565b6147f1565b905f8212614b3a57600c8083059207600181018091116105a35790565b60405162461bcd60e51b815260206004820152600e60248201526d6461746520756e646572666c6f7760901b6044820152606490fd5b614994614b18614b1d9361499460039461477f565b9060ff16908115614c495760018214614c375760028214614c255762015180614bae910461481a565b50909160038114614c0e57600414614bd557505f1981019081116105a3576121ba90614a82565b90614994614b18614bec936149946002199461477f565b5f8112614b3a57600c8082059107600181018091116105a3576121ba9161499e565b5090614994614b18614bec936149945f199461477f565b62093a7f198101915081116105a35790565b6201517f198101915081116105a35790565b610e0f198101915081116105a35790565b805482101561144d575f5260205f209060011b01905f90565b6001600160a01b038281165f908152600c830160208181526040808420888552825280842094891684529390529190205495969560ff1615614db9575b50600d9160018060a01b03165f520160205260405f20905f5260205260405f209060018060a01b03165f5260205260405f20805480151580614d88575b614d6b57506040519160408301908382106001600160401b03831117611361576001600160401b0391604052168252602082019283528054600160401b81101561136157614d4091600182018155614c5a565b92909261134e576001600160401b03806001935116166001600160401b031984541617835551910155565b5f198101925082116105a357600191614d8391614c5a565b500155565b505f1981018181116105a357614da66001600160401b039184614c5a565b5054166001600160401b03841614614ced565b6001600160a01b038381165f8181526020938452604080822088835285528082209389168252928452828120805460ff19166001179055908152600b84018352818120868252909252902080549290600160401b8410156113615783614e26916001600d96018155612be3565b81546001600160a01b0388811660039390931b92831b921b191617905591614cb0565b60039060048101805460ff811615614e70575b505001805460018101919082106105a35755565b60ff191660011790555f80614e5c56fe5c6cf2dec0dde3ad0b8c43b754eaaa7f2103acece85ec89a2a20521975da16245c6cf2dec0dde3ad0b8c43b754eaaa7f2103acece85ec89a2a20521975da16255c6cf2dec0dde3ad0b8c43b754eaaa7f2103acece85ec89a2a20521975da16315c6cf2dec0dde3ad0b8c43b754eaaa7f2103acece85ec89a2a20521975da16235c6cf2dec0dde3ad0b8c43b754eaaa7f2103acece85ec89a2a20521975da162b5c6cf2dec0dde3ad0b8c43b754eaaa7f2103acece85ec89a2a20521975da1622a2646970667358221220cabe9b336eec2845b76f3b3fd5e46805bcaf762b319941a1cb29dade354550b764736f6c63430008210033";
 
   
       type ActionFacetConstructorParams = [signer?: Signer] | ConstructorParameters<typeof ContractFactory>;

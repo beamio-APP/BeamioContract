@@ -2,4 +2,4 @@
 /* tslint:disable */
 /* eslint-disable */
 export type { AddressPGP } from './AddressPGP.js';
-export type { AddressPGP2 } from './AddressPGP2.js';
+export type { AddressPGP3 } from './AddressPGP3.js';

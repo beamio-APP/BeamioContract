@@ -2,4 +2,4 @@
 /* tslint:disable */
 /* eslint-disable */
 export { AdminFacet__factory } from './AdminFacet__factory.js';
-export { AdminFacet2__factory } from './AdminFacet2__factory.js';
+export { AdminFacet3__factory } from './AdminFacet3__factory.js';

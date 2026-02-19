@@ -2,4 +2,4 @@
 /* tslint:disable */
 /* eslint-disable */
 export { AccountRegistry__factory } from './AccountRegistry__factory.js';
-export { AccountRegistry2__factory } from './AccountRegistry2__factory.js';
+export { AccountRegistry3__factory } from './AccountRegistry3__factory.js';

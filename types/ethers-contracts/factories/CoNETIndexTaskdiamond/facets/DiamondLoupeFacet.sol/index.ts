@@ -2,4 +2,4 @@
 /* tslint:disable */
 /* eslint-disable */
 export { DiamondLoupeFacet__factory } from './DiamondLoupeFacet__factory.js';
-export { DiamondLoupeFacet2__factory } from './DiamondLoupeFacet2__factory.js';
+export { DiamondLoupeFacet3__factory } from './DiamondLoupeFacet3__factory.js';

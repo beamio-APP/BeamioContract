@@ -2,4 +2,4 @@
 /* tslint:disable */
 /* eslint-disable */
 export type { LibDiamond } from './LibDiamond.js';
-export type { LibDiamond2 } from './LibDiamond2.js';
+export type { LibDiamond3 } from './LibDiamond3.js';

@@ -2,4 +2,4 @@
 /* tslint:disable */
 /* eslint-disable */
 export type { TaskFacet } from './TaskFacet.js';
-export type { TaskFacet2 } from './TaskFacet2.js';
+export type { TaskFacet3 } from './TaskFacet3.js';
