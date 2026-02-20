@@ -7,12 +7,10 @@ import type * as beamioQuoteHelperV07Sol from './BeamioQuoteHelperV07.sol/index.
 export type { beamioQuoteHelperV07Sol };
 import type * as beamioUserCardSol from './BeamioUserCard.sol/index.js';
 export type { beamioUserCardSol };
-import type * as beamioUserCardDeployerV07Sol from './BeamioUserCardDeployerV07.sol/index.js';
-export type { beamioUserCardDeployerV07Sol };
 import type * as beamioUserCardFactoryPaymasterV07Sol from './BeamioUserCardFactoryPaymasterV07.sol/index.js';
 export type { beamioUserCardFactoryPaymasterV07Sol };
-import type * as beamioUserCardPlaceholderSol from './BeamioUserCardPlaceholder.sol/index.js';
-export type { beamioUserCardPlaceholderSol };
 import type * as redeemModuleSol from './RedeemModule.sol/index.js';
 export type { redeemModuleSol };
 export type { BeamioOracle } from './BeamioOracle.js';
+export type { BeamioUserCardDeployerV07 } from './BeamioUserCardDeployerV07.js';
+export type { BeamioUserCardPlaceholder } from './BeamioUserCardPlaceholder.js';

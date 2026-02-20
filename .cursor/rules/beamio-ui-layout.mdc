@@ -1,0 +1,26 @@
+---
+description: Beamio 项目 UI 主设置 protocol：页首内容与顶部间距
+globs: src/SilentPassUI/**/*.{tsx,ts,jsx,js}
+alwaysApply: false
+---
+
+# Beamio UI 布局 Protocol
+
+## 页首内容与顶部间距
+
+Beamio 各页面的**首个显示控件与顶部**的间距必须统一，使用以下 protocol：
+
+```html
+<!-- 顶部留白：刘海 + 5rem，统一各页首内容距顶距离 -->
+<div className="shrink-0" style={{ minHeight: 'calc(env(safe-area-inset-top) + 5rem)' }} />
+```
+
+该 spacer 应放在滚动容器的**第一个子元素**，确保首屏内容（如 /home 的 Total Valuation、/chat 的 ChatList、All Activity 的胶囊等）与顶部的距离一致。
+
+### 使用示例
+
+- `/home`：在 flex-1 overflow-y-auto 内，spacer 后接 Total Valuation 等
+- `/chat`：在 flex-1 overflow-y-auto 内，spacer 后接 ChatList
+- `MyWalletDashboardNew`：同上
+- `Market`：同上
+- **All Activity 全屏页**：在 px-4 的滚动 div 内，spacer 后接 ActiveHistoryPannelNew（胶囊为首个控件）

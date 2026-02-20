@@ -15,13 +15,13 @@ Beamio 的 API 服务器**必须**遵守 cluster/master 协议。
 
 ## 写操作
 
-所有**写操作**（DB 写入、链上交易、队列处理）必须：
+所有**写区块链的 process**必须：
 
 1. Cluster 做**预检**（格式、必填项、基本校验）
 2. 预检通过后通过 `postLocalhost('/api/xxx', body, res)` **转发到 Master**
-3. Master 实现实际逻辑（链校验、DB 写入、队列等）
+3. Master 实现实际逻辑，使用 **admin array** 进行**并行**区块链写入（Settle_ContractPool 等）
 
-示例：createCard、purchasingCard、registerSeries、registerMintMetadata、executeForOwner、AAtoEOA 等。
+示例：createCard、purchasingCard、registerSeries、registerMintMetadata、executeForOwner、AAtoEOA、beamioTransferIndexerAccounting 等。
 
 ## 读操作
 

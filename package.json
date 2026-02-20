@@ -45,7 +45,8 @@
     "update:card-and-aa-admins:base": "hardhat run scripts/updateCardFactoryAndRegisterAAAdmins.ts --network base",
     "add:settle-wallets-to-factories": "hardhat run scripts/addSettleWalletsToFactories.ts --network base",
     "deploy:indexer-diamond:conet": "hardhat run scripts/deployCoNETIndexerDiamond.ts --network conet",
-    "add:indexer-diamond-admins:conet": "hardhat run scripts/addSettleAdminsToBeamioIndexerDiamond.ts --network conet"
+    "add:indexer-diamond-admins:conet": "hardhat run scripts/addSettleAdminsToBeamioIndexerDiamond.ts --network conet",
+    "verify:indexer-diamond:conet": "hardhat run scripts/verifyCoNETIndexerDiamond.ts --network conet"
   },
   "dependencies": {
     "colors": "^1.4.0",
@@ -54,6 +55,7 @@
     "@settle402/sdk": "github:settleonbase/x402sdk#main"
   },
   "devDependencies": {
+    "@nomicfoundation/hardhat-verify": "^3.0.0",
     "@types/express": "^4.17.21",
     "@types/node": "^22.10.1",
     "@nomicfoundation/hardhat-toolbox-mocha-ethers": "^3.0.2",

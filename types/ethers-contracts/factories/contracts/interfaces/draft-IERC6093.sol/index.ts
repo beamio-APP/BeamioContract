@@ -2,8 +2,5 @@
 /* tslint:disable */
 /* eslint-disable */
 export { IERC1155Errors__factory } from './IERC1155Errors__factory.js';
-export { IERC1155Errors3__factory } from './IERC1155Errors3__factory.js';
 export { IERC20Errors__factory } from './IERC20Errors__factory.js';
-export { IERC20Errors3__factory } from './IERC20Errors3__factory.js';
 export { IERC721Errors__factory } from './IERC721Errors__factory.js';
-export { IERC721Errors3__factory } from './IERC721Errors3__factory.js';

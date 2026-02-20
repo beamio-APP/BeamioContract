@@ -69,25 +69,25 @@ struct RouteItem {
 enum GasChainType { ETH, SOLANA }
 
 struct FeeInfo {
-  uint16 gasChainType;                 // GasChainType 枚举值
+  uint16 gasChainType;                 // GasChainType 枚举值 0=ETH, 1=SOLANA
   uint256 gasWei;                      // 实际转账执行链的 gas（非 CoNET 链 gas）
   uint256 gasUSDC6;                    // gas 折算为 USDC 的 6 位精度值
-  uint256 serviceUSDC6;
+  uint256 serviceUSDC6;               // 平台服务费 USDC 6 位精度
   uint256 bServiceUSDC6;               // B 服务费折算 USDC 6 位精度
   uint256 bServiceUnits6;              // B 服务费单位数（6 位精度）
   address feePayer;                    // 费用承担方地址
 }
 
 struct TransactionMeta {
-  uint256 requestAmountFiat6;
-  uint256 requestAmountUSDC6;
-  uint8 currencyFiat;                // BeamioCurrency.CurrencyType
-  uint256 discountAmountFiat6;
-  uint16 discountRateBps;            // 例如 1500=15%
-  uint256 taxAmountFiat6;
-  uint16 taxRateBps;                 // 例如 500=5%
-  string afterNotePayer;             // 交易完成后支付方附加备注（JSON string）
-  string afterNotePayee;             // 交易完成后收款方附加备注（JSON string）
+  uint256 requestAmountFiat6;          // 原始请求金额（法币 E6，税前、折扣前）
+  uint256 requestAmountUSDC6;          // 原始请求金额 USDC 6 位精度
+  uint8 currencyFiat;                  // BeamioCurrency.CurrencyType
+  uint256 discountAmountFiat6;         // 折扣金额（法币 E6）
+  uint16 discountRateBps;              // 折扣率 bps，例如 1500=15%
+  uint256 taxAmountFiat6;              // 税金金额（法币 E6）
+  uint16 taxRateBps;                   // 税率 bps，例如 500=5%
+  string afterNotePayer;               // 交易完成后支付方附加备注（JSON string）
+  string afterNotePayee;               // 交易完成后收款方附加备注（JSON string）
 }
 
 struct Transaction {
@@ -114,6 +114,34 @@ struct Transaction {
   TransactionMeta meta;
 }
 ```
+
+#### ABI 返回为 tuple/array 时的 positional 索引（供 TypeScript/API 组装用）
+
+合约返回 `fees`、`meta` 时可能编码为无名 tuple，按字段声明顺序对应下标：
+
+**FeeInfo**（下标 0～6）：
+| 下标 | 变量名         | 类型    |
+|-----|----------------|---------|
+| 0   | gasChainType   | uint16  |
+| 1   | gasWei         | uint256 |
+| 2   | gasUSDC6       | uint256 |
+| 3   | serviceUSDC6   | uint256 |
+| 4   | bServiceUSDC6  | uint256 |
+| 5   | bServiceUnits6 | uint256 |
+| 6   | feePayer       | address |
+
+**TransactionMeta**（下标 0～8）：
+| 下标 | 变量名              | 类型    |
+|-----|---------------------|---------|
+| 0   | requestAmountFiat6  | uint256 |
+| 1   | requestAmountUSDC6  | uint256 |
+| 2   | currencyFiat        | uint8   |
+| 3   | discountAmountFiat6 | uint256 |
+| 4   | discountRateBps     | uint16  |
+| 5   | taxAmountFiat6      | uint256 |
+| 6   | taxRateBps          | uint16  |
+| 7   | afterNotePayer      | string  |
+| 8   | afterNotePayee      | string  |
 
 说明：前端可将 `enum/bytes32` 通过索引层映射为可读字符串。
 

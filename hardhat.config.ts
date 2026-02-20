@@ -59,10 +59,46 @@ export default defineConfig({
       chainId: 224400
     }
   },
-  etherscan: {
-    apiKey: {
-      base: process.env.BASESCAN_API_KEY || "",
-      baseSepolia: process.env.BASESCAN_API_KEY || ""
-    }
-  }
+  verify: {
+    etherscan: {
+      apiKey: process.env.BASESCAN_API_KEY || process.env.ETHERSCAN_API_KEY || "dummy",
+    },
+  },
+  chainDescriptors: {
+    8453: {
+      name: "Base",
+      blockExplorers: {
+        etherscan: {
+          name: "Basescan",
+          url: "https://basescan.org",
+          apiUrl: "https://api.basescan.org/api",
+        },
+      },
+    },
+    84532: {
+      name: "Base Sepolia",
+      blockExplorers: {
+        etherscan: {
+          name: "Basescan",
+          url: "https://sepolia.basescan.org",
+          apiUrl: "https://api-sepolia.basescan.org/api",
+        },
+      },
+    },
+    224400: {
+      name: "CoNET",
+      blockExplorers: {
+        etherscan: {
+          name: "CoNET Explorer",
+          url: "https://mainnet.conet.network",
+          apiUrl: "https://mainnet.conet.network/api",
+        },
+        blockscout: {
+          name: "CoNET Explorer",
+          url: "https://mainnet.conet.network",
+          apiUrl: "https://mainnet.conet.network/api",
+        },
+      },
+    },
+  },
 })

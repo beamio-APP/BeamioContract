@@ -2,8 +2,5 @@
 /* tslint:disable */
 /* eslint-disable */
 export type { IERC1155Errors } from './IERC1155Errors.js';
-export type { IERC1155Errors3 } from './IERC1155Errors3.js';
 export type { IERC20Errors } from './IERC20Errors.js';
-export type { IERC20Errors3 } from './IERC20Errors3.js';
 export type { IERC721Errors } from './IERC721Errors.js';
-export type { IERC721Errors3 } from './IERC721Errors3.js';
