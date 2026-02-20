@@ -1190,22 +1190,14 @@ export const purchasingCardProcess = async () => {
 		logger(Colors.green(`✅ purchasingCardProcess note: ${payMe}`));
 
 		await tx.wait()
-		// 购点成功即返回客户端，transferRecord / syncTokenAction 失败不影响
+		// 购点成功即返回客户端，syncTokenAction 失败不影响
 		if (obj.res && !obj.res.headersSent) obj.res.status(200).json({ success: true, USDC_tx: tx.hash }).end()
 
 		try {
-			const tr = await SC.conetSC.transferRecord(
-				obj.from,
-				to,
-				usdcAmount,
-				tx.hash,
-				`\r\n${JSON.stringify(payMe)}`
-			)
-			await tr.wait()
 			const actionFacet = await SC.BeamioTaskDiamondAction
 			const tx2 = await actionFacet.syncTokenAction(input)
 			await tx2.wait()
-			logger(Colors.green(`✅ purchasingCardProcess success! Hash: ${tx.hash}`), `✅ conetSC Hash: ${tr.hash}`, `✅ syncTokenAction Hash: ${tx2.hash}`)
+			logger(Colors.green(`✅ purchasingCardProcess success! Hash: ${tx.hash}`), `✅ syncTokenAction Hash: ${tx2.hash}`)
 		} catch (accountingErr: any) {
 			// Diamond: fn not found 等：syncTokenAction 未在 Diamond 上配置时，购点已成功，仅记账失败
 			logger(Colors.yellow(`[purchasingCardProcess] accounting non-critical (purchase succeeded): ${accountingErr?.shortMessage ?? accountingErr?.message ?? String(accountingErr)}`))

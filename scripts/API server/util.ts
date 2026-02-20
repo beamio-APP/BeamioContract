@@ -337,19 +337,8 @@ const processUSDC_Faucet = async () => {
 
 		logger(`processUSDC_Faucet processUSDC_Faucet success! ${responseData?.transaction}`)
 
-		const tx = await SC.conetSC.transferRecord(
-			SC.wallet.address,
-			obj.wallet,
-			usdcFaucetAmount,
-			responseData?.transaction,
-			'Thank you for joining Beamio Alpha Test!'
-		)
-
-		
-		await Promise.all([
-			tx.wait(), tr.wait()
-		])
-		logger(`processUSDC_Faucet record to CoNET success ${tx.hash} ${tr.hash}`)
+		await tr.wait()
+		logger(`processUSDC_Faucet airdrop success ${tr.hash}`)
 		
 	} catch (ex: any) {
 		if (/500 Internal Server/i.test( ex.message)) {
@@ -719,9 +708,8 @@ export const BeamioTransfer = async (req: Request, res: Response) => {
 			const record = {
 				from, to, amount, finishedHash: responseData?.transaction, note: note||''
 			}
-			transferRecord.push(record)
 			logger(inspect(record, false, 3, true))
-			transferRecordProcess()
+			// 记账已迁移至 BeamioIndexerDiamond（syncTokenAction），需通过 Master /api/beamioTransferIndexerAccounting 提交
 		}
 		
 		return 
@@ -731,44 +719,6 @@ export const BeamioTransfer = async (req: Request, res: Response) => {
 		res.status(500).end()
 	}
 	
-}
-
-const transferRecord: {
-	from: string
-	to: string
-	amount: string
-	finishedHash: string
-	note: string
-}[] = []
-
-const transferRecordProcess = async () => {
-	const obj = transferRecord.shift()
-	if (!obj) {
-		return
-	}
-	const SC = Settle_ContractPool.shift()
-	if (!SC) {
-		transferRecord.unshift()
-		return setTimeout(() => {
-			transferRecordProcess()
-		}, 2000)
-	}
-
-	try {
-		const tx = await SC.conetSC.transferRecord(
-			obj.from,
-			obj.to,
-			obj.amount,
-			obj.finishedHash,
-			obj.note
-		)
-		await tx.wait()
-	} catch (ex: any) {
-		logger(`transferRecordProcess Error!`, ex.message, inspect(obj, false, 3, true))
-	}
-
-	Settle_ContractPool.push(SC)
-	setTimeout(() => {transferRecordProcess()}, 1000)
 }
 
 const generateCODE = (passcode: string) => {
