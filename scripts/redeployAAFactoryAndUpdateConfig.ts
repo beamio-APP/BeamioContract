@@ -44,7 +44,7 @@ function getCardFactoryForConfig(): string {
     const m = content.match(/CARD_FACTORY:\s*['"](0x[a-fA-F0-9]{40})['"]/);
     if (m) return m[1];
   }
-  return "0xDdD5c17E549a4e66ca636a3c528ae8FAebb8692b";
+  return "0x331a8ebc41afbAf01D78Fd2684D609407527DA18";
 }
 
 async function main() {

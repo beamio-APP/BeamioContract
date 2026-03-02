@@ -33,6 +33,8 @@ interface IBeamioDeployerV07 {
  *  - aaFactory: injected & upgradable by owner
  */
 contract BeamioUserCardFactoryPaymasterV07 is IBeamioFactoryOracle {
+    bytes4 private constant MINT_POINTS_BY_ADMIN_SELECTOR = bytes4(keccak256("mintPointsByAdmin(address,uint256)"));
+
     // ===== immutable chain config =====
     address public immutable USDC_TOKEN;
 
@@ -249,12 +251,12 @@ contract BeamioUserCardFactoryPaymasterV07 is IBeamioFactoryOracle {
     // Deploy with initCode (creationCode + abi.encode(args))
     // 失败时 emit DeployFailedStep(step) 并 revert BM_DeployFailedAtStep(step)，便于定位。
     // ==========================================================
-    function createCardCollectionWithInitCode(
+    function _deployAndRegisterCard(
         address cardOwner,
         uint8 currency,
         uint256 priceInCurrencyE6,
         bytes calldata initCode
-    ) external onlyPaymaster returns (address card) {
+    ) internal returns (address card) {
         if (cardOwner == address(0)) revert BM_ZeroAddress();
         if (initCode.length == 0) revert BM_DeployFailed();
 
@@ -287,6 +289,33 @@ contract BeamioUserCardFactoryPaymasterV07 is IBeamioFactoryOracle {
         beamioUserCardOwner[card] = cardOwner;
 
         emit CardDeployed(cardOwner, card, currency, priceInCurrencyE6);
+    }
+
+    function createCardCollectionWithInitCode(
+        address cardOwner,
+        uint8 currency,
+        uint256 priceInCurrencyE6,
+        bytes calldata initCode
+    ) external onlyPaymaster returns (address card) {
+        return _deployAndRegisterCard(cardOwner, currency, priceInCurrencyE6, initCode);
+    }
+
+    /// @notice 创建卡并一次性配置 tiers（与 createCardCollectionWithInitCode 相同，部署后追加 tiers）
+    /// @param tiers BeamioUserCard.Tier 数组，可为空
+    function createCardCollectionWithInitCodeAndTiers(
+        address cardOwner,
+        uint8 currency,
+        uint256 priceInCurrencyE6,
+        bytes calldata initCode,
+        BeamioUserCard.Tier[] calldata tiers
+    ) external onlyPaymaster returns (address card) {
+        card = _deployAndRegisterCard(cardOwner, currency, priceInCurrencyE6, initCode);
+        BeamioUserCard c = BeamioUserCard(card);
+        for (uint256 i = 0; i < tiers.length; i++) {
+            BeamioUserCard.Tier memory t = tiers[i];
+            if (t.minUsdc6 == 0) revert UC_TierMinZero();
+            c.appendTier(t.minUsdc6, t.attr, t.tierExpirySeconds, t.upgradeByBalance);
+        }
     }
 
     function isBeamioUserCard(address card) external view returns (bool) {
@@ -348,6 +377,43 @@ contract BeamioUserCardFactoryPaymasterV07 is IBeamioFactoryOracle {
 
         BeamioUserCard(cardAddr).redeemPoolByGateway(code, userEOA);
         emit RedeemExecuted(cardAddr, userEOA, keccak256(bytes(code)));
+    }
+
+    /// @notice Gateway 为卡追加 tier（createCard 后由 paymaster 调用，用于配置 tiers）
+    /// @dev 卡合约 appendTier 需 owner 或 gateway；Factory 为 gateway，故可代调
+    function appendTierForCard(
+        address cardAddr,
+        uint256 minUsdc6,
+        uint256 attr,
+        uint256 tierExpirySeconds,
+        bool upgradeByBalance
+    ) external onlyPaymaster {
+        if (cardAddr == address(0) || cardAddr.code.length == 0) revert BM_ZeroAddress();
+        if (BeamioUserCard(cardAddr).factoryGateway() != address(this)) revert BM_NotAuthorized();
+        BeamioUserCard(cardAddr).appendTier(minUsdc6, attr, tierExpirySeconds, upgradeByBalance);
+    }
+
+    /// @notice Owner 离线签名授权 appendTier，由 paymaster 代付 gas 执行。复用 executeForOwner 的 EIP-712 验签。
+    /// @param deadline 签名过期时间戳
+    /// @param nonce 防重放，需唯一
+    function appendTierForCardWithOwnerSignature(
+        address cardAddr,
+        uint256 minUsdc6,
+        uint256 attr,
+        uint256 tierExpirySeconds,
+        bool upgradeByBalance,
+        uint256 deadline,
+        bytes32 nonce,
+        bytes calldata ownerSignature
+    ) external onlyPaymaster {
+        bytes memory data = abi.encodeWithSelector(
+            BeamioUserCard.appendTier.selector,
+            minUsdc6,
+            attr,
+            tierExpirySeconds,
+            upgradeByBalance
+        );
+        _executeForOwner(cardAddr, data, deadline, nonce, ownerSignature);
     }
 
     // ==========================================================
@@ -480,15 +546,14 @@ contract BeamioUserCardFactoryPaymasterV07 is IBeamioFactoryOracle {
 
     bytes32 public immutable DOMAIN_SEPARATOR;
 
-    /// @notice 通用：Owner 离线签名授权对 card 的任意调用，由 paymaster 代付 gas 执行。支持 createRedeem、cancelRedeem 等。
-    /// @param data abi.encodeWithSelector(selector, ...args)，如 createRedeem(hash, points6, ...)
-    function executeForOwner(
+    /// @dev 内部：验签并执行 owner 签名的 calldata
+    function _executeForOwner(
         address cardAddr,
-        bytes calldata data,
+        bytes memory data,
         uint256 deadline,
         bytes32 nonce,
         bytes calldata ownerSignature
-    ) external onlyPaymaster {
+    ) internal {
         if (cardAddr == address(0) || cardAddr.code.length == 0) revert BM_ZeroAddress();
         if (data.length == 0) revert F_InvalidRedeemHash();
         if (block.timestamp > deadline) revert UC_InvalidTimeWindow(block.timestamp, 0, deadline);
@@ -520,8 +585,20 @@ contract BeamioUserCardFactoryPaymasterV07 is IBeamioFactoryOracle {
         }
     }
 
+    /// @notice 通用：Owner 离线签名授权对 card 的任意调用，由 paymaster 代付 gas 执行。支持 createRedeem、cancelRedeem 等。
+    /// @param data abi.encodeWithSelector(selector, ...args)，如 createRedeem(hash, points6, ...)
+    function executeForOwner(
+        address cardAddr,
+        bytes calldata data,
+        uint256 deadline,
+        bytes32 nonce,
+        bytes calldata ownerSignature
+    ) external onlyPaymaster {
+        _executeForOwner(cardAddr, bytes(data), deadline, nonce, ownerSignature);
+    }
+
     /// @notice 通用：Card Admin 离线签名授权对 card 的调用（如 mint），由 paymaster 代付 gas 执行。
-    /// @param data abi.encodeWithSelector(selector, ...args)，如 mintPointsByAdmin(target, points6)、mintMemberCardByAdmin(target, tierIndex)
+    /// @param data abi.encodeWithSelector(selector, ...args)，仅允许 mintPointsByAdmin(target, points6)（topup）
     /// @dev 验签在 Factory 内完成；恢复的 signer 必须为 card.isAdmin(signer)
     function executeForAdmin(
         address cardAddr,
@@ -531,9 +608,11 @@ contract BeamioUserCardFactoryPaymasterV07 is IBeamioFactoryOracle {
         bytes calldata adminSignature
     ) external onlyPaymaster {
         if (cardAddr == address(0) || cardAddr.code.length == 0) revert BM_ZeroAddress();
-        if (data.length == 0) revert F_InvalidRedeemHash();
+        if (data.length < 4) revert F_InvalidRedeemHash();
         if (block.timestamp > deadline) revert UC_InvalidTimeWindow(block.timestamp, 0, deadline);
         if (BeamioUserCard(cardAddr).factoryGateway() != address(this)) revert BM_NotAuthorized();
+        bytes4 selector = bytes4(data[:4]);
+        if (selector != MINT_POINTS_BY_ADMIN_SELECTOR) revert UC_InvalidProposal();
 
         bytes32 structHash = keccak256(abi.encode(
             EXECUTE_FOR_ADMIN_TYPEHASH,

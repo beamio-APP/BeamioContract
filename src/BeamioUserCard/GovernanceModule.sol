@@ -11,7 +11,7 @@ interface IUserCardCtx {
 
 /**
  * @title BeamioUserCardGovernanceModuleV1
- * @notice Delegatecall module for multisig governance. Card executes (addAdmin/mintPoints/mintMemberCard) after executeProposal returns.
+ * @notice Delegatecall module for multisig governance. Card executes (addAdmin/removeAdmin/mintPoints/mintMemberCard) after executeProposal returns.
  */
 contract BeamioUserCardGovernanceModuleV1 {
     event ProposalCreated(uint256 indexed id, bytes4 indexed selector, address indexed proposer);
@@ -39,11 +39,40 @@ contract BeamioUserCardGovernanceModuleV1 {
         l.threshold = newThreshold;
     }
 
+    function _removeAdmin(address adminToRemove, uint256 newThreshold) internal {
+        if (adminToRemove == address(0)) revert BM_ZeroAddress();
+        GovernanceStorage.Layout storage l = GovernanceStorage.layout();
+        if (!l.isAdmin[adminToRemove]) revert UC_InvalidProposal();
+        if (l.adminList.length <= 1) revert UC_InvalidProposal();
+
+        l.isAdmin[adminToRemove] = false;
+        bool found = false;
+        uint256 n = l.adminList.length;
+        for (uint256 i = 0; i < n; i++) {
+            if (l.adminList[i] == adminToRemove) {
+                l.adminList[i] = l.adminList[n - 1];
+                l.adminList.pop();
+                found = true;
+                break;
+            }
+        }
+        if (!found) revert UC_InvalidProposal();
+        if (newThreshold == 0 || newThreshold > l.adminList.length) revert UC_InvalidProposal();
+        l.threshold = newThreshold;
+    }
+
     function addAdmin(address newAdmin, uint256 newThreshold) external {
         address cardOwner = IUserCardCtx(address(this)).owner();
         address gw = IUserCardCtx(address(this)).factoryGateway();
         if (msg.sender != cardOwner && msg.sender != gw) revert BM_NotAuthorized();
         _addAdmin(newAdmin, newThreshold);
+    }
+
+    function removeAdmin(address adminToRemove, uint256 newThreshold) external {
+        address cardOwner = IUserCardCtx(address(this)).owner();
+        address gw = IUserCardCtx(address(this)).factoryGateway();
+        if (msg.sender != cardOwner && msg.sender != gw) revert BM_NotAuthorized();
+        _removeAdmin(adminToRemove, newThreshold);
     }
 
     /// @notice Create proposal; gateway or admin can call. Returns proposal id.

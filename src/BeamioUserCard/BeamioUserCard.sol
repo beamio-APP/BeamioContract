@@ -92,6 +92,7 @@ interface IBeamioIssuedNftModuleV1 {
 
 interface IBeamioGovernanceModuleV1 {
     function addAdmin(address newAdmin, uint256 newThreshold) external;
+    function removeAdmin(address adminToRemove, uint256 newThreshold) external;
     function createProposal(bytes4 selector, address target, uint256 v1, uint256 v2, uint256 v3) external returns (uint256 id);
     function approveProposalByGateway(uint256 id, address adminSigner) external;
     function approveProposal(uint256 id) external;
@@ -851,6 +852,28 @@ contract BeamioUserCard is ERC1155, Ownable, ReentrancyGuard {
         l.threshold = newThreshold;
     }
 
+    function _removeAdmin(address adminToRemove, uint256 newThreshold) internal {
+        if (adminToRemove == address(0)) revert BM_ZeroAddress();
+        GovernanceStorage.Layout storage l = GovernanceStorage.layout();
+        if (!l.isAdmin[adminToRemove]) revert UC_InvalidProposal();
+        if (l.adminList.length <= 1) revert UC_InvalidProposal();
+
+        l.isAdmin[adminToRemove] = false;
+        bool found = false;
+        uint256 n = l.adminList.length;
+        for (uint256 i = 0; i < n; i++) {
+            if (l.adminList[i] == adminToRemove) {
+                l.adminList[i] = l.adminList[n - 1];
+                l.adminList.pop();
+                found = true;
+                break;
+            }
+        }
+        if (!found) revert UC_InvalidProposal();
+        if (newThreshold == 0 || newThreshold > l.adminList.length) revert UC_InvalidProposal();
+        l.threshold = newThreshold;
+    }
+
     function addAdmin(address newAdmin, uint256 newThreshold) public {
         _requireOwnerOrGateway();
         address module = _governanceModule();
@@ -858,9 +881,20 @@ contract BeamioUserCard is ERC1155, Ownable, ReentrancyGuard {
         if (!ok) revert UC_InvalidProposal();
     }
 
+    function removeAdmin(address adminToRemove, uint256 newThreshold) public {
+        _requireOwnerOrGateway();
+        address module = _governanceModule();
+        (bool ok,) = module.delegatecall(
+            abi.encodeWithSelector(IBeamioGovernanceModuleV1.removeAdmin.selector, adminToRemove, newThreshold)
+        );
+        if (!ok) revert UC_InvalidProposal();
+    }
+
     function _executeWith(bytes4 sel, address target, uint256 v1, uint256 v2, uint256 /* v3 */) internal {
         if (sel == bytes4(keccak256("addAdmin(address,uint256)"))) {
             _addAdmin(target, v1);
+        } else if (sel == bytes4(keccak256("removeAdmin(address,uint256)"))) {
+            _removeAdmin(target, v1);
         } else if (sel == bytes4(keccak256("mintPoints(address,uint256)"))) {
             _mint(target, POINTS_ID, v1, "");
         } else if (sel == bytes4(keccak256("mintMemberCard(address,uint256)"))) {
