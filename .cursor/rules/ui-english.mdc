@@ -1,14 +1,33 @@
 ---
-description: All UI text must be displayed in English
-globs: src/SilentPassUI/**/*.{tsx,ts}
-alwaysApply: false
+description: 项目所有显示信息必须使用英语
+globs: src/**/*.{tsx,ts,kt,jsx,js,vue}
+alwaysApply: true
 ---
 
-# UI Language: English Only
+# Display Language: English Only
 
-All user-facing UI text in this project must be in **English**.
+**项目所有面向用户的显示信息必须使用英语。**
 
-- Labels, buttons, placeholders, hints, error messages, toast content
-- Any string shown to end users in the SilentPassUI app
+All user-facing display text in this project must be in **English**.
 
-Do not use Chinese or other languages for UI display. Use English for all visible text.
+## Scope
+
+- **SilentPassUI** (React/TypeScript)
+- **Android** (Kotlin/Compose)
+- **bizSite** (React/TypeScript)
+- **Any other UI surface** in the project
+
+## What Must Be English
+
+- Labels, buttons, placeholders, hints
+- Error messages, toast content, AlertDialog text
+- Init/read/topup/payment status messages
+- API error messages shown to users
+- Any string displayed to end users
+
+## Do Not
+
+- Use Chinese or other non-English languages for UI display
+- Add new user-facing strings in languages other than English
+
+Code comments (e.g. `//`, `/**`) may remain in any language for developer convenience.

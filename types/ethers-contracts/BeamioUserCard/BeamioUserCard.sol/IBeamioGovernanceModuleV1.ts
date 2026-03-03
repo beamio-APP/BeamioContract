@@ -6,7 +6,7 @@ import type { TypedContractEvent, TypedDeferredTopicFilter, TypedEventLog, Typed
   
 
   export interface IBeamioGovernanceModuleV1Interface extends Interface {
-    getFunction(nameOrSignature: "addAdmin" | "approveProposal" | "approveProposalByGateway" | "createProposal" | "executeProposal"): FunctionFragment;
+    getFunction(nameOrSignature: "addAdmin" | "approveProposal" | "approveProposalByGateway" | "createProposal" | "executeProposal" | "removeAdmin"): FunctionFragment;
 
     
 
@@ -15,12 +15,14 @@ encodeFunctionData(functionFragment: 'approveProposal', values: [BigNumberish]):
 encodeFunctionData(functionFragment: 'approveProposalByGateway', values: [BigNumberish, AddressLike]): string;
 encodeFunctionData(functionFragment: 'createProposal', values: [BytesLike, AddressLike, BigNumberish, BigNumberish, BigNumberish]): string;
 encodeFunctionData(functionFragment: 'executeProposal', values: [BigNumberish]): string;
+encodeFunctionData(functionFragment: 'removeAdmin', values: [AddressLike, BigNumberish]): string;
 
     decodeFunctionResult(functionFragment: 'addAdmin', data: BytesLike): Result;
 decodeFunctionResult(functionFragment: 'approveProposal', data: BytesLike): Result;
 decodeFunctionResult(functionFragment: 'approveProposalByGateway', data: BytesLike): Result;
 decodeFunctionResult(functionFragment: 'createProposal', data: BytesLike): Result;
 decodeFunctionResult(functionFragment: 'executeProposal', data: BytesLike): Result;
+decodeFunctionResult(functionFragment: 'removeAdmin', data: BytesLike): Result;
   }
 
   
@@ -98,6 +100,14 @@ decodeFunctionResult(functionFragment: 'executeProposal', data: BytesLike): Resu
     >
     
 
+    
+    removeAdmin: TypedContractMethod<
+      [adminToRemove: AddressLike, newThreshold: BigNumberish, ],
+      [void],
+      'nonpayable'
+    >
+    
+
 
     getFunction<T extends ContractMethod = ContractMethod>(key: string | FunctionFragment): T;
 
@@ -124,6 +134,11 @@ getFunction(nameOrSignature: 'createProposal'): TypedContractMethod<
 getFunction(nameOrSignature: 'executeProposal'): TypedContractMethod<
       [id: BigNumberish, ],
       [[string, string, bigint, bigint, bigint] & {selector: string, target: string, v1: bigint, v2: bigint, v3: bigint }],
+      'nonpayable'
+    >;
+getFunction(nameOrSignature: 'removeAdmin'): TypedContractMethod<
+      [adminToRemove: AddressLike, newThreshold: BigNumberish, ],
+      [void],
       'nonpayable'
     >;
 

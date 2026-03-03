@@ -34,7 +34,7 @@ export declare namespace GovernanceStorage {
     }
 
   export interface BeamioUserCardInterface extends Interface {
-    getFunction(nameOrSignature: "ISSUED_NFT_START_ID" | "NFT_START_ID" | "POINTS_DECIMALS" | "POINTS_ID" | "VERSION" | "_userOwnedNfts" | "activeMembershipId" | "activeTierIndexOrMax" | "addAdmin" | "adminList" | "appendTier" | "approveProposal" | "approveProposalByGateway" | "attributes" | "balanceOf" | "balanceOfBatch" | "cancelRedeem" | "createIssuedNft" | "createProposal" | "createRedeem" | "createRedeemBatch" | "createRedeemPool" | "currency" | "debugGateway" | "defaultAttrWhenNoTiers" | "deployer" | "expiresAt" | "expirySeconds" | "factoryGateway" | "faucetByGateway" | "faucetConfig" | "gateway" | "getOwnership" | "getOwnershipByEOA" | "getRedeemStatus" | "getRedeemStatusBatch(string[])" | "getRedeemStatusBatch(bytes32[])" | "getRedeemStatusEx" | "getTierAt" | "getTiersCount" | "isAdmin" | "isApprovedForAll" | "isIssuedNftValid" | "issuedNftIndex" | "issuedNftMaxSupply" | "issuedNftMintedCount" | "issuedNftPriceInCurrency6" | "issuedNftSharedMetadataHash" | "issuedNftTitle" | "issuedNftValidAfter" | "issuedNftValidBefore" | "mintFaucetByGateway" | "mintIssuedNftByGateway" | "mintIssuedNftByOwner" | "mintMemberCardByAdmin" | "mintPointsByAdmin" | "mintPointsByGateway" | "owner" | "pointsUnitPriceInCurrencyE6" | "proposalCount" | "proposals" | "redeemBatchByGateway" | "redeemByGateway" | "redeemPoolByGateway" | "renounceOwnership" | "safeBatchTransferFrom" | "safeTransferFrom" | "setApprovalForAll" | "setDefaultAttr" | "setExpirySeconds" | "setFaucetConfig" | "setPointsUnitPrice" | "setTiers" | "setTransferWhitelist" | "setTransferWhitelistEnabled" | "supportsInterface" | "terminateRedeemPool" | "threshold" | "tiers" | "tokenTierIndexOrMax" | "transferOwnership" | "transferWhitelist" | "transferWhitelistEnabled" | "uri"): FunctionFragment;
+    getFunction(nameOrSignature: "ISSUED_NFT_START_ID" | "NFT_START_ID" | "POINTS_DECIMALS" | "POINTS_ID" | "VERSION" | "_userOwnedNfts" | "activeMembershipId" | "activeTierIndexOrMax" | "addAdmin" | "adminList" | "appendTier" | "approveProposal" | "approveProposalByGateway" | "attributes" | "balanceOf" | "balanceOfBatch" | "cancelRedeem" | "createIssuedNft" | "createProposal" | "createRedeem" | "createRedeemBatch" | "createRedeemPool" | "currency" | "debugGateway" | "defaultAttrWhenNoTiers" | "deployer" | "expiresAt" | "expirySeconds" | "factoryGateway" | "faucetByGateway" | "faucetConfig" | "gateway" | "getOwnership" | "getOwnershipByEOA" | "getRedeemStatus" | "getRedeemStatusBatch(string[])" | "getRedeemStatusBatch(bytes32[])" | "getRedeemStatusEx" | "getTierAt" | "getTiersCount" | "isAdmin" | "isApprovedForAll" | "isIssuedNftValid" | "issuedNftIndex" | "issuedNftMaxSupply" | "issuedNftMintedCount" | "issuedNftPriceInCurrency6" | "issuedNftSharedMetadataHash" | "issuedNftTitle" | "issuedNftValidAfter" | "issuedNftValidBefore" | "mintFaucetByGateway" | "mintIssuedNftByGateway" | "mintIssuedNftByOwner" | "mintMemberCardByAdmin" | "mintPointsByAdmin" | "mintPointsByGateway" | "owner" | "pointsUnitPriceInCurrencyE6" | "proposalCount" | "proposals" | "redeemBatchByGateway" | "redeemByGateway" | "redeemPoolByGateway" | "removeAdmin" | "renounceOwnership" | "safeBatchTransferFrom" | "safeTransferFrom" | "setApprovalForAll" | "setDefaultAttr" | "setExpirySeconds" | "setFaucetConfig" | "setPointsUnitPrice" | "setTiers" | "setTransferWhitelist" | "setTransferWhitelistEnabled" | "supportsInterface" | "terminateRedeemPool" | "threshold" | "tiers" | "tokenTierIndexOrMax" | "transferOwnership" | "transferWhitelist" | "transferWhitelistEnabled" | "uri"): FunctionFragment;
 
     getEvent(nameOrSignatureOrTopic: "AdminCardMinted" | "AdminPointsMinted" | "ApprovalForAll" | "DefaultAttrUpdated" | "ExpirySecondsUpdated" | "FaucetClaimed" | "FaucetConfigUpdated" | "IssuedNftCreated" | "IssuedNftMinted" | "MemberNFTIssued" | "MemberNFTUpgraded" | "OwnershipTransferred" | "PointsMintedByGateway" | "PointsPurchasedWithUSDC" | "PointsUnitPriceUpdated" | "ProposalApproved" | "ProposalCreated" | "ProposalExecuted" | "RedeemCancelled" | "RedeemCreated" | "TierAppended" | "TiersUpdated" | "TransferBatch" | "TransferSingle" | "TransferWhitelistEnabledUpdated" | "URI"): EventFragment;
 
@@ -102,6 +102,7 @@ encodeFunctionData(functionFragment: 'proposals', values: [BigNumberish]): strin
 encodeFunctionData(functionFragment: 'redeemBatchByGateway', values: [string[], AddressLike]): string;
 encodeFunctionData(functionFragment: 'redeemByGateway', values: [string, AddressLike]): string;
 encodeFunctionData(functionFragment: 'redeemPoolByGateway', values: [string, AddressLike]): string;
+encodeFunctionData(functionFragment: 'removeAdmin', values: [AddressLike, BigNumberish]): string;
 encodeFunctionData(functionFragment: 'renounceOwnership', values?: undefined): string;
 encodeFunctionData(functionFragment: 'safeBatchTransferFrom', values: [AddressLike, AddressLike, BigNumberish[], BigNumberish[], BytesLike]): string;
 encodeFunctionData(functionFragment: 'safeTransferFrom', values: [AddressLike, AddressLike, BigNumberish, BigNumberish, BytesLike]): string;
@@ -187,6 +188,7 @@ decodeFunctionResult(functionFragment: 'proposals', data: BytesLike): Result;
 decodeFunctionResult(functionFragment: 'redeemBatchByGateway', data: BytesLike): Result;
 decodeFunctionResult(functionFragment: 'redeemByGateway', data: BytesLike): Result;
 decodeFunctionResult(functionFragment: 'redeemPoolByGateway', data: BytesLike): Result;
+decodeFunctionResult(functionFragment: 'removeAdmin', data: BytesLike): Result;
 decodeFunctionResult(functionFragment: 'renounceOwnership', data: BytesLike): Result;
 decodeFunctionResult(functionFragment: 'safeBatchTransferFrom', data: BytesLike): Result;
 decodeFunctionResult(functionFragment: 'safeTransferFrom', data: BytesLike): Result;
@@ -1068,6 +1070,14 @@ decodeFunctionResult(functionFragment: 'uri', data: BytesLike): Result;
     
 
     
+    removeAdmin: TypedContractMethod<
+      [adminToRemove: AddressLike, newThreshold: BigNumberish, ],
+      [void],
+      'nonpayable'
+    >
+    
+
+    
     renounceOwnership: TypedContractMethod<
       [],
       [void],
@@ -1547,6 +1557,11 @@ getFunction(nameOrSignature: 'redeemByGateway'): TypedContractMethod<
     >;
 getFunction(nameOrSignature: 'redeemPoolByGateway'): TypedContractMethod<
       [code: string, userEOA: AddressLike, ],
+      [void],
+      'nonpayable'
+    >;
+getFunction(nameOrSignature: 'removeAdmin'): TypedContractMethod<
+      [adminToRemove: AddressLike, newThreshold: BigNumberish, ],
       [void],
       'nonpayable'
     >;
