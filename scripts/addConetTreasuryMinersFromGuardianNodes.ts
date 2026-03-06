@@ -1,11 +1,11 @@
 /**
- * 查询 ConetTreasury 的 miner 数量与 requiredVotes（现已自动从 GuardianNodesInfoV6 获取）
+ * ConetTreasury miner 管理（自维护 miner 表，与 BaseTreasury 对齐）
  *
- * minerCount 自动从 GuardianNodesInfoV6.getUniqueOwnerCount() 获取，无需手动更新。
- * 本脚本用于诊断/验证当前状态。
+ * 查询：minerCount、requiredVotes、getMiners()
+ * 添加：ADD_MINERS=0x1,0x2,0x3 时，由当前 miner 调用 addMiner
  *
  * 运行: npx hardhat run scripts/addConetTreasuryMinersFromGuardianNodes.ts --network conet
- * 或: CONET_TREASURY=0x... npx hardhat run scripts/addConetTreasuryMinersFromGuardianNodes.ts --network conet
+ * 或: ADD_MINERS=0xAddr1,0xAddr2 npx hardhat run scripts/addConetTreasuryMinersFromGuardianNodes.ts --network conet
  */
 
 import { network as networkModule } from "hardhat";
@@ -29,28 +29,39 @@ function getConetTreasuryAddress(): string {
 
 async function main() {
   const { ethers } = await networkModule.connect();
+  const [signer] = await ethers.getSigners();
   const treasuryAddress = getConetTreasuryAddress();
 
   const treasury = await ethers.getContractAt("ConetTreasury", treasuryAddress);
-  const guardianAddr = await treasury.guardianNodesInfoV6();
-
-  console.log("=".repeat(60));
-  console.log("ConetTreasury miner 状态（自动从 GuardianNodesInfoV6 获取）");
-  console.log("=".repeat(60));
-  console.log("ConetTreasury:", treasuryAddress);
-  console.log("GuardianNodesInfoV6:", guardianAddr);
-
-  if (guardianAddr === ethers.ZeroAddress) {
-    console.log("\nGuardianNodesInfoV6 未设置，minerCount = 0");
-    return;
-  }
-
   const minerCount = await treasury.minerCount();
   const requiredVotes = await treasury.requiredVotes();
+  const miners = await treasury.getMiners();
 
-  console.log("\nminerCount:", minerCount.toString());
+  console.log("=".repeat(60));
+  console.log("ConetTreasury miner 状态（自维护 miner 表）");
+  console.log("=".repeat(60));
+  console.log("ConetTreasury:", treasuryAddress);
+  console.log("minerCount:", minerCount.toString());
   console.log("requiredVotes:", requiredVotes.toString());
-  console.log("\n（minerCount 现已自动从 GuardianNodesInfoV6.getUniqueOwnerCount() 获取，无需手动更新）");
+  console.log("miners:", miners);
+
+  const addMinersEnv = process.env.ADD_MINERS;
+  if (addMinersEnv) {
+    const toAdd = addMinersEnv.split(",").map((a) => a.trim()).filter(Boolean);
+    const isMiner = await treasury.isMiner(signer.address);
+    if (!isMiner) {
+      throw new Error(`Signer ${signer.address} 非 miner，无法 addMiner`);
+    }
+    for (const addr of toAdd) {
+      if (miners.includes(addr)) {
+        console.log(`\n跳过 ${addr}（已是 miner）`);
+        continue;
+      }
+      const tx = await treasury.addMiner(addr);
+      await tx.wait();
+      console.log(`\naddMiner(${addr}) tx:`, tx.hash);
+    }
+  }
 }
 
 main().catch((e) => {

@@ -43,8 +43,13 @@
       },
       {
         "internalType": "uint256",
-        "name": "bunitAmount",
+        "name": "usdcAmount",
         "type": "uint256"
+      },
+      {
+        "internalType": "bytes32",
+        "name": "baseTxHash",
+        "type": "bytes32"
       }
     ],
     "name": "mintForUsdcPurchase",

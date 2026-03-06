@@ -232,6 +232,13 @@ export const BASE_MAINNET_FACTORIES = {
     if (m) BASE_CCSA_CARD = m[1];
   }
 
+  let CONET_BUNIT_AIRDROP = "0xa7410a532544aB7d1bA70701D9D0E389e4f4Cc1F";
+  const conetAddrPath = path.join(deploymentsDir, "conet-addresses.json");
+  if (fs.existsSync(conetAddrPath)) {
+    const conetData = JSON.parse(fs.readFileSync(conetAddrPath, "utf-8"));
+    if (conetData.BUnitAirdrop) CONET_BUNIT_AIRDROP = conetData.BUnitAirdrop;
+  }
+
   const sdkChainContent = `/**
  * Base 主网 AA Factory 地址。
  * 与 config/base-addresses.ts 保持一致；运行 npm run redeploy:aa-factory:base 后会同步更新此处。
@@ -257,9 +264,9 @@ export const BASE_CCSA_CARD_ADDRESS = '${BASE_CCSA_CARD}'
 export const BEAMIO_USER_CARD_ASSET_ADDRESS = '0xB7644DDb12656F4854dC746464af47D33C206F0E'
 
 /**
- * CoNET BUnit Airdrop 合约地址（用于 claimBUnits）。
+ * CoNET BUnit Airdrop 合约地址（用于 claimBUnits）。来自 deployments/conet-addresses.json
  */
-export const CONET_BUNIT_AIRDROP_ADDRESS = '0x36dEc4b91ee3b9a0cF0F6f0df47955745Eae4a30'
+export const CONET_BUNIT_AIRDROP_ADDRESS = '${CONET_BUNIT_AIRDROP}'
 `;
   fs.writeFileSync(sdkChainPath, sdkChainContent);
   console.log("已更新 src/x402sdk/src/chainAddresses.ts");

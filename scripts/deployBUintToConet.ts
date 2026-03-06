@@ -1,6 +1,6 @@
 /**
  * 部署 BUint (B-Units ERC20) 到 CoNET mainnet
- * RPC: mainnet-rpc1.conet.network
+ * RPC: mainnet-rpc.conet.network
  *
  * 运行: npx hardhat run scripts/deployBUintToConet.ts --network conet
  *

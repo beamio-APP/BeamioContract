@@ -40,7 +40,7 @@ export default defineConfig({
     base: {
       type: "http",
       chainType: "l1",
-      url: process.env.BASE_RPC_URL || "https://1rpc.io/base",
+      url: process.env.BASE_RPC_URL || "https://base-rpc.conet.network",
       accounts: process.env.PRIVATE_KEY ? [process.env.PRIVATE_KEY] : [],
       chainId: 8453
     },
@@ -54,7 +54,7 @@ export default defineConfig({
     conet: {
       type: "http",
       chainType: "l1",
-      url: "https://mainnet-rpc1.conet.network",
+      url: "https://mainnet-rpc.conet.network",
       accounts: getConetAccounts(),
       chainId: 224400
     }

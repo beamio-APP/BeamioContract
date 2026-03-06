@@ -1,0 +1,6 @@
+Compiler Version: v0.8.33+commit.64118f21
+(或 0.8.33+commit.64118f21，BaseScan 两种格式均可)
+Contract Name: baseTreasury.sol:BaseTreasury
+Constructor Arguments: (空)
+Optimization: Enabled
+Runs: 1

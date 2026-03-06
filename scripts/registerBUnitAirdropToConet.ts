@@ -1,7 +1,7 @@
 /**
  * 使用新部署的 BUnitAirdrop 地址，对 ConetTreasury 和 BeamioIndexerDiamond 进行登记
  *
- * 1. ConetTreasury.setBUnitAirdrop(newBUnitAirdrop) — 需 ConetTreasury owner 执行
+ * 1. ConetTreasury.setBUnitAirdrop(newBUnitAirdrop) — 需 ConetTreasury miner 执行
  * 2. BeamioIndexerDiamond AdminFacet.setAdmin(newBUnitAirdrop, true) — 需 Indexer owner 执行，用于 claim/焚烧/USDC 购买记账
  *
  * 用法:
@@ -31,7 +31,7 @@ const MASTER_PATH = path.join(homedir(), ".master.json");
 const ConetTreasuryABI = [
   "function setBUnitAirdrop(address _bunitAirdrop) external",
   "function bunitAirdrop() view returns (address)",
-  "function owner() view returns (address)",
+  "function isMiner(address account) view returns (bool)",
 ];
 
 const AdminFacetABI = [
@@ -101,15 +101,15 @@ async function main() {
 
   // 1. ConetTreasury.setBUnitAirdrop
   const treasury = new ethers.Contract(treasuryAddr, ConetTreasuryABI, signer);
-  const treasuryOwner = await treasury.owner();
+  const isMiner = await treasury.isMiner(signer.address);
   const currentAirdrop = await treasury.bunitAirdrop();
 
   if (currentAirdrop.toLowerCase() === bunitAirdropAddr.toLowerCase()) {
     console.log("[1] ConetTreasury.bunitAirdrop 已是新地址，跳过 setBUnitAirdrop");
   } else {
-    if (treasuryOwner.toLowerCase() !== signer.address.toLowerCase()) {
+    if (!isMiner) {
       throw new Error(
-        `当前 signer (${signer.address}) 不是 ConetTreasury owner (${treasuryOwner})，无法执行 setBUnitAirdrop`
+        `当前 signer (${signer.address}) 不是 ConetTreasury miner，无法执行 setBUnitAirdrop`
       );
     }
     const tx1 = await treasury.setBUnitAirdrop(bunitAirdropAddr);

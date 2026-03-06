@@ -73,7 +73,7 @@ import {reflashData} from './server'
 const facilitator1 = createFacilitatorConfig(masterSetup.base.CDP_API_KEY_ID,masterSetup.base.CDP_API_KEY_SECRET)
 
 const x402Version = 1
-const conetEndpoint = 'https://mainnet-rpc1.conet.network'
+const conetEndpoint = 'https://mainnet-rpc.conet.network'
 const CashCodeBaseAddr = '0x3977f35c531895CeD50fAf5e02bd9e7EB890D2D1'
 const USDCContract_BASE = '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913'
 const USDC_Base_DECIMALS = 6
@@ -89,7 +89,7 @@ const eventContract = '0x18A976ee42A89025f0d3c7Fb8B32e0f8B840E1F3'
 const {verify, settle} = useFacilitator(facilitator1)
 
 const GuardianNodeInfo_mainnet = '0xCd68C3FFFE403f9F26081807c77aB29a4DF6940D'
-const CONET_MAINNET = new ethers.JsonRpcProvider('https://mainnet-rpc1.conet.network') 
+const CONET_MAINNET = new ethers.JsonRpcProvider('https://mainnet-rpc.conet.network') 
 const GuardianNodesMainnet = new ethers.Contract(GuardianNodeInfo_mainnet, newNodeInfoABI, CONET_MAINNET)
 
 
@@ -99,6 +99,8 @@ const beamiobase = '0xdE51f1daaCa6eae9BDeEe33E324c3e6e96837e94'
 const beamioConet = '0xCE8e2Cda88FfE2c99bc88D9471A3CBD08F519FEd'
 const airdropRecord = '0x070BcBd163a3a280Ab6106bA62A079f228139379'
 const beamioConetAccountRegistry = '0x3E15607BCf98B01e6C7dF834a2CEc7B8B6aFb1BC'
+/** CoNET USDC (FactoryERC20) - from deployments/conet-addresses.json, updated by updateConetReferences */
+const CONET_USDC_ADDRESS = '0x28fBBb6C5C06A4736B00A540b66378091c224456'
 
 let Guardian_Nodes: nodeInfo[] = []
 
@@ -381,7 +383,7 @@ const FaucetUserProcess = async () => {
 }
 
 const providerBase = new ethers.JsonRpcProvider(masterSetup.base_endpoint)
-const providerBaseBackup = new ethers.JsonRpcProvider('https://1rpc.io/base')
+const providerBaseBackup = new ethers.JsonRpcProvider('https://base-rpc.conet.network')
 
 const providerConet = new ethers.JsonRpcProvider(conetEndpoint)
 const oracleSC = new ethers.Contract(oracleSC_addr, GuardianOracle_ABI, providerConet)

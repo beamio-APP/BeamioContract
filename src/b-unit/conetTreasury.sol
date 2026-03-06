@@ -1,12 +1,12 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
 
-import {Ownable} from "../contracts/access/Ownable.sol";
 import {ECDSA} from "../contracts/utils/cryptography/ECDSA.sol";
 
 /**
  * @title ConetTreasury (CoNET L1)
- * @dev CoNET 链上的国库合约。提供 ERC20 工厂（仅 owner 可创建）与 miner 2/3 投票 mint 机制。
+ * @dev CoNET 链上的国库合约，与 BaseTreasury 对齐：无 owner/admin，自维护 miner 表，部署者默认为首个 miner。
+ *      提供 ERC20 工厂（miner 可创建）与 miner 2/3 投票 mint 机制。
  */
 
 // --- 工厂创建的 ERC20 模板 ---
@@ -23,13 +23,7 @@ interface IBurnableFactoryERC20 {
 
 interface IBUnitAirdrop {
     function claimFor(address claimant, uint256 nonce, uint256 deadline, bytes calldata signature) external;
-    function mintForUsdcPurchase(address to, uint256 bunitAmount) external;
-}
-
-/// @dev GuardianNodesInfoV6：miner 鉴定使用其中节点的 nodeAddress（节点地址）。一个 node 唯一对应 id、ipaddress、pgp、pgpKey
-interface IGuardianNodesInfoV6 {
-    function getOwnerIPs(address nodeAddress) external view returns (string[] memory ips);
-    function getUniqueOwnerCount() external view returns (uint256);
+    function mintForUsdcPurchase(address to, uint256 usdcAmount, bytes32 baseTxHash) external;
 }
 
 contract FactoryERC20 {
@@ -116,8 +110,10 @@ contract FactoryERC20 {
 }
 
 // --- 国库合约 ---
-contract ConetTreasury is Ownable {
-    // --- Miner 治理：仅使用 GuardianNodesInfoV6（nodeAddress 即节点地址），国库自身不维护 miner 列表 ---
+contract ConetTreasury {
+    // --- Miner 治理：与 BaseTreasury 对齐，自维护 miner 表，部署者为首个 miner ---
+    address[] private _miners;
+    mapping(address => bool) private _isMiner;
 
     // --- 工厂创建的 ERC20 一览表 ---
     address[] private _createdTokens;
@@ -149,11 +145,10 @@ contract ConetTreasury is Ownable {
     event AirdropExecuted(bytes32 indexed proposalId, address indexed claimant);
     /// @dev USDC 购买 B-Unit 执行：miner 投票通过后按 1 USDC = 100 B-Units 铸造
     event Usdc2BUnitExecuted(bytes32 indexed txHash, address indexed user, uint256 usdcAmount, uint256 bunitAmount);
-    event AdminAdded(address indexed admin);
-    event AdminRemoved(address indexed admin);
-    event MintByAdmin(address indexed token, address indexed to, uint256 amount);
-    event AirdropBUnitByAdmin(address indexed claimant, uint256 amount);
-    event AirdropBUnitFromUsdcByAdmin(address indexed user, uint256 usdcAmount, uint256 bunitAmount);
+    event MinerAdded(address indexed miner);
+    event MintByMiner(address indexed token, address indexed to, uint256 amount);
+    event AirdropBUnitByMiner(address indexed claimant, uint256 amount);
+    event AirdropBUnitFromUsdcByMiner(address indexed user, uint256 usdcAmount, uint256 bunitAmount);
 
     error NotMiner();
     error AlreadyVoted();
@@ -166,13 +161,8 @@ contract ConetTreasury is Ownable {
     error SignatureExpired();
     error InvalidSignature();
     error BUnitAirdropNotSet();
-    error NotAdmin();
-
-    mapping(address => bool) public adminList;
 
     address public bunitAirdrop;
-    /// @dev GuardianNodesInfoV6 地址，用于 miner 鉴定。若已设置，则 getOwnerIPs(nodeAddress).length > 0 即为 miner（nodeAddress 为 Guardian 节点地址）
-    address public guardianNodesInfoV6;
 
     // --- B-Unit Airdrop 投票：2/3 通过后 call BUnitAirdrop.claimFor ---
     struct AirdropProposal {
@@ -215,14 +205,15 @@ contract ConetTreasury is Ownable {
 
     mapping(address => uint256) public burnNonces;
 
-    modifier onlyAdmin() {
-        if (msg.sender != owner() && !adminList[msg.sender]) revert NotAdmin();
+    modifier onlyMiner() {
+        if (!_isMiner[msg.sender]) revert NotMiner();
         _;
     }
 
-    constructor(address initialOwner, address _guardianNodesInfoV6) Ownable(initialOwner) {
-        guardianNodesInfoV6 = _guardianNodesInfoV6;
-        adminList[initialOwner] = true; // owner 默认也是 admin
+    constructor() {
+        _miners.push(msg.sender);
+        _isMiner[msg.sender] = true;
+        emit MinerAdded(msg.sender);
         DOMAIN_SEPARATOR = keccak256(abi.encode(
             keccak256("EIP712Domain(string name,string version,uint256 chainId,address verifyingContract)"),
             keccak256(bytes("ConetTreasury")),
@@ -233,14 +224,44 @@ contract ConetTreasury is Ownable {
     }
 
     // ==========================================
-    // ERC20 工厂 (仅 owner)
+    // Miner 管理（与 BaseTreasury 对齐，miner 可添加新 miner）
+    // ==========================================
+
+    function addMiner(address miner) external onlyMiner {
+        if (miner == address(0)) revert InvalidTarget();
+        if (_isMiner[miner]) return;
+        _miners.push(miner);
+        _isMiner[miner] = true;
+        emit MinerAdded(miner);
+    }
+
+    function getMiners() external view returns (address[] memory) {
+        return _miners;
+    }
+
+    function minerCount() public view returns (uint256) {
+        return _miners.length;
+    }
+
+    function requiredVotes() public view returns (uint256) {
+        uint256 n = minerCount();
+        if (n == 0) return 0;
+        return (n * 2 + 2) / 3;
+    }
+
+    function isMiner(address account) external view returns (bool) {
+        return _isMiner[account];
+    }
+
+    // ==========================================
+    // ERC20 工厂 (仅 miner)
     // ==========================================
 
     /**
-     * @dev 创建新的 ERC20。仅 owner 可调用。新代币的 minter 为本合约。
+     * @dev 创建新的 ERC20。仅 miner 可调用。新代币的 minter 为本合约。
      *      baseToken 为该 CoNET 代币在 Base 链上对应的 ERC20 地址，出金时 miner 在 BaseTreasury 转账用。
      */
-    function createERC20(string calldata name_, string calldata symbol_, uint8 decimals_, address baseToken) external onlyOwner returns (address token) {
+    function createERC20(string calldata name_, string calldata symbol_, uint8 decimals_, address baseToken) external onlyMiner returns (address token) {
         token = address(new FactoryERC20(name_, symbol_, decimals_, address(this)));
         _createdTokens.push(token);
         _isCreatedToken[token] = true;
@@ -257,44 +278,33 @@ contract ConetTreasury is Ownable {
     }
 
     /**
-     * @dev Owner 更新 token 对应的 Base 地址。
+     * @dev Miner 更新 token 对应的 Base 地址。
      */
-    function setBaseToken(address token, address baseToken) external onlyOwner {
+    function setBaseToken(address token, address baseToken) external onlyMiner {
         if (!_isCreatedToken[token]) revert TokenNotInList();
         _baseTokenOf[token] = baseToken;
     }
 
     /**
-     * @dev Owner 设置 GuardianNodesInfoV6 地址。若已设置，miner 鉴定使用 getOwnerIPs(nodeAddress).length > 0。
+     * @dev Miner 设置 BUnitAirdrop 合约地址。ConetTreasury 需为 BUnitAirdrop 的 admin。
      */
-    function setGuardianNodesInfoV6(address _guardianNodesInfoV6) external onlyOwner {
-        guardianNodesInfoV6 = _guardianNodesInfoV6;
-    }
-
-    /**
-     * @dev Owner 设置 BUnitAirdrop 合约地址。ConetTreasury 需为 BUnitAirdrop 的 admin。
-     */
-    function setBUnitAirdrop(address _bunitAirdrop) external onlyOwner {
+    function setBUnitAirdrop(address _bunitAirdrop) external onlyMiner {
         address oldAirdrop = bunitAirdrop;
         bunitAirdrop = _bunitAirdrop;
         emit BUnitAirdropUpdated(oldAirdrop, _bunitAirdrop);
     }
 
     /**
-     * @dev Owner 添加 admin。Admin 无需 miner 投票即可执行 ERC20 mint 与 B-Unit airdrop。
+     * @dev BUnitAirdrop 焚烧付费池 B-Unit 后调用，将等值 USDC mint 到 recipient。
+     *      仅 BUnitAirdrop 可调用。token 须为工厂创建的 ERC20（如 conetUsdc）。
      */
-    function addAdmin(address admin) external onlyOwner {
-        if (admin == address(0)) revert InvalidTarget();
-        adminList[admin] = true;
-        emit AdminAdded(admin);
-    }
-
-    /**
-     * @dev Owner 移除 admin。
-     */
-    function removeAdmin(address admin) external onlyOwner {
-        adminList[admin] = false;
-        emit AdminRemoved(admin);
+    function mintForAdmin(address token, address recipient, uint256 amount) external {
+        if (msg.sender != bunitAirdrop) revert NotMiner();
+        if (token == address(0) || recipient == address(0)) revert InvalidTarget();
+        if (amount == 0) revert InvalidAmount();
+        if (!_isCreatedToken[token]) revert TokenNotInList();
+        IMintableERC20(token).mint(recipient, amount);
+        emit MintByMiner(token, recipient, amount);
     }
 
     /**
@@ -373,79 +383,27 @@ contract ConetTreasury is Ownable {
         emit BurnRequested(user, token, amount, _baseTokenOf[token]);
     }
 
-    // ==========================================
-    // Admin 直接执行（无需 miner 投票）
-    // ==========================================
+ 
 
     /**
-     * @dev Admin 直接铸造 ERC20 到指定地址，无需 miner 投票。
-     */
-    function mintForAdmin(address token, address recipient, uint256 amount) external onlyAdmin {
-        if (recipient == address(0)) revert InvalidTarget();
-        if (amount == 0) revert InvalidAmount();
-        if (!_isCreatedToken[token]) revert TokenNotInList();
-        IMintableERC20(token).mint(recipient, amount);
-        emit MintByAdmin(token, recipient, amount);
-    }
-
-    /**
-     * @dev Admin 直接执行 B-Unit 免费池 airdrop（claimFor），无需 miner 投票。
+     * @dev Miner 直接执行 B-Unit 免费池 airdrop（claimFor），无需投票。
      */
     function airdropBUnitForAdmin(
         address claimant,
         uint256 nonce,
         uint256 deadline,
         bytes calldata signature
-    ) external onlyAdmin {
+    ) external onlyMiner {
         if (bunitAirdrop == address(0)) revert BUnitAirdropNotSet();
         if (claimant == address(0)) revert InvalidTarget();
         IBUnitAirdrop(bunitAirdrop).claimFor(claimant, nonce, deadline, signature);
         totalUsdc2BUnit += AIRDROP_BUNIT_AMOUNT;
-        emit AirdropBUnitByAdmin(claimant, AIRDROP_BUNIT_AMOUNT);
-    }
-
-    /**
-     * @dev Admin 直接执行 USDC 购买 B-Unit（mintForUsdcPurchase），无需 miner 投票。
-     */
-    function airdropBUnitFromUsdcForAdmin(address user, uint256 usdcAmount) external onlyAdmin {
-        if (bunitAirdrop == address(0)) revert BUnitAirdropNotSet();
-        if (user == address(0)) revert InvalidTarget();
-        if (usdcAmount == 0) revert InvalidAmount();
-        uint256 bunitAmount = usdcAmount * USDC_TO_BUNIT_RATE;
-        totalUsdc2BUnit += bunitAmount;
-        IBUnitAirdrop(bunitAirdrop).mintForUsdcPurchase(user, bunitAmount);
-        emit AirdropBUnitFromUsdcByAdmin(user, usdcAmount, bunitAmount);
-    }
-
-    // ==========================================
-    // Miner 鉴定：仅使用 GuardianNodesInfoV6.getOwnerIPs(nodeAddress).length > 0
-    // ==========================================
-
-    function isMiner(address nodeAddress) public view returns (bool) {
-        if (guardianNodesInfoV6 == address(0)) return false;
-        return IGuardianNodesInfoV6(guardianNodesInfoV6).getOwnerIPs(nodeAddress).length > 0;
-    }
-
-    /// @dev 返回 Guardian 节点地址数量（用于 requiredVotes 的 2/3 计算）
-    function minerCount() public view returns (uint256) {
-        if (guardianNodesInfoV6 == address(0)) return 0;
-        return IGuardianNodesInfoV6(guardianNodesInfoV6).getUniqueOwnerCount();
-    }
-
-    function requiredVotes() public view returns (uint256) {
-        uint256 n = minerCount();
-        if (n == 0) return 0;
-        return (n * 2 + 2) / 3;
+        emit AirdropBUnitByMiner(claimant, AIRDROP_BUNIT_AMOUNT);
     }
 
     // ==========================================
     // 提案与投票：对列表中的 ERC20 执行 mint
     // ==========================================
-
-    modifier onlyMiner() {
-        if (!isMiner(msg.sender)) revert NotMiner();
-        _;
-    }
 
     /**
      * @dev 投票接口。txHash 为关联的链上交易记录 hash。
@@ -472,7 +430,7 @@ contract ConetTreasury is Ownable {
         bytes calldata signature
     ) external {
         if (block.timestamp > deadline) revert SignatureExpired();
-        if (!isMiner(miner)) revert NotMiner();
+        if (!_isMiner[miner]) revert NotMiner();
         if (hasVoted[txHash][miner]) revert AlreadyVoted();
 
         bytes32 structHash = keccak256(abi.encode(
@@ -623,7 +581,7 @@ contract ConetTreasury is Ownable {
         p.executed = true;
         uint256 bunitAmount = p.usdcAmount * USDC_TO_BUNIT_RATE;
         totalUsdc2BUnit += bunitAmount;
-        IBUnitAirdrop(bunitAirdrop).mintForUsdcPurchase(p.user, bunitAmount);
+        IBUnitAirdrop(bunitAirdrop).mintForUsdcPurchase(p.user, p.usdcAmount, txHash);
         emit Usdc2BUnitExecuted(txHash, p.user, p.usdcAmount, bunitAmount);
     }
 
@@ -669,7 +627,7 @@ contract ConetTreasury is Ownable {
         bytes calldata voteSignature
     ) external {
         if (block.timestamp > voteDeadline) revert SignatureExpired();
-        if (!isMiner(miner)) revert NotMiner();
+        if (!_isMiner[miner]) revert NotMiner();
 
         bytes32 structHash = keccak256(abi.encode(
             VOTE_AIRDROP_TYPEHASH,

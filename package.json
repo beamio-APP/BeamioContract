@@ -57,21 +57,31 @@
     "verify:indexer-diamond:conet": "npx tsx scripts/verifyAllDiamondFacets.ts",
     "verify:indexer-diamond:diamond-only": "npx tsx scripts/verifyBeamioIndexerDiamondStandardJson.ts",
     "verify:indexer-diamond:conet:flattened": "npx hardhat flatten src/CoNETIndexTaskdiamond/BeamioIndexerDiamond.sol 2>/dev/null > scripts/BeamioIndexerDiamond_flat.sol && npx tsx scripts/verifyCoNETViaBlockscoutAPI.ts",
+    "deploy:bunit-airdrop:conet": "hardhat run scripts/deployBUnitAirdropToConet.ts --network conet",
+    "deploy:conet-treasury:conet": "hardhat run scripts/deployConetTreasuryToConet.ts --network conet",
+    "register:bunit-airdrop:conet": "hardhat run scripts/registerBUnitAirdropToConet.ts --network conet",
     "verify:buint-airdrop:conet": "hardhat run scripts/verifyBUintAndAirdropConet.ts --network conet",
+    "verify:conet-deployments": "hardhat run scripts/verifyConetDeployments.ts --network conet",
+    "verify:conet-treasury-usdc": "hardhat run scripts/verifyConetTreasuryAndUsdc.ts --network conet",
+    "update:conet-references": "npx tsx scripts/updateConetReferences.ts",
     "verify:buint-airdrop:conet:standard-json": "npx tsx scripts/verifyBUintAirdropStandardJson.ts",
-    "verify:buint-airdrop:conet:try-hardhat": "npx tsx scripts/verifyBUintAirdropStandardJson.ts --airdrop-only --try-hardhat"
+    "verify:buint-airdrop:conet:try-hardhat": "npx tsx scripts/verifyBUintAirdropStandardJson.ts --airdrop-only --try-hardhat",
+    "deploy:base-treasury:base": "hardhat run scripts/deployBaseTreasury.ts --network base",
+    "verify:base-treasury:base": "npx tsx scripts/verifyBaseTreasuryStandardJson.ts",
+    "base-treasury:listen": "npx tsx src/x402sdk/src/BaseTreasury/node.ts"
   },
   "dependencies": {
+    "@settle402/sdk": "github:settleonbase/x402sdk#main",
     "colors": "^1.4.0",
     "ethers": "^6.13.4",
-    "express": "^4.21.0",
-    "@settle402/sdk": "github:settleonbase/x402sdk#main"
+    "express": "^4.21.0"
   },
   "devDependencies": {
+    "@nomicfoundation/hardhat-ethers": "^4.0.5",
+    "@nomicfoundation/hardhat-toolbox-mocha-ethers": "^3.0.2",
     "@nomicfoundation/hardhat-verify": "^3.0.0",
     "@types/express": "^4.17.21",
     "@types/node": "^22.10.1",
-    "@nomicfoundation/hardhat-toolbox-mocha-ethers": "^3.0.2",
     "dotenv": "^17.2.3",
     "hardhat": "^3.1.6"
   },

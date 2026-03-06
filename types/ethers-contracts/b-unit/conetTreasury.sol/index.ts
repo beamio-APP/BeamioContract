@@ -5,5 +5,4 @@ export type { ConetTreasury } from './ConetTreasury.js';
 export type { FactoryERC20 } from './FactoryERC20.js';
 export type { IBUnitAirdrop } from './IBUnitAirdrop.js';
 export type { IBurnableFactoryERC20 } from './IBurnableFactoryERC20.js';
-export type { IGuardianNodesInfoV6 } from './IGuardianNodesInfoV6.js';
 export type { IMintableERC20 } from './IMintableERC20.js';

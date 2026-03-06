@@ -11,6 +11,9 @@ export const BASE_MAINNET_FACTORIES = {
   CARD_FACTORY: '0x331a8ebc41afbAf01D78Fd2684D609407527DA18',
 } as const
 
+/** BaseTreasury: USDC 购买 B-Unit 入口，用户 EIP-3009 离线签字后由服务端提交 */
+export const BASE_TREASURY = '0x5c64a8b0935DA72d60933bBD8cD10579E1C40c58'
+
 /** 按链聚合，便于多链扩展 */
 export const CONTRACT_ADDRESSES = {
   base: {

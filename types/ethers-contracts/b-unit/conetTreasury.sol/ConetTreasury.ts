@@ -6,17 +6,15 @@ import type { TypedContractEvent, TypedDeferredTopicFilter, TypedEventLog, Typed
   
 
   export interface ConetTreasuryInterface extends Interface {
-    getFunction(nameOrSignature: "AIRDROP_BUNIT_AMOUNT" | "DOMAIN_SEPARATOR" | "USDC_TO_BUNIT_RATE" | "addAdmin" | "adminList" | "airdropBUnitForAdmin" | "airdropBUnitFromUsdcForAdmin" | "airdropProposals" | "baseTokenOf" | "bunitAirdrop" | "burn" | "burnNonces" | "burnWithSignature" | "createERC20" | "createdTokenCount" | "execute" | "executeAirdropBUnit" | "getAirdropProposal" | "getBurnDigest" | "getCreatedTokens" | "getProposal" | "getUsdc2BUnitProposal" | "getUsdc2BUnitReport" | "getVoteAirdropDigest" | "getVoteDigest" | "guardianNodesInfoV6" | "hasVoted" | "hasVotedAirdrop" | "hasVotedUsdc2BUnit" | "isCreatedToken" | "isMiner" | "minerCount" | "mintForAdmin" | "owner" | "proposals" | "removeAdmin" | "renounceOwnership" | "requiredVotes" | "setBUnitAirdrop" | "setBaseToken" | "setGuardianNodesInfoV6" | "totalUsdc2BUnit" | "transferOwnership" | "usdc2BUnitProposals" | "vote" | "voteAirdropBUnit" | "voteAirdropBUnitFromBase" | "voteAirdropBUnitWithSignature" | "voteWithSignature"): FunctionFragment;
+    getFunction(nameOrSignature: "AIRDROP_BUNIT_AMOUNT" | "DOMAIN_SEPARATOR" | "USDC_TO_BUNIT_RATE" | "addMiner" | "airdropBUnitForAdmin" | "airdropProposals" | "baseTokenOf" | "bunitAirdrop" | "burn" | "burnNonces" | "burnWithSignature" | "createERC20" | "createdTokenCount" | "execute" | "executeAirdropBUnit" | "getAirdropProposal" | "getBurnDigest" | "getCreatedTokens" | "getMiners" | "getProposal" | "getUsdc2BUnitProposal" | "getUsdc2BUnitReport" | "getVoteAirdropDigest" | "getVoteDigest" | "hasVoted" | "hasVotedAirdrop" | "hasVotedUsdc2BUnit" | "isCreatedToken" | "isMiner" | "minerCount" | "mintForAdmin" | "proposals" | "requiredVotes" | "setBUnitAirdrop" | "setBaseToken" | "totalUsdc2BUnit" | "usdc2BUnitProposals" | "vote" | "voteAirdropBUnit" | "voteAirdropBUnitFromBase" | "voteAirdropBUnitWithSignature" | "voteWithSignature"): FunctionFragment;
 
-    getEvent(nameOrSignatureOrTopic: "AdminAdded" | "AdminRemoved" | "AirdropBUnitByAdmin" | "AirdropBUnitFromUsdcByAdmin" | "AirdropExecuted" | "AirdropProposalCreated" | "AirdropVoted" | "BUnitAirdropUpdated" | "BurnRequested" | "ERC20Created" | "MintByAdmin" | "MintExecuted" | "OwnershipTransferred" | "ProposalCreated" | "ProposalExecuted" | "Usdc2BUnitExecuted" | "Voted"): EventFragment;
+    getEvent(nameOrSignatureOrTopic: "AirdropBUnitByMiner" | "AirdropBUnitFromUsdcByMiner" | "AirdropExecuted" | "AirdropProposalCreated" | "AirdropVoted" | "BUnitAirdropUpdated" | "BurnRequested" | "ERC20Created" | "MinerAdded" | "MintByMiner" | "MintExecuted" | "ProposalCreated" | "ProposalExecuted" | "Usdc2BUnitExecuted" | "Voted"): EventFragment;
 
     encodeFunctionData(functionFragment: 'AIRDROP_BUNIT_AMOUNT', values?: undefined): string;
 encodeFunctionData(functionFragment: 'DOMAIN_SEPARATOR', values?: undefined): string;
 encodeFunctionData(functionFragment: 'USDC_TO_BUNIT_RATE', values?: undefined): string;
-encodeFunctionData(functionFragment: 'addAdmin', values: [AddressLike]): string;
-encodeFunctionData(functionFragment: 'adminList', values: [AddressLike]): string;
+encodeFunctionData(functionFragment: 'addMiner', values: [AddressLike]): string;
 encodeFunctionData(functionFragment: 'airdropBUnitForAdmin', values: [AddressLike, BigNumberish, BigNumberish, BytesLike]): string;
-encodeFunctionData(functionFragment: 'airdropBUnitFromUsdcForAdmin', values: [AddressLike, BigNumberish]): string;
 encodeFunctionData(functionFragment: 'airdropProposals', values: [BytesLike]): string;
 encodeFunctionData(functionFragment: 'baseTokenOf', values: [AddressLike]): string;
 encodeFunctionData(functionFragment: 'bunitAirdrop', values?: undefined): string;
@@ -30,12 +28,12 @@ encodeFunctionData(functionFragment: 'executeAirdropBUnit', values: [BytesLike])
 encodeFunctionData(functionFragment: 'getAirdropProposal', values: [BytesLike]): string;
 encodeFunctionData(functionFragment: 'getBurnDigest', values: [AddressLike, AddressLike, BigNumberish, BigNumberish, BigNumberish]): string;
 encodeFunctionData(functionFragment: 'getCreatedTokens', values?: undefined): string;
+encodeFunctionData(functionFragment: 'getMiners', values?: undefined): string;
 encodeFunctionData(functionFragment: 'getProposal', values: [BytesLike]): string;
 encodeFunctionData(functionFragment: 'getUsdc2BUnitProposal', values: [BytesLike]): string;
 encodeFunctionData(functionFragment: 'getUsdc2BUnitReport', values?: undefined): string;
 encodeFunctionData(functionFragment: 'getVoteAirdropDigest', values: [AddressLike, AddressLike, BigNumberish, BigNumberish, BigNumberish]): string;
 encodeFunctionData(functionFragment: 'getVoteDigest', values: [AddressLike, BytesLike, AddressLike, AddressLike, BigNumberish, BigNumberish]): string;
-encodeFunctionData(functionFragment: 'guardianNodesInfoV6', values?: undefined): string;
 encodeFunctionData(functionFragment: 'hasVoted', values: [BytesLike, AddressLike]): string;
 encodeFunctionData(functionFragment: 'hasVotedAirdrop', values: [BytesLike, AddressLike]): string;
 encodeFunctionData(functionFragment: 'hasVotedUsdc2BUnit', values: [BytesLike, AddressLike]): string;
@@ -43,16 +41,11 @@ encodeFunctionData(functionFragment: 'isCreatedToken', values: [AddressLike]): s
 encodeFunctionData(functionFragment: 'isMiner', values: [AddressLike]): string;
 encodeFunctionData(functionFragment: 'minerCount', values?: undefined): string;
 encodeFunctionData(functionFragment: 'mintForAdmin', values: [AddressLike, AddressLike, BigNumberish]): string;
-encodeFunctionData(functionFragment: 'owner', values?: undefined): string;
 encodeFunctionData(functionFragment: 'proposals', values: [BytesLike]): string;
-encodeFunctionData(functionFragment: 'removeAdmin', values: [AddressLike]): string;
-encodeFunctionData(functionFragment: 'renounceOwnership', values?: undefined): string;
 encodeFunctionData(functionFragment: 'requiredVotes', values?: undefined): string;
 encodeFunctionData(functionFragment: 'setBUnitAirdrop', values: [AddressLike]): string;
 encodeFunctionData(functionFragment: 'setBaseToken', values: [AddressLike, AddressLike]): string;
-encodeFunctionData(functionFragment: 'setGuardianNodesInfoV6', values: [AddressLike]): string;
 encodeFunctionData(functionFragment: 'totalUsdc2BUnit', values?: undefined): string;
-encodeFunctionData(functionFragment: 'transferOwnership', values: [AddressLike]): string;
 encodeFunctionData(functionFragment: 'usdc2BUnitProposals', values: [BytesLike]): string;
 encodeFunctionData(functionFragment: 'vote', values: [BytesLike, AddressLike, AddressLike, BigNumberish]): string;
 encodeFunctionData(functionFragment: 'voteAirdropBUnit', values: [AddressLike, BigNumberish, BigNumberish, BytesLike]): string;
@@ -63,10 +56,8 @@ encodeFunctionData(functionFragment: 'voteWithSignature', values: [AddressLike, 
     decodeFunctionResult(functionFragment: 'AIRDROP_BUNIT_AMOUNT', data: BytesLike): Result;
 decodeFunctionResult(functionFragment: 'DOMAIN_SEPARATOR', data: BytesLike): Result;
 decodeFunctionResult(functionFragment: 'USDC_TO_BUNIT_RATE', data: BytesLike): Result;
-decodeFunctionResult(functionFragment: 'addAdmin', data: BytesLike): Result;
-decodeFunctionResult(functionFragment: 'adminList', data: BytesLike): Result;
+decodeFunctionResult(functionFragment: 'addMiner', data: BytesLike): Result;
 decodeFunctionResult(functionFragment: 'airdropBUnitForAdmin', data: BytesLike): Result;
-decodeFunctionResult(functionFragment: 'airdropBUnitFromUsdcForAdmin', data: BytesLike): Result;
 decodeFunctionResult(functionFragment: 'airdropProposals', data: BytesLike): Result;
 decodeFunctionResult(functionFragment: 'baseTokenOf', data: BytesLike): Result;
 decodeFunctionResult(functionFragment: 'bunitAirdrop', data: BytesLike): Result;
@@ -80,12 +71,12 @@ decodeFunctionResult(functionFragment: 'executeAirdropBUnit', data: BytesLike): 
 decodeFunctionResult(functionFragment: 'getAirdropProposal', data: BytesLike): Result;
 decodeFunctionResult(functionFragment: 'getBurnDigest', data: BytesLike): Result;
 decodeFunctionResult(functionFragment: 'getCreatedTokens', data: BytesLike): Result;
+decodeFunctionResult(functionFragment: 'getMiners', data: BytesLike): Result;
 decodeFunctionResult(functionFragment: 'getProposal', data: BytesLike): Result;
 decodeFunctionResult(functionFragment: 'getUsdc2BUnitProposal', data: BytesLike): Result;
 decodeFunctionResult(functionFragment: 'getUsdc2BUnitReport', data: BytesLike): Result;
 decodeFunctionResult(functionFragment: 'getVoteAirdropDigest', data: BytesLike): Result;
 decodeFunctionResult(functionFragment: 'getVoteDigest', data: BytesLike): Result;
-decodeFunctionResult(functionFragment: 'guardianNodesInfoV6', data: BytesLike): Result;
 decodeFunctionResult(functionFragment: 'hasVoted', data: BytesLike): Result;
 decodeFunctionResult(functionFragment: 'hasVotedAirdrop', data: BytesLike): Result;
 decodeFunctionResult(functionFragment: 'hasVotedUsdc2BUnit', data: BytesLike): Result;
@@ -93,16 +84,11 @@ decodeFunctionResult(functionFragment: 'isCreatedToken', data: BytesLike): Resul
 decodeFunctionResult(functionFragment: 'isMiner', data: BytesLike): Result;
 decodeFunctionResult(functionFragment: 'minerCount', data: BytesLike): Result;
 decodeFunctionResult(functionFragment: 'mintForAdmin', data: BytesLike): Result;
-decodeFunctionResult(functionFragment: 'owner', data: BytesLike): Result;
 decodeFunctionResult(functionFragment: 'proposals', data: BytesLike): Result;
-decodeFunctionResult(functionFragment: 'removeAdmin', data: BytesLike): Result;
-decodeFunctionResult(functionFragment: 'renounceOwnership', data: BytesLike): Result;
 decodeFunctionResult(functionFragment: 'requiredVotes', data: BytesLike): Result;
 decodeFunctionResult(functionFragment: 'setBUnitAirdrop', data: BytesLike): Result;
 decodeFunctionResult(functionFragment: 'setBaseToken', data: BytesLike): Result;
-decodeFunctionResult(functionFragment: 'setGuardianNodesInfoV6', data: BytesLike): Result;
 decodeFunctionResult(functionFragment: 'totalUsdc2BUnit', data: BytesLike): Result;
-decodeFunctionResult(functionFragment: 'transferOwnership', data: BytesLike): Result;
 decodeFunctionResult(functionFragment: 'usdc2BUnitProposals', data: BytesLike): Result;
 decodeFunctionResult(functionFragment: 'vote', data: BytesLike): Result;
 decodeFunctionResult(functionFragment: 'voteAirdropBUnit', data: BytesLike): Result;
@@ -112,31 +98,7 @@ decodeFunctionResult(functionFragment: 'voteWithSignature', data: BytesLike): Re
   }
 
   
-    export namespace AdminAddedEvent {
-      export type InputTuple = [admin: AddressLike];
-      export type OutputTuple = [admin: string];
-      export interface OutputObject {admin: string };
-      export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>
-      export type Filter = TypedDeferredTopicFilter<Event>
-      export type Log = TypedEventLog<Event>
-      export type LogDescription = TypedLogDescription<Event>
-    }
-
-  
-
-    export namespace AdminRemovedEvent {
-      export type InputTuple = [admin: AddressLike];
-      export type OutputTuple = [admin: string];
-      export interface OutputObject {admin: string };
-      export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>
-      export type Filter = TypedDeferredTopicFilter<Event>
-      export type Log = TypedEventLog<Event>
-      export type LogDescription = TypedLogDescription<Event>
-    }
-
-  
-
-    export namespace AirdropBUnitByAdminEvent {
+    export namespace AirdropBUnitByMinerEvent {
       export type InputTuple = [claimant: AddressLike, amount: BigNumberish];
       export type OutputTuple = [claimant: string, amount: bigint];
       export interface OutputObject {claimant: string, amount: bigint };
@@ -148,7 +110,7 @@ decodeFunctionResult(functionFragment: 'voteWithSignature', data: BytesLike): Re
 
   
 
-    export namespace AirdropBUnitFromUsdcByAdminEvent {
+    export namespace AirdropBUnitFromUsdcByMinerEvent {
       export type InputTuple = [user: AddressLike, usdcAmount: BigNumberish, bunitAmount: BigNumberish];
       export type OutputTuple = [user: string, usdcAmount: bigint, bunitAmount: bigint];
       export interface OutputObject {user: string, usdcAmount: bigint, bunitAmount: bigint };
@@ -232,7 +194,19 @@ decodeFunctionResult(functionFragment: 'voteWithSignature', data: BytesLike): Re
 
   
 
-    export namespace MintByAdminEvent {
+    export namespace MinerAddedEvent {
+      export type InputTuple = [miner: AddressLike];
+      export type OutputTuple = [miner: string];
+      export interface OutputObject {miner: string };
+      export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>
+      export type Filter = TypedDeferredTopicFilter<Event>
+      export type Log = TypedEventLog<Event>
+      export type LogDescription = TypedLogDescription<Event>
+    }
+
+  
+
+    export namespace MintByMinerEvent {
       export type InputTuple = [token: AddressLike, to: AddressLike, amount: BigNumberish];
       export type OutputTuple = [token: string, to: string, amount: bigint];
       export interface OutputObject {token: string, to: string, amount: bigint };
@@ -248,18 +222,6 @@ decodeFunctionResult(functionFragment: 'voteWithSignature', data: BytesLike): Re
       export type InputTuple = [token: AddressLike, to: AddressLike, amount: BigNumberish];
       export type OutputTuple = [token: string, to: string, amount: bigint];
       export interface OutputObject {token: string, to: string, amount: bigint };
-      export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>
-      export type Filter = TypedDeferredTopicFilter<Event>
-      export type Log = TypedEventLog<Event>
-      export type LogDescription = TypedLogDescription<Event>
-    }
-
-  
-
-    export namespace OwnershipTransferredEvent {
-      export type InputTuple = [previousOwner: AddressLike, newOwner: AddressLike];
-      export type OutputTuple = [previousOwner: string, newOwner: string];
-      export interface OutputObject {previousOwner: string, newOwner: string };
       export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>
       export type Filter = TypedDeferredTopicFilter<Event>
       export type Log = TypedEventLog<Event>
@@ -374,32 +336,16 @@ decodeFunctionResult(functionFragment: 'voteWithSignature', data: BytesLike): Re
     
 
     
-    addAdmin: TypedContractMethod<
-      [admin: AddressLike, ],
+    addMiner: TypedContractMethod<
+      [miner: AddressLike, ],
       [void],
       'nonpayable'
-    >
-    
-
-    
-    adminList: TypedContractMethod<
-      [arg0: AddressLike, ],
-      [boolean],
-      'view'
     >
     
 
     
     airdropBUnitForAdmin: TypedContractMethod<
       [claimant: AddressLike, nonce: BigNumberish, deadline: BigNumberish, signature: BytesLike, ],
-      [void],
-      'nonpayable'
-    >
-    
-
-    
-    airdropBUnitFromUsdcForAdmin: TypedContractMethod<
-      [user: AddressLike, usdcAmount: BigNumberish, ],
       [void],
       'nonpayable'
     >
@@ -510,6 +456,14 @@ decodeFunctionResult(functionFragment: 'voteWithSignature', data: BytesLike): Re
     
 
     
+    getMiners: TypedContractMethod<
+      [],
+      [string[]],
+      'view'
+    >
+    
+
+    
     getProposal: TypedContractMethod<
       [txHash: BytesLike, ],
       [[string, string, bigint, bigint, boolean] & {token: string, recipient: string, amount: bigint, voteCount: bigint, executed: boolean }],
@@ -550,14 +504,6 @@ decodeFunctionResult(functionFragment: 'voteWithSignature', data: BytesLike): Re
     
 
     
-    guardianNodesInfoV6: TypedContractMethod<
-      [],
-      [string],
-      'view'
-    >
-    
-
-    
     hasVoted: TypedContractMethod<
       [arg0: BytesLike, arg1: AddressLike, ],
       [boolean],
@@ -591,7 +537,7 @@ decodeFunctionResult(functionFragment: 'voteWithSignature', data: BytesLike): Re
 
     
     isMiner: TypedContractMethod<
-      [nodeAddress: AddressLike, ],
+      [account: AddressLike, ],
       [boolean],
       'view'
     >
@@ -614,34 +560,10 @@ decodeFunctionResult(functionFragment: 'voteWithSignature', data: BytesLike): Re
     
 
     
-    owner: TypedContractMethod<
-      [],
-      [string],
-      'view'
-    >
-    
-
-    
     proposals: TypedContractMethod<
       [arg0: BytesLike, ],
       [[string, string, bigint, bigint, boolean] & {token: string, recipient: string, amount: bigint, voteCount: bigint, executed: boolean }],
       'view'
-    >
-    
-
-    
-    removeAdmin: TypedContractMethod<
-      [admin: AddressLike, ],
-      [void],
-      'nonpayable'
-    >
-    
-
-    
-    renounceOwnership: TypedContractMethod<
-      [],
-      [void],
-      'nonpayable'
     >
     
 
@@ -670,26 +592,10 @@ decodeFunctionResult(functionFragment: 'voteWithSignature', data: BytesLike): Re
     
 
     
-    setGuardianNodesInfoV6: TypedContractMethod<
-      [_guardianNodesInfoV6: AddressLike, ],
-      [void],
-      'nonpayable'
-    >
-    
-
-    
     totalUsdc2BUnit: TypedContractMethod<
       [],
       [bigint],
       'view'
-    >
-    
-
-    
-    transferOwnership: TypedContractMethod<
-      [newOwner: AddressLike, ],
-      [void],
-      'nonpayable'
     >
     
 
@@ -759,23 +665,13 @@ getFunction(nameOrSignature: 'USDC_TO_BUNIT_RATE'): TypedContractMethod<
       [bigint],
       'view'
     >;
-getFunction(nameOrSignature: 'addAdmin'): TypedContractMethod<
-      [admin: AddressLike, ],
+getFunction(nameOrSignature: 'addMiner'): TypedContractMethod<
+      [miner: AddressLike, ],
       [void],
       'nonpayable'
-    >;
-getFunction(nameOrSignature: 'adminList'): TypedContractMethod<
-      [arg0: AddressLike, ],
-      [boolean],
-      'view'
     >;
 getFunction(nameOrSignature: 'airdropBUnitForAdmin'): TypedContractMethod<
       [claimant: AddressLike, nonce: BigNumberish, deadline: BigNumberish, signature: BytesLike, ],
-      [void],
-      'nonpayable'
-    >;
-getFunction(nameOrSignature: 'airdropBUnitFromUsdcForAdmin'): TypedContractMethod<
-      [user: AddressLike, usdcAmount: BigNumberish, ],
       [void],
       'nonpayable'
     >;
@@ -844,6 +740,11 @@ getFunction(nameOrSignature: 'getCreatedTokens'): TypedContractMethod<
       [string[]],
       'view'
     >;
+getFunction(nameOrSignature: 'getMiners'): TypedContractMethod<
+      [],
+      [string[]],
+      'view'
+    >;
 getFunction(nameOrSignature: 'getProposal'): TypedContractMethod<
       [txHash: BytesLike, ],
       [[string, string, bigint, bigint, boolean] & {token: string, recipient: string, amount: bigint, voteCount: bigint, executed: boolean }],
@@ -869,11 +770,6 @@ getFunction(nameOrSignature: 'getVoteDigest'): TypedContractMethod<
       [string],
       'view'
     >;
-getFunction(nameOrSignature: 'guardianNodesInfoV6'): TypedContractMethod<
-      [],
-      [string],
-      'view'
-    >;
 getFunction(nameOrSignature: 'hasVoted'): TypedContractMethod<
       [arg0: BytesLike, arg1: AddressLike, ],
       [boolean],
@@ -895,7 +791,7 @@ getFunction(nameOrSignature: 'isCreatedToken'): TypedContractMethod<
       'view'
     >;
 getFunction(nameOrSignature: 'isMiner'): TypedContractMethod<
-      [nodeAddress: AddressLike, ],
+      [account: AddressLike, ],
       [boolean],
       'view'
     >;
@@ -909,25 +805,10 @@ getFunction(nameOrSignature: 'mintForAdmin'): TypedContractMethod<
       [void],
       'nonpayable'
     >;
-getFunction(nameOrSignature: 'owner'): TypedContractMethod<
-      [],
-      [string],
-      'view'
-    >;
 getFunction(nameOrSignature: 'proposals'): TypedContractMethod<
       [arg0: BytesLike, ],
       [[string, string, bigint, bigint, boolean] & {token: string, recipient: string, amount: bigint, voteCount: bigint, executed: boolean }],
       'view'
-    >;
-getFunction(nameOrSignature: 'removeAdmin'): TypedContractMethod<
-      [admin: AddressLike, ],
-      [void],
-      'nonpayable'
-    >;
-getFunction(nameOrSignature: 'renounceOwnership'): TypedContractMethod<
-      [],
-      [void],
-      'nonpayable'
     >;
 getFunction(nameOrSignature: 'requiredVotes'): TypedContractMethod<
       [],
@@ -944,20 +825,10 @@ getFunction(nameOrSignature: 'setBaseToken'): TypedContractMethod<
       [void],
       'nonpayable'
     >;
-getFunction(nameOrSignature: 'setGuardianNodesInfoV6'): TypedContractMethod<
-      [_guardianNodesInfoV6: AddressLike, ],
-      [void],
-      'nonpayable'
-    >;
 getFunction(nameOrSignature: 'totalUsdc2BUnit'): TypedContractMethod<
       [],
       [bigint],
       'view'
-    >;
-getFunction(nameOrSignature: 'transferOwnership'): TypedContractMethod<
-      [newOwner: AddressLike, ],
-      [void],
-      'nonpayable'
     >;
 getFunction(nameOrSignature: 'usdc2BUnitProposals'): TypedContractMethod<
       [arg0: BytesLike, ],
@@ -990,19 +861,17 @@ getFunction(nameOrSignature: 'voteWithSignature'): TypedContractMethod<
       'nonpayable'
     >;
 
-    getEvent(key: 'AdminAdded'): TypedContractEvent<AdminAddedEvent.InputTuple, AdminAddedEvent.OutputTuple, AdminAddedEvent.OutputObject>;
-getEvent(key: 'AdminRemoved'): TypedContractEvent<AdminRemovedEvent.InputTuple, AdminRemovedEvent.OutputTuple, AdminRemovedEvent.OutputObject>;
-getEvent(key: 'AirdropBUnitByAdmin'): TypedContractEvent<AirdropBUnitByAdminEvent.InputTuple, AirdropBUnitByAdminEvent.OutputTuple, AirdropBUnitByAdminEvent.OutputObject>;
-getEvent(key: 'AirdropBUnitFromUsdcByAdmin'): TypedContractEvent<AirdropBUnitFromUsdcByAdminEvent.InputTuple, AirdropBUnitFromUsdcByAdminEvent.OutputTuple, AirdropBUnitFromUsdcByAdminEvent.OutputObject>;
+    getEvent(key: 'AirdropBUnitByMiner'): TypedContractEvent<AirdropBUnitByMinerEvent.InputTuple, AirdropBUnitByMinerEvent.OutputTuple, AirdropBUnitByMinerEvent.OutputObject>;
+getEvent(key: 'AirdropBUnitFromUsdcByMiner'): TypedContractEvent<AirdropBUnitFromUsdcByMinerEvent.InputTuple, AirdropBUnitFromUsdcByMinerEvent.OutputTuple, AirdropBUnitFromUsdcByMinerEvent.OutputObject>;
 getEvent(key: 'AirdropExecuted'): TypedContractEvent<AirdropExecutedEvent.InputTuple, AirdropExecutedEvent.OutputTuple, AirdropExecutedEvent.OutputObject>;
 getEvent(key: 'AirdropProposalCreated'): TypedContractEvent<AirdropProposalCreatedEvent.InputTuple, AirdropProposalCreatedEvent.OutputTuple, AirdropProposalCreatedEvent.OutputObject>;
 getEvent(key: 'AirdropVoted'): TypedContractEvent<AirdropVotedEvent.InputTuple, AirdropVotedEvent.OutputTuple, AirdropVotedEvent.OutputObject>;
 getEvent(key: 'BUnitAirdropUpdated'): TypedContractEvent<BUnitAirdropUpdatedEvent.InputTuple, BUnitAirdropUpdatedEvent.OutputTuple, BUnitAirdropUpdatedEvent.OutputObject>;
 getEvent(key: 'BurnRequested'): TypedContractEvent<BurnRequestedEvent.InputTuple, BurnRequestedEvent.OutputTuple, BurnRequestedEvent.OutputObject>;
 getEvent(key: 'ERC20Created'): TypedContractEvent<ERC20CreatedEvent.InputTuple, ERC20CreatedEvent.OutputTuple, ERC20CreatedEvent.OutputObject>;
-getEvent(key: 'MintByAdmin'): TypedContractEvent<MintByAdminEvent.InputTuple, MintByAdminEvent.OutputTuple, MintByAdminEvent.OutputObject>;
+getEvent(key: 'MinerAdded'): TypedContractEvent<MinerAddedEvent.InputTuple, MinerAddedEvent.OutputTuple, MinerAddedEvent.OutputObject>;
+getEvent(key: 'MintByMiner'): TypedContractEvent<MintByMinerEvent.InputTuple, MintByMinerEvent.OutputTuple, MintByMinerEvent.OutputObject>;
 getEvent(key: 'MintExecuted'): TypedContractEvent<MintExecutedEvent.InputTuple, MintExecutedEvent.OutputTuple, MintExecutedEvent.OutputObject>;
-getEvent(key: 'OwnershipTransferred'): TypedContractEvent<OwnershipTransferredEvent.InputTuple, OwnershipTransferredEvent.OutputTuple, OwnershipTransferredEvent.OutputObject>;
 getEvent(key: 'ProposalCreated'): TypedContractEvent<ProposalCreatedEvent.InputTuple, ProposalCreatedEvent.OutputTuple, ProposalCreatedEvent.OutputObject>;
 getEvent(key: 'ProposalExecuted'): TypedContractEvent<ProposalExecutedEvent.InputTuple, ProposalExecutedEvent.OutputTuple, ProposalExecutedEvent.OutputObject>;
 getEvent(key: 'Usdc2BUnitExecuted'): TypedContractEvent<Usdc2BUnitExecutedEvent.InputTuple, Usdc2BUnitExecutedEvent.OutputTuple, Usdc2BUnitExecutedEvent.OutputObject>;
@@ -1010,20 +879,12 @@ getEvent(key: 'Voted'): TypedContractEvent<VotedEvent.InputTuple, VotedEvent.Out
 
     filters: {
       
-      'AdminAdded(address)': TypedContractEvent<AdminAddedEvent.InputTuple, AdminAddedEvent.OutputTuple, AdminAddedEvent.OutputObject>;
-      AdminAdded: TypedContractEvent<AdminAddedEvent.InputTuple, AdminAddedEvent.OutputTuple, AdminAddedEvent.OutputObject>;
+      'AirdropBUnitByMiner(address,uint256)': TypedContractEvent<AirdropBUnitByMinerEvent.InputTuple, AirdropBUnitByMinerEvent.OutputTuple, AirdropBUnitByMinerEvent.OutputObject>;
+      AirdropBUnitByMiner: TypedContractEvent<AirdropBUnitByMinerEvent.InputTuple, AirdropBUnitByMinerEvent.OutputTuple, AirdropBUnitByMinerEvent.OutputObject>;
     
 
-      'AdminRemoved(address)': TypedContractEvent<AdminRemovedEvent.InputTuple, AdminRemovedEvent.OutputTuple, AdminRemovedEvent.OutputObject>;
-      AdminRemoved: TypedContractEvent<AdminRemovedEvent.InputTuple, AdminRemovedEvent.OutputTuple, AdminRemovedEvent.OutputObject>;
-    
-
-      'AirdropBUnitByAdmin(address,uint256)': TypedContractEvent<AirdropBUnitByAdminEvent.InputTuple, AirdropBUnitByAdminEvent.OutputTuple, AirdropBUnitByAdminEvent.OutputObject>;
-      AirdropBUnitByAdmin: TypedContractEvent<AirdropBUnitByAdminEvent.InputTuple, AirdropBUnitByAdminEvent.OutputTuple, AirdropBUnitByAdminEvent.OutputObject>;
-    
-
-      'AirdropBUnitFromUsdcByAdmin(address,uint256,uint256)': TypedContractEvent<AirdropBUnitFromUsdcByAdminEvent.InputTuple, AirdropBUnitFromUsdcByAdminEvent.OutputTuple, AirdropBUnitFromUsdcByAdminEvent.OutputObject>;
-      AirdropBUnitFromUsdcByAdmin: TypedContractEvent<AirdropBUnitFromUsdcByAdminEvent.InputTuple, AirdropBUnitFromUsdcByAdminEvent.OutputTuple, AirdropBUnitFromUsdcByAdminEvent.OutputObject>;
+      'AirdropBUnitFromUsdcByMiner(address,uint256,uint256)': TypedContractEvent<AirdropBUnitFromUsdcByMinerEvent.InputTuple, AirdropBUnitFromUsdcByMinerEvent.OutputTuple, AirdropBUnitFromUsdcByMinerEvent.OutputObject>;
+      AirdropBUnitFromUsdcByMiner: TypedContractEvent<AirdropBUnitFromUsdcByMinerEvent.InputTuple, AirdropBUnitFromUsdcByMinerEvent.OutputTuple, AirdropBUnitFromUsdcByMinerEvent.OutputObject>;
     
 
       'AirdropExecuted(bytes32,address)': TypedContractEvent<AirdropExecutedEvent.InputTuple, AirdropExecutedEvent.OutputTuple, AirdropExecutedEvent.OutputObject>;
@@ -1050,16 +911,16 @@ getEvent(key: 'Voted'): TypedContractEvent<VotedEvent.InputTuple, VotedEvent.Out
       ERC20Created: TypedContractEvent<ERC20CreatedEvent.InputTuple, ERC20CreatedEvent.OutputTuple, ERC20CreatedEvent.OutputObject>;
     
 
-      'MintByAdmin(address,address,uint256)': TypedContractEvent<MintByAdminEvent.InputTuple, MintByAdminEvent.OutputTuple, MintByAdminEvent.OutputObject>;
-      MintByAdmin: TypedContractEvent<MintByAdminEvent.InputTuple, MintByAdminEvent.OutputTuple, MintByAdminEvent.OutputObject>;
+      'MinerAdded(address)': TypedContractEvent<MinerAddedEvent.InputTuple, MinerAddedEvent.OutputTuple, MinerAddedEvent.OutputObject>;
+      MinerAdded: TypedContractEvent<MinerAddedEvent.InputTuple, MinerAddedEvent.OutputTuple, MinerAddedEvent.OutputObject>;
+    
+
+      'MintByMiner(address,address,uint256)': TypedContractEvent<MintByMinerEvent.InputTuple, MintByMinerEvent.OutputTuple, MintByMinerEvent.OutputObject>;
+      MintByMiner: TypedContractEvent<MintByMinerEvent.InputTuple, MintByMinerEvent.OutputTuple, MintByMinerEvent.OutputObject>;
     
 
       'MintExecuted(address,address,uint256)': TypedContractEvent<MintExecutedEvent.InputTuple, MintExecutedEvent.OutputTuple, MintExecutedEvent.OutputObject>;
       MintExecuted: TypedContractEvent<MintExecutedEvent.InputTuple, MintExecutedEvent.OutputTuple, MintExecutedEvent.OutputObject>;
-    
-
-      'OwnershipTransferred(address,address)': TypedContractEvent<OwnershipTransferredEvent.InputTuple, OwnershipTransferredEvent.OutputTuple, OwnershipTransferredEvent.OutputObject>;
-      OwnershipTransferred: TypedContractEvent<OwnershipTransferredEvent.InputTuple, OwnershipTransferredEvent.OutputTuple, OwnershipTransferredEvent.OutputObject>;
     
 
       'ProposalCreated(bytes32,address,address,uint256,address)': TypedContractEvent<ProposalCreatedEvent.InputTuple, ProposalCreatedEvent.OutputTuple, ProposalCreatedEvent.OutputObject>;

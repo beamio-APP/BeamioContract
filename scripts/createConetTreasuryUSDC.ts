@@ -40,9 +40,9 @@ async function main() {
   console.log("chainId:", net.chainId.toString(), "\n");
 
   const treasury = await ethers.getContractAt("ConetTreasury", treasuryAddress);
-  const owner = await treasury.owner();
-  if (signer.address.toLowerCase() !== owner.toLowerCase()) {
-    throw new Error(`调用者 ${signer.address} 非 owner ${owner}，无法创建 ERC20`);
+  const isMiner = await treasury.isMiner(signer.address);
+  if (!isMiner) {
+    throw new Error(`调用者 ${signer.address} 非 miner，无法创建 ERC20`);
   }
 
   // 检查是否已存在 USDC

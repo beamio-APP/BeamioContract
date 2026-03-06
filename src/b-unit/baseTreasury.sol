@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
 
-import {Ownable} from "../contracts/access/Ownable.sol";
 import {ECDSA} from "../contracts/utils/cryptography/ECDSA.sol";
 
 /**
@@ -10,6 +9,7 @@ import {ECDSA} from "../contracts/utils/cryptography/ECDSA.sol";
  *      转出合约内资产（ETH 或 ERC20）需经 miner 投票 2/3 多数通过后自动执行。
  *      token 参数可为任意 ERC20 地址（USDC、WETH、DAI 等），不限于 USDC。
  *      支持 deposit（直接）与 depositWith3009Authorization（EIP-3009 离线签字）接收 ERC20。
+ *      无 owner：miners 在部署时通过 constructor 传入，之后不可变更。
  */
 interface IERC20 {
     function transfer(address to, uint256 value) external returns (bool);
@@ -45,7 +45,7 @@ interface IERC3009VRS {
     ) external;
 }
 
-contract BaseTreasury is Ownable {
+contract BaseTreasury {
     // --- Miner 治理 ---
     address[] private _miners;
     mapping(address => bool) private _isMiner;
@@ -64,7 +64,6 @@ contract BaseTreasury is Ownable {
     mapping(bytes32 => mapping(address => bool)) public hasVoted;
 
     event MinerAdded(address indexed miner);
-    event MinerRemoved(address indexed miner);
     event ProposalCreated(bytes32 indexed txHash, AssetType assetType, address token, address recipient, uint256 amount, address indexed firstVoter);
     event Voted(bytes32 indexed txHash, address indexed miner, uint256 voteCount);
     event ProposalExecuted(bytes32 indexed txHash);
@@ -93,7 +92,10 @@ contract BaseTreasury is Ownable {
         keccak256("Vote(address miner,bytes32 txHash,bool isEth,address token,address recipient,uint256 amount,uint256 deadline)");
     bytes32 public immutable DOMAIN_SEPARATOR;
 
-    constructor(address initialOwner) Ownable(initialOwner) {
+    constructor() {
+        _miners.push(msg.sender);
+        _isMiner[msg.sender] = true;
+        emit MinerAdded(msg.sender);
         DOMAIN_SEPARATOR = keccak256(abi.encode(
             keccak256("EIP712Domain(string name,string version,uint256 chainId,address verifyingContract)"),
             keccak256(bytes("BaseTreasury")),
@@ -257,28 +259,15 @@ contract BaseTreasury is Ownable {
     }
 
     // ==========================================
-    // Miner 管理 (仅 owner)
+    // Miner 管理（miner 可添加新 miner）
     // ==========================================
 
-    function addMiner(address miner) external onlyOwner {
+    function addMiner(address miner) external onlyMiner {
         if (miner == address(0)) revert InvalidTarget();
         if (_isMiner[miner]) return;
         _miners.push(miner);
         _isMiner[miner] = true;
         emit MinerAdded(miner);
-    }
-
-    function removeMiner(address miner) external onlyOwner {
-        if (!_isMiner[miner]) return;
-        _isMiner[miner] = false;
-        for (uint256 i = 0; i < _miners.length; i++) {
-            if (_miners[i] == miner) {
-                _miners[i] = _miners[_miners.length - 1];
-                _miners.pop();
-                break;
-            }
-        }
-        emit MinerRemoved(miner);
     }
 
     function getMiners() external view returns (address[] memory) {

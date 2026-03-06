@@ -11,7 +11,7 @@ import type { TypedContractEvent, TypedDeferredTopicFilter, TypedEventLog, Typed
     
 
     encodeFunctionData(functionFragment: 'claimFor', values: [AddressLike, BigNumberish, BigNumberish, BytesLike]): string;
-encodeFunctionData(functionFragment: 'mintForUsdcPurchase', values: [AddressLike, BigNumberish]): string;
+encodeFunctionData(functionFragment: 'mintForUsdcPurchase', values: [AddressLike, BigNumberish, BytesLike]): string;
 
     decodeFunctionResult(functionFragment: 'claimFor', data: BytesLike): Result;
 decodeFunctionResult(functionFragment: 'mintForUsdcPurchase', data: BytesLike): Result;
@@ -62,7 +62,7 @@ decodeFunctionResult(functionFragment: 'mintForUsdcPurchase', data: BytesLike): 
 
     
     mintForUsdcPurchase: TypedContractMethod<
-      [to: AddressLike, bunitAmount: BigNumberish, ],
+      [to: AddressLike, usdcAmount: BigNumberish, baseTxHash: BytesLike, ],
       [void],
       'nonpayable'
     >
@@ -77,7 +77,7 @@ decodeFunctionResult(functionFragment: 'mintForUsdcPurchase', data: BytesLike): 
       'nonpayable'
     >;
 getFunction(nameOrSignature: 'mintForUsdcPurchase'): TypedContractMethod<
-      [to: AddressLike, bunitAmount: BigNumberish, ],
+      [to: AddressLike, usdcAmount: BigNumberish, baseTxHash: BytesLike, ],
       [void],
       'nonpayable'
     >;

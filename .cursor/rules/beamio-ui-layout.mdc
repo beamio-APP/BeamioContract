@@ -24,3 +24,6 @@ Beamio 各页面的**首个显示控件与顶部**的间距必须统一，使用
 - `MyWalletDashboardNew`：同上
 - `Market`：同上
 - **All Activity 全屏页**：在 px-4 的滚动 div 内，spacer 后接 ActiveHistoryPannelNew（胶囊为首个控件）
+- **Fuel Center (FuelView)**：全屏 overlay，根容器加 `pl-[env(safe-area-inset-left)] pr-[env(safe-area-inset-right)] pb-[calc(8rem+env(safe-area-inset-bottom))]`。两种顶部间距：
+  - **返回按钮 + title**：对齐 Home 胶囊，`paddingTop: 'max(1rem, env(safe-area-inset-top))'`
+  - **首内容**（Network Fuel Balance）：对齐 Home 首内容，spacer `minHeight: calc(env(safe-area-inset-top) + 5rem)` + 内容区 `pt-6`

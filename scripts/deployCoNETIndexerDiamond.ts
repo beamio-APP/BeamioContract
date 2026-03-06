@@ -1,6 +1,6 @@
 /**
  * 部署 BeamioIndexerDiamond (CoNETIndexTaskdiamond) 到 CoNET mainnet
- * RPC: mainnet-rpc1.conet.network
+ * RPC: mainnet-rpc.conet.network
  * 使用 masterSetup.settle_contractAdmin[0] 私钥
  * 部署完成后将 settle_contractAdmin 中所有钱包添加为 Diamond admin
  *

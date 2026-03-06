@@ -7,6 +7,5 @@ export * as coNetIndexTaskdiamond from './CoNETIndexTaskdiamond/index.js';
 export * as bUnit from './b-unit/index.js';
 export * as contracts from './contracts/index.js';
 export * as mainnet from './mainnet/index.js';
-export * as x402Sdk from './x402sdk/index.js';
 export { AccountRegistry__factory } from './AccountRegistry__factory.js';
 export { GuardianNodesInfoV6__factory } from './GuardianNodesInfoV6__factory.js';

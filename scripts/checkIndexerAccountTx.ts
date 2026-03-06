@@ -15,13 +15,13 @@ const INDEXER_ABI = [
 ] as const
 
 async function main() {
-	const account = '0x513087820Af94A7f4d21bC5B68090f3080022E0e'
+	const account = process.env.ACCOUNT || '0x87cAeD4e51C36a2C2ece3Aaf4ddaC9693d2405E1'
 	const deployPath = path.join(__dirname, '..', 'deployments', 'conet-IndexerDiamond.json')
 	const deploy = JSON.parse(fs.readFileSync(deployPath, 'utf8'))
 	const diamond = deploy.diamond
 	if (!diamond) throw new Error('缺少 diamond 地址')
 
-	const provider = new ethers.JsonRpcProvider('https://mainnet-rpc1.conet.network')
+	const provider = new ethers.JsonRpcProvider('https://mainnet-rpc.conet.network')
 	const indexer = new ethers.Contract(diamond, INDEXER_ABI, provider)
 
 	console.log('Indexer:', diamond)

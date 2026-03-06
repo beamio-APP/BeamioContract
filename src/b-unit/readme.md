@@ -130,13 +130,23 @@ function consumeFuel(address user, uint256 amount) external onlyAdmin {
 | **法币记账** | Base L2 Treasury 收到指令，内部记账：NodeDividendPool += 0.25 USDC（因为 25 Units = $0.25） |
 | **节点提现** | 全球的创世节点随时可以通过调用 Base L2 Treasury 的 claimYield()，提取属于自己的 USDC 现金流 |
 
-## 6. CoNET 主网部署合约 (mainnet.conet.network)
+## 6. 部署合约地址
+
+### 6.1 Base 主网 (Base L2)
 
 | 合约 | 地址 | 说明 |
 |------|------|------|
-| **ConetTreasury** | `0x55758EF81535Ae49926C5D7ef347f2f2e66A0144` | CoNET 国库，ERC20 工厂，miner 2/3 投票 mint |
-| **USDC** (FactoryERC20) | `0x0aA42D428D2D17257AF4C382078373AbC482D8CB` | 工厂发行的 USDC，baseToken 对应 Base 主网 USDC |
-| **BUnitAirdrop** | `0x36dEc4b91ee3b9a0cF0F6f0df47955745Eae4a30` | B-Unit 空投与 USDC 购买入口 |
+| **BaseTreasury** | `0x5c64a8b0935DA72d60933bBD8cD10579E1C40c58` | Base 国库，接收 ETH/ERC20，miner 2/3 投票转出 |
+
+Explorer: https://basescan.org/address/0x5c64a8b0935DA72d60933bBD8cD10579E1C40c58
+
+### 6.2 CoNET 主网 (mainnet.conet.network)
+
+| 合约 | 地址 | 说明 |
+|------|------|------|
+| **ConetTreasury** | `0xA7fb50fE8e09E17E74081014d49f4E80729cCA48` | CoNET 国库，ERC20 工厂，miner 2/3 投票 mint |
+| **USDC** (FactoryERC20) | `0x28fBBb6C5C06A4736B00A540b66378091c224456` | 工厂发行的 USDC，baseToken 对应 Base 主网 USDC |
+| **BUnitAirdrop** | `0xa7410a532544aB7d1bA70701D9D0E389e4f4Cc1F` | B-Unit 空投与 USDC 购买入口 |
 | **BUint** | `0x4A3E59519eE72B9Dcf376f0617fF0a0a5a1ef879` | B-Units 代币合约 |
 
 **关联地址**：
@@ -144,5 +154,7 @@ function consumeFuel(address user, uint256 amount) external onlyAdmin {
 - USDC baseToken (Base 主网 USDC): `0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913`
 
 **记账**：BUnitAirdrop 向 BeamioIndexerDiamond (0x0DBDF27E71f9c89353bC5e4dC27c9C5dAe0cc612) 记账：claim/claimFor→buintClaim，mintForUsdcPurchase→buintUSDC，consumeFromUser→keccak256(kind 名称)。需将 BUnitAirdrop 设为 BeamioIndexerDiamond 的 admin（AdminFacet.setAdmin）。
+
+**claimFor 的 gas limit**：claimFor 内部会调用 syncTokenAction 向 Indexer 记账。syncTokenAction 需要约 55 万 gas（冷存储写入）。若 x402sdk 的 claimBUnitsProcess 发送 claimFor 时 gas limit 过低（如 82 万），剩余 gas 不足会导致 syncTokenAction 失败（out of gas），claim 成功但 Indexer 无记账。**x402sdk MemberCard.ts claimBUnitsProcess 已设置 gas limit 1_200_000**。
 
 Explorer: https://mainnet.conet.network

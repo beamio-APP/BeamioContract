@@ -1,6 +1,6 @@
 /**
  * 部署 MerchantPOSManagement 到 CoNET mainnet
- * RPC: mainnet-rpc1.conet.network
+ * RPC: mainnet-rpc.conet.network
  *
  * 运行: npx hardhat run scripts/deployMerchantPOSManagementToConet.ts --network conet
  *

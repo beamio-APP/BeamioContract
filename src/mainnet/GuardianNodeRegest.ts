@@ -12,7 +12,7 @@ const masterSetup = require(join(homedir(), ".master.json"))
 const v1Address = "0xCd68C3FFFE403f9F26081807c77aB29a4DF6940D"
 const newNodeAddress = "0xCd68C3FFFE403f9F26081807c77aB29a4DF6940D"
 
-const newProvider = new ethers.JsonRpcProvider("https://mainnet-rpc1.conet.network")
+const newProvider = new ethers.JsonRpcProvider("https://mainnet-rpc.conet.network")
 const v1Provider = new ethers.JsonRpcProvider("http://38.102.126.30:80")
 const masterWallet = new ethers.Wallet(masterSetup.settle_contractAdmin[0], newProvider)
 

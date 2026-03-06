@@ -1,0 +1,9 @@
+{
+  "network": "base",
+  "chainId": "8453",
+  "contract": "BaseTreasury",
+  "address": "0x5c64a8b0935DA72d60933bBD8cD10579E1C40c58",
+  "deployer": "0x87cAeD4e51C36a2C2ece3Aaf4ddaC9693d2405E1",
+  "timestamp": "2026-03-05T01:49:09.988Z",
+  "transactionHash": "0x18e735c2de5ef7790d010fe40ee68d982500b8580b629d736701f68aefd1dbba"
+}

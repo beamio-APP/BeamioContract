@@ -1,11 +1,13 @@
 /**
  * 部署 ConetTreasury 到 CoNET mainnet
  *
- * 1. 部署 ConetTreasury（initialOwner = deployer, guardianNodesInfoV6 = 0xCd68C3FFFE403f9F26081807c77aB29a4DF6940D）
- * 2. BUnitAirdrop.addAdmin(conetTreasuryAddress) 使 ConetTreasury 可调用 mintForUsdcPurchase
- * 3. ConetTreasury.setBUnitAirdrop(bunitAirdropAddress)
+ * 与 BaseTreasury 对齐：无 owner/admin，自维护 miner 表，部署者为首个 miner。
  *
- * minerCount 自动从 GuardianNodesInfoV6.getUniqueOwnerCount() 获取，无需手动设置。
+ * 1. 部署 ConetTreasury（无参数，deployer 为首个 miner）
+ * 2. ConetTreasury.createERC20 创建 conetUSDC（若新部署且无 USDC）
+ * 3. BUnitAirdrop.addAdmin(conetTreasuryAddress) 使 ConetTreasury 可调用 mintForUsdcPurchase
+ * 4. ConetTreasury.setBUnitAirdrop(bunitAirdropAddress)
+ * 5. BUnitAirdrop.setConetTreasuryAndUsdc(conetTreasury, conet-USDC)
  *
  * 运行: npx hardhat run scripts/deployConetTreasuryToConet.ts --network conet
  */
@@ -19,6 +21,7 @@ import { fileURLToPath } from "url";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const MASTER_PATH = path.join(homedir(), ".master.json");
+const BASE_USDC = "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913";
 
 function loadMasterSetup(): { settle_contractAdmin: string[] } {
   if (!fs.existsSync(MASTER_PATH)) throw new Error("未找到 ~/.master.json");
@@ -32,6 +35,7 @@ function loadMasterSetup(): { settle_contractAdmin: string[] } {
 }
 
 async function main() {
+  let CONET_USDC: string;
   const { ethers } = await networkModule.connect();
   const [deployer] = await ethers.getSigners();
   const net = await ethers.provider.getNetwork();
@@ -56,47 +60,68 @@ async function main() {
   const balance = await ethers.provider.getBalance(deployer.address);
   console.log("balance:", ethers.formatEther(balance), "CNET\n");
 
-  // 1. Deploy ConetTreasury（miner 鉴定使用 GuardianNodesInfoV6）
-  const GUARDIAN_NODES_V6 = process.env.GUARDIAN_NODES || "0xCd68C3FFFE403f9F26081807c77aB29a4DF6940D";
+  // 1. Deploy ConetTreasury（无参数，deployer 为首个 miner）
   const ConetTreasuryFactory = await ethers.getContractFactory("ConetTreasury");
-  const treasury = await ConetTreasuryFactory.deploy(deployer.address, GUARDIAN_NODES_V6);
+  const treasury = await ConetTreasuryFactory.deploy();
   await treasury.waitForDeployment();
   const treasuryAddress = await treasury.getAddress();
   console.log("[1] ConetTreasury deployed:", treasuryAddress);
 
-  // 2. BUnitAirdrop.addAdmin(conetTreasury) - 使 ConetTreasury 可调用 mintForUsdcPurchase
+  // 2. Create conetUSDC via createERC20（新部署的 ConetTreasury 需创建 USDC）
+  const tokenCount = await treasury.createdTokenCount();
+  let hasUsdc = false;
+  if (tokenCount > 0) {
+    const createdTokens = await treasury.getCreatedTokens();
+    for (let i = 0; i < tokenCount; i++) {
+      const token = await ethers.getContractAt(["function symbol() view returns (string)"], createdTokens[i]);
+      if ((await token.symbol()) === "USDC") {
+        CONET_USDC = createdTokens[i];
+        hasUsdc = true;
+        break;
+      }
+    }
+  }
+  if (!hasUsdc) {
+    const txCreate = await treasury.createERC20("USD Coin", "USDC", 6, BASE_USDC);
+    await txCreate.wait();
+    const tokens = await treasury.getCreatedTokens();
+    CONET_USDC = tokens[tokens.length - 1];
+    console.log("[2] createERC20 conetUSDC:", CONET_USDC);
+  } else {
+    console.log("[2] ConetTreasury 已有 USDC:", CONET_USDC);
+  }
+
+  // 3. BUnitAirdrop.addAdmin(conetTreasury) - 使 ConetTreasury 可调用 mintForUsdcPurchase
   const airdropPath = path.join(__dirname, "..", "deployments", "conet-BUintAirdrop.json");
+  let airdropAddress: string | undefined;
   if (!fs.existsSync(airdropPath)) {
     console.warn("[2] 未找到 conet-BUintAirdrop.json，跳过 BUnitAirdrop.addAdmin");
   } else {
     const airdropData = JSON.parse(fs.readFileSync(airdropPath, "utf-8"));
-    const airdropAddress = airdropData?.contracts?.BUnitAirdrop?.address;
+    airdropAddress = airdropData?.contracts?.BUnitAirdrop?.address;
     if (airdropAddress) {
       const airdrop = await ethers.getContractAt("BUnitAirdrop", airdropAddress);
       const txAddAdmin = await airdrop.addAdmin(treasuryAddress);
       await txAddAdmin.wait();
-      console.log("[2] BUnitAirdrop.addAdmin(ConetTreasury) ok");
+      console.log("[3] BUnitAirdrop.addAdmin(ConetTreasury) ok");
 
-      // 3. ConetTreasury.setBUnitAirdrop
+      // 4. ConetTreasury.setBUnitAirdrop
       const txSet = await treasury.setBUnitAirdrop(airdropAddress);
       await txSet.wait();
-      console.log("[3] ConetTreasury.setBUnitAirdrop ok");
+      console.log("[4] ConetTreasury.setBUnitAirdrop ok");
+
+      // 5. BUnitAirdrop.setConetTreasuryAndUsdc(conetTreasury, conet-USDC)
+      const txUsdc = await airdrop.setConetTreasuryAndUsdc(treasuryAddress, CONET_USDC);
+      await txUsdc.wait();
+      console.log("[5] BUnitAirdrop.setConetTreasuryAndUsdc(ConetTreasury, conet-USDC) ok");
     } else {
       console.warn("[2] conet-BUintAirdrop.json 中无 BUnitAirdrop 地址，跳过");
     }
   }
 
-  // minerCount 自动从 GuardianNodesInfoV6.getUniqueOwnerCount() 获取
-  let minerCount = "0";
-  try {
-    const GuardianNodesABI = ["function getUniqueOwnerCount() view returns (uint256)"];
-    const guardian = await ethers.getContractAt(GuardianNodesABI, GUARDIAN_NODES_V6);
-    minerCount = (await guardian.getUniqueOwnerCount()).toString();
-    console.log("[4] GuardianNodesInfoV6.getUniqueOwnerCount() =", minerCount);
-    console.log("    ConetTreasury.requiredVotes() =", (await treasury.requiredVotes()).toString());
-  } catch (e) {
-    console.warn("[4] GuardianNodesInfoV6.getUniqueOwnerCount() 调用失败，跳过:", (e as Error).message);
-  }
+  const minerCount = (await treasury.minerCount()).toString();
+  console.log("[6] ConetTreasury.minerCount() =", minerCount);
+  console.log("    ConetTreasury.requiredVotes() =", (await treasury.requiredVotes()).toString());
 
   const out = {
     network: "conet",
@@ -106,9 +131,8 @@ async function main() {
     contracts: {
       ConetTreasury: {
         address: treasuryAddress,
-        owner: deployer.address,
-        guardianNodesInfoV6: GUARDIAN_NODES_V6,
         minerCount,
+        conetUsdc: CONET_USDC,
         bUnitAirdrop: (() => {
           const airdropPath = path.join(__dirname, "..", "deployments", "conet-BUintAirdrop.json");
           if (!fs.existsSync(airdropPath)) return undefined;
@@ -124,7 +148,40 @@ async function main() {
   const outPath = path.join(deploymentsDir, "conet-ConetTreasury.json");
   fs.writeFileSync(outPath, JSON.stringify(out, null, 2) + "\n", "utf-8");
   console.log("\nsaved:", outPath);
+
+  // 更新 conet-addresses.json
+  const addrPath = path.join(deploymentsDir, "conet-addresses.json");
+  const addrData = fs.existsSync(addrPath) ? JSON.parse(fs.readFileSync(addrPath, "utf-8")) : { _comment: "CoNET mainnet 合约地址权威配置", network: "conet", chainId: "224400" };
+  addrData.ConetTreasury = treasuryAddress;
+  addrData.conetUsdc = CONET_USDC;
+  fs.writeFileSync(addrPath, JSON.stringify(addrData, null, 2) + "\n", "utf-8");
+  console.log("updated conet-addresses.json ConetTreasury:", treasuryAddress, "conetUsdc:", CONET_USDC);
+
   console.log("\nConetTreasury 地址:", treasuryAddress);
+
+  // 6. BeamioIndexerDiamond.setAdmin(BUnitAirdrop, true) - 使 claim/焚烧/USDC 购买可记账
+  const indexerPath = path.join(__dirname, "..", "deployments", "conet-IndexerDiamond.json");
+  const diamondAddr = fs.existsSync(indexerPath)
+    ? JSON.parse(fs.readFileSync(indexerPath, "utf-8")).diamond
+    : "0x0DBDF27E71f9c89353bC5e4dC27c9C5dAe0cc612";
+  const masterData = JSON.parse(fs.readFileSync(path.join(homedir(), ".master.json"), "utf-8"));
+  const ownerPk = masterData?.settle_contractAdmin?.[0];
+  if (ownerPk && airdropAddress) {
+    const ownerSigner = new ethers.Wallet(ownerPk.startsWith("0x") ? ownerPk : `0x${ownerPk}`, ethers.provider);
+    const diamond = await ethers.getContractAt(
+      ["function setAdmin(address admin, bool enabled) external", "function isAdmin(address) view returns (bool)"],
+      diamondAddr,
+      ownerSigner
+    );
+    const isAdmin = await diamond.isAdmin(airdropAddress);
+    if (!isAdmin) {
+      const txAdmin = await diamond.setAdmin(airdropAddress, true);
+      await txAdmin.wait();
+      console.log("[7] BeamioIndexerDiamond.setAdmin(BUnitAirdrop, true) ok");
+    } else {
+      console.log("[7] BUnitAirdrop 已是 Indexer admin，跳过");
+    }
+  }
 }
 
 main().catch((e) => {

@@ -6,9 +6,9 @@ import type { TypedContractEvent, TypedDeferredTopicFilter, TypedEventLog, Typed
   
 
   export interface BaseTreasuryInterface extends Interface {
-    getFunction(nameOrSignature: "DOMAIN_SEPARATOR" | "addMiner" | "deposit" | "depositWith3009Authorization" | "depositWith3009AuthorizationVRS" | "erc20Balance" | "erc20Balances" | "ethBalance" | "execute" | "getMiners" | "getProposal" | "getVoteDigest" | "hasVoted" | "isMiner" | "minerCount" | "owner" | "proposals" | "purchaseBUnit" | "purchaseBUnitWith3009Authorization" | "purchaseBUnitWith3009AuthorizationVRS" | "removeMiner" | "renounceOwnership" | "requiredVotes" | "transferOwnership" | "vote" | "voteWithSignature"): FunctionFragment;
+    getFunction(nameOrSignature: "DOMAIN_SEPARATOR" | "addMiner" | "deposit" | "depositWith3009Authorization" | "depositWith3009AuthorizationVRS" | "erc20Balance" | "erc20Balances" | "ethBalance" | "execute" | "getMiners" | "getProposal" | "getVoteDigest" | "hasVoted" | "isMiner" | "minerCount" | "proposals" | "purchaseBUnit" | "purchaseBUnitWith3009Authorization" | "purchaseBUnitWith3009AuthorizationVRS" | "requiredVotes" | "vote" | "voteWithSignature"): FunctionFragment;
 
-    getEvent(nameOrSignatureOrTopic: "BUnitPurchased" | "ERC20Deposited" | "ERC20Transferred" | "ETHDeposited" | "ETHTransferred" | "MinerAdded" | "MinerRemoved" | "OwnershipTransferred" | "ProposalCreated" | "ProposalExecuted" | "Voted"): EventFragment;
+    getEvent(nameOrSignatureOrTopic: "BUnitPurchased" | "ERC20Deposited" | "ERC20Transferred" | "ETHDeposited" | "ETHTransferred" | "MinerAdded" | "ProposalCreated" | "ProposalExecuted" | "Voted"): EventFragment;
 
     encodeFunctionData(functionFragment: 'DOMAIN_SEPARATOR', values?: undefined): string;
 encodeFunctionData(functionFragment: 'addMiner', values: [AddressLike]): string;
@@ -25,15 +25,11 @@ encodeFunctionData(functionFragment: 'getVoteDigest', values: [AddressLike, Byte
 encodeFunctionData(functionFragment: 'hasVoted', values: [BytesLike, AddressLike]): string;
 encodeFunctionData(functionFragment: 'isMiner', values: [AddressLike]): string;
 encodeFunctionData(functionFragment: 'minerCount', values?: undefined): string;
-encodeFunctionData(functionFragment: 'owner', values?: undefined): string;
 encodeFunctionData(functionFragment: 'proposals', values: [BytesLike]): string;
 encodeFunctionData(functionFragment: 'purchaseBUnit', values: [AddressLike, BigNumberish]): string;
 encodeFunctionData(functionFragment: 'purchaseBUnitWith3009Authorization', values: [AddressLike, AddressLike, BigNumberish, BigNumberish, BigNumberish, BytesLike, BytesLike]): string;
 encodeFunctionData(functionFragment: 'purchaseBUnitWith3009AuthorizationVRS', values: [AddressLike, AddressLike, BigNumberish, BigNumberish, BigNumberish, BytesLike, BigNumberish, BytesLike, BytesLike]): string;
-encodeFunctionData(functionFragment: 'removeMiner', values: [AddressLike]): string;
-encodeFunctionData(functionFragment: 'renounceOwnership', values?: undefined): string;
 encodeFunctionData(functionFragment: 'requiredVotes', values?: undefined): string;
-encodeFunctionData(functionFragment: 'transferOwnership', values: [AddressLike]): string;
 encodeFunctionData(functionFragment: 'vote', values: [BytesLike, boolean, AddressLike, AddressLike, BigNumberish]): string;
 encodeFunctionData(functionFragment: 'voteWithSignature', values: [AddressLike, BytesLike, boolean, AddressLike, AddressLike, BigNumberish, BigNumberish, BytesLike]): string;
 
@@ -52,15 +48,11 @@ decodeFunctionResult(functionFragment: 'getVoteDigest', data: BytesLike): Result
 decodeFunctionResult(functionFragment: 'hasVoted', data: BytesLike): Result;
 decodeFunctionResult(functionFragment: 'isMiner', data: BytesLike): Result;
 decodeFunctionResult(functionFragment: 'minerCount', data: BytesLike): Result;
-decodeFunctionResult(functionFragment: 'owner', data: BytesLike): Result;
 decodeFunctionResult(functionFragment: 'proposals', data: BytesLike): Result;
 decodeFunctionResult(functionFragment: 'purchaseBUnit', data: BytesLike): Result;
 decodeFunctionResult(functionFragment: 'purchaseBUnitWith3009Authorization', data: BytesLike): Result;
 decodeFunctionResult(functionFragment: 'purchaseBUnitWith3009AuthorizationVRS', data: BytesLike): Result;
-decodeFunctionResult(functionFragment: 'removeMiner', data: BytesLike): Result;
-decodeFunctionResult(functionFragment: 'renounceOwnership', data: BytesLike): Result;
 decodeFunctionResult(functionFragment: 'requiredVotes', data: BytesLike): Result;
-decodeFunctionResult(functionFragment: 'transferOwnership', data: BytesLike): Result;
 decodeFunctionResult(functionFragment: 'vote', data: BytesLike): Result;
 decodeFunctionResult(functionFragment: 'voteWithSignature', data: BytesLike): Result;
   }
@@ -130,30 +122,6 @@ decodeFunctionResult(functionFragment: 'voteWithSignature', data: BytesLike): Re
       export type InputTuple = [miner: AddressLike];
       export type OutputTuple = [miner: string];
       export interface OutputObject {miner: string };
-      export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>
-      export type Filter = TypedDeferredTopicFilter<Event>
-      export type Log = TypedEventLog<Event>
-      export type LogDescription = TypedLogDescription<Event>
-    }
-
-  
-
-    export namespace MinerRemovedEvent {
-      export type InputTuple = [miner: AddressLike];
-      export type OutputTuple = [miner: string];
-      export interface OutputObject {miner: string };
-      export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>
-      export type Filter = TypedDeferredTopicFilter<Event>
-      export type Log = TypedEventLog<Event>
-      export type LogDescription = TypedLogDescription<Event>
-    }
-
-  
-
-    export namespace OwnershipTransferredEvent {
-      export type InputTuple = [previousOwner: AddressLike, newOwner: AddressLike];
-      export type OutputTuple = [previousOwner: string, newOwner: string];
-      export interface OutputObject {previousOwner: string, newOwner: string };
       export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>
       export type Filter = TypedDeferredTopicFilter<Event>
       export type Log = TypedEventLog<Event>
@@ -352,14 +320,6 @@ decodeFunctionResult(functionFragment: 'voteWithSignature', data: BytesLike): Re
     
 
     
-    owner: TypedContractMethod<
-      [],
-      [string],
-      'view'
-    >
-    
-
-    
     proposals: TypedContractMethod<
       [arg0: BytesLike, ],
       [[bigint, string, string, bigint, bigint, boolean] & {assetType: bigint, token: string, recipient: string, amount: bigint, voteCount: bigint, executed: boolean }],
@@ -392,34 +352,10 @@ decodeFunctionResult(functionFragment: 'voteWithSignature', data: BytesLike): Re
     
 
     
-    removeMiner: TypedContractMethod<
-      [miner: AddressLike, ],
-      [void],
-      'nonpayable'
-    >
-    
-
-    
-    renounceOwnership: TypedContractMethod<
-      [],
-      [void],
-      'nonpayable'
-    >
-    
-
-    
     requiredVotes: TypedContractMethod<
       [],
       [bigint],
       'view'
-    >
-    
-
-    
-    transferOwnership: TypedContractMethod<
-      [newOwner: AddressLike, ],
-      [void],
-      'nonpayable'
     >
     
 
@@ -517,11 +453,6 @@ getFunction(nameOrSignature: 'minerCount'): TypedContractMethod<
       [bigint],
       'view'
     >;
-getFunction(nameOrSignature: 'owner'): TypedContractMethod<
-      [],
-      [string],
-      'view'
-    >;
 getFunction(nameOrSignature: 'proposals'): TypedContractMethod<
       [arg0: BytesLike, ],
       [[bigint, string, string, bigint, bigint, boolean] & {assetType: bigint, token: string, recipient: string, amount: bigint, voteCount: bigint, executed: boolean }],
@@ -542,25 +473,10 @@ getFunction(nameOrSignature: 'purchaseBUnitWith3009AuthorizationVRS'): TypedCont
       [void],
       'nonpayable'
     >;
-getFunction(nameOrSignature: 'removeMiner'): TypedContractMethod<
-      [miner: AddressLike, ],
-      [void],
-      'nonpayable'
-    >;
-getFunction(nameOrSignature: 'renounceOwnership'): TypedContractMethod<
-      [],
-      [void],
-      'nonpayable'
-    >;
 getFunction(nameOrSignature: 'requiredVotes'): TypedContractMethod<
       [],
       [bigint],
       'view'
-    >;
-getFunction(nameOrSignature: 'transferOwnership'): TypedContractMethod<
-      [newOwner: AddressLike, ],
-      [void],
-      'nonpayable'
     >;
 getFunction(nameOrSignature: 'vote'): TypedContractMethod<
       [txHash: BytesLike, isEth: boolean, token: AddressLike, recipient: AddressLike, amount: BigNumberish, ],
@@ -579,8 +495,6 @@ getEvent(key: 'ERC20Transferred'): TypedContractEvent<ERC20TransferredEvent.Inpu
 getEvent(key: 'ETHDeposited'): TypedContractEvent<ETHDepositedEvent.InputTuple, ETHDepositedEvent.OutputTuple, ETHDepositedEvent.OutputObject>;
 getEvent(key: 'ETHTransferred'): TypedContractEvent<ETHTransferredEvent.InputTuple, ETHTransferredEvent.OutputTuple, ETHTransferredEvent.OutputObject>;
 getEvent(key: 'MinerAdded'): TypedContractEvent<MinerAddedEvent.InputTuple, MinerAddedEvent.OutputTuple, MinerAddedEvent.OutputObject>;
-getEvent(key: 'MinerRemoved'): TypedContractEvent<MinerRemovedEvent.InputTuple, MinerRemovedEvent.OutputTuple, MinerRemovedEvent.OutputObject>;
-getEvent(key: 'OwnershipTransferred'): TypedContractEvent<OwnershipTransferredEvent.InputTuple, OwnershipTransferredEvent.OutputTuple, OwnershipTransferredEvent.OutputObject>;
 getEvent(key: 'ProposalCreated'): TypedContractEvent<ProposalCreatedEvent.InputTuple, ProposalCreatedEvent.OutputTuple, ProposalCreatedEvent.OutputObject>;
 getEvent(key: 'ProposalExecuted'): TypedContractEvent<ProposalExecutedEvent.InputTuple, ProposalExecutedEvent.OutputTuple, ProposalExecutedEvent.OutputObject>;
 getEvent(key: 'Voted'): TypedContractEvent<VotedEvent.InputTuple, VotedEvent.OutputTuple, VotedEvent.OutputObject>;
@@ -609,14 +523,6 @@ getEvent(key: 'Voted'): TypedContractEvent<VotedEvent.InputTuple, VotedEvent.Out
 
       'MinerAdded(address)': TypedContractEvent<MinerAddedEvent.InputTuple, MinerAddedEvent.OutputTuple, MinerAddedEvent.OutputObject>;
       MinerAdded: TypedContractEvent<MinerAddedEvent.InputTuple, MinerAddedEvent.OutputTuple, MinerAddedEvent.OutputObject>;
-    
-
-      'MinerRemoved(address)': TypedContractEvent<MinerRemovedEvent.InputTuple, MinerRemovedEvent.OutputTuple, MinerRemovedEvent.OutputObject>;
-      MinerRemoved: TypedContractEvent<MinerRemovedEvent.InputTuple, MinerRemovedEvent.OutputTuple, MinerRemovedEvent.OutputObject>;
-    
-
-      'OwnershipTransferred(address,address)': TypedContractEvent<OwnershipTransferredEvent.InputTuple, OwnershipTransferredEvent.OutputTuple, OwnershipTransferredEvent.OutputObject>;
-      OwnershipTransferred: TypedContractEvent<OwnershipTransferredEvent.InputTuple, OwnershipTransferredEvent.OutputTuple, OwnershipTransferredEvent.OutputObject>;
     
 
       'ProposalCreated(bytes32,uint8,address,address,uint256,address)': TypedContractEvent<ProposalCreatedEvent.InputTuple, ProposalCreatedEvent.OutputTuple, ProposalCreatedEvent.OutputObject>;

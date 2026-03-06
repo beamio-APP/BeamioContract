@@ -25,11 +25,12 @@ import type { TypedContractEvent, TypedDeferredTopicFilter, TypedEventLog, Typed
   
 
   export interface BUnitAirdropInterface extends Interface {
-    getFunction(nameOrSignature: "BUNIT_TO_USDC_RATE" | "addAdmin" | "admins" | "airdropCount" | "beamioIndexerDiamond" | "bunit" | "burnCount" | "claim" | "claimAmount" | "claimFor" | "claimNonces" | "conetTreasury" | "conetUsdc" | "consumeFromUser" | "eip712Domain" | "getAirdropStats" | "getAllKinds" | "getAllKindsWithNames" | "getBUnitBalance" | "getBUnitReport" | "getBeamioUserCardBalances" | "getBeamioUserCardBalancesFromCatalog" | "getBurnStats" | "getClaimDigest" | "getCumulativeKindBurns" | "getCumulativeReport" | "getCumulativeReportFull" | "getDailyKindBurns" | "getDailyReport" | "getDailyReportFull" | "getEventStats" | "getHourlyKindBurns" | "getHourlyReport" | "getHourlyReportFull" | "getKindName" | "getMonthlyKindBurns" | "getMonthlyReport" | "getMonthlyReportFull" | "getQuarterlyKindBurns" | "getQuarterlyReport" | "getQuarterlyReportFull" | "getWeeklyKindBurns" | "getWeeklyReport" | "getWeeklyReportFull" | "getYearlyKindBurns" | "getYearlyReport" | "getYearlyReportFull" | "hasClaimed" | "mintForUsdcPurchase" | "owner" | "quoteHelper" | "registerKind" | "removeAdmin" | "renounceOwnership" | "setBeamioIndexerDiamond" | "setClaimAmount" | "setConetTreasuryAndUsdc" | "setQuoteHelper" | "totalBaseGas" | "totalBaseGasUSDC" | "totalFreeAirdropped" | "totalPaidAirdropped" | "transferOwnership" | "withdrawUsdc"): FunctionFragment;
+    getFunction(nameOrSignature: "BUNIT_TO_USDC_RATE" | "USDC_TO_BUNIT_RATE" | "addAdmin" | "admins" | "airdropCount" | "beamioIndexerDiamond" | "bunit" | "burnCount" | "claim" | "claimAmount" | "claimFor" | "claimNonces" | "conetTreasury" | "conetUsdc" | "consumeFromUser" | "eip712Domain" | "getAirdropStats" | "getAllKinds" | "getAllKindsWithNames" | "getBUnitBalance" | "getBUnitReport" | "getBeamioUserCardBalances" | "getBeamioUserCardBalancesFromCatalog" | "getBurnStats" | "getClaimDigest" | "getCumulativeKindBurns" | "getCumulativeReport" | "getCumulativeReportFull" | "getDailyKindBurns" | "getDailyReport" | "getDailyReportFull" | "getEventStats" | "getHourlyKindBurns" | "getHourlyReport" | "getHourlyReportFull" | "getKindName" | "getMonthlyKindBurns" | "getMonthlyReport" | "getMonthlyReportFull" | "getQuarterlyKindBurns" | "getQuarterlyReport" | "getQuarterlyReportFull" | "getWeeklyKindBurns" | "getWeeklyReport" | "getWeeklyReportFull" | "getYearlyKindBurns" | "getYearlyReport" | "getYearlyReportFull" | "hasClaimed" | "mintForUsdcPurchase" | "owner" | "quoteHelper" | "registerKind" | "removeAdmin" | "renounceOwnership" | "setBeamioIndexerDiamond" | "setClaimAmount" | "setConetTreasuryAndUsdc" | "setQuoteHelper" | "totalBaseGas" | "totalBaseGasUSDC" | "totalFreeAirdropped" | "totalPaidAirdropped" | "transferOwnership" | "withdrawUsdc"): FunctionFragment;
 
-    getEvent(nameOrSignatureOrTopic: "AdminAdded" | "AdminRemoved" | "BeamioIndexerDiamondUpdated" | "ClaimAmountUpdated" | "Claimed" | "ClaimedFor" | "ConetTreasuryAndUsdcUpdated" | "ConsumedAndAirdropped" | "EIP712DomainChanged" | "KindRegistered" | "OwnershipTransferred" | "QuoteHelperUpdated" | "WithdrewUsdc"): EventFragment;
+    getEvent(nameOrSignatureOrTopic: "AdminAdded" | "AdminRemoved" | "BeamioIndexerDiamondUpdated" | "ClaimAmountUpdated" | "Claimed" | "ClaimedFor" | "ConetTreasuryAndUsdcUpdated" | "ConsumedAndAirdropped" | "EIP712DomainChanged" | "IndexerSyncFailed" | "KindRegistered" | "OwnershipTransferred" | "QuoteHelperUpdated" | "WithdrewUsdc"): EventFragment;
 
     encodeFunctionData(functionFragment: 'BUNIT_TO_USDC_RATE', values?: undefined): string;
+encodeFunctionData(functionFragment: 'USDC_TO_BUNIT_RATE', values?: undefined): string;
 encodeFunctionData(functionFragment: 'addAdmin', values: [AddressLike]): string;
 encodeFunctionData(functionFragment: 'admins', values: [AddressLike]): string;
 encodeFunctionData(functionFragment: 'airdropCount', values?: undefined): string;
@@ -77,7 +78,7 @@ encodeFunctionData(functionFragment: 'getYearlyKindBurns', values: [BigNumberish
 encodeFunctionData(functionFragment: 'getYearlyReport', values: [BigNumberish]): string;
 encodeFunctionData(functionFragment: 'getYearlyReportFull', values: [BigNumberish, BigNumberish[]]): string;
 encodeFunctionData(functionFragment: 'hasClaimed', values: [AddressLike]): string;
-encodeFunctionData(functionFragment: 'mintForUsdcPurchase', values: [AddressLike, BigNumberish]): string;
+encodeFunctionData(functionFragment: 'mintForUsdcPurchase', values: [AddressLike, BigNumberish, BytesLike]): string;
 encodeFunctionData(functionFragment: 'owner', values?: undefined): string;
 encodeFunctionData(functionFragment: 'quoteHelper', values?: undefined): string;
 encodeFunctionData(functionFragment: 'registerKind', values: [BigNumberish, string]): string;
@@ -95,6 +96,7 @@ encodeFunctionData(functionFragment: 'transferOwnership', values: [AddressLike])
 encodeFunctionData(functionFragment: 'withdrawUsdc', values: [AddressLike, BigNumberish]): string;
 
     decodeFunctionResult(functionFragment: 'BUNIT_TO_USDC_RATE', data: BytesLike): Result;
+decodeFunctionResult(functionFragment: 'USDC_TO_BUNIT_RATE', data: BytesLike): Result;
 decodeFunctionResult(functionFragment: 'addAdmin', data: BytesLike): Result;
 decodeFunctionResult(functionFragment: 'admins', data: BytesLike): Result;
 decodeFunctionResult(functionFragment: 'airdropCount', data: BytesLike): Result;
@@ -269,6 +271,18 @@ decodeFunctionResult(functionFragment: 'withdrawUsdc', data: BytesLike): Result;
 
   
 
+    export namespace IndexerSyncFailedEvent {
+      export type InputTuple = [context: BytesLike, reason: string];
+      export type OutputTuple = [context: string, reason: string];
+      export interface OutputObject {context: string, reason: string };
+      export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>
+      export type Filter = TypedDeferredTopicFilter<Event>
+      export type Log = TypedEventLog<Event>
+      export type LogDescription = TypedLogDescription<Event>
+    }
+
+  
+
     export namespace KindRegisteredEvent {
       export type InputTuple = [kind: BigNumberish, name: string];
       export type OutputTuple = [kind: bigint, name: string];
@@ -352,6 +366,14 @@ decodeFunctionResult(functionFragment: 'withdrawUsdc', data: BytesLike): Result;
     
     
     BUNIT_TO_USDC_RATE: TypedContractMethod<
+      [],
+      [bigint],
+      'view'
+    >
+    
+
+    
+    USDC_TO_BUNIT_RATE: TypedContractMethod<
       [],
       [bigint],
       'view'
@@ -736,7 +758,7 @@ decodeFunctionResult(functionFragment: 'withdrawUsdc', data: BytesLike): Result;
 
     
     mintForUsdcPurchase: TypedContractMethod<
-      [to: AddressLike, bunitAmount: BigNumberish, ],
+      [to: AddressLike, usdcAmount: BigNumberish, baseTxHash: BytesLike, ],
       [void],
       'nonpayable'
     >
@@ -866,6 +888,11 @@ decodeFunctionResult(functionFragment: 'withdrawUsdc', data: BytesLike): Result;
     getFunction<T extends ContractMethod = ContractMethod>(key: string | FunctionFragment): T;
 
     getFunction(nameOrSignature: 'BUNIT_TO_USDC_RATE'): TypedContractMethod<
+      [],
+      [bigint],
+      'view'
+    >;
+getFunction(nameOrSignature: 'USDC_TO_BUNIT_RATE'): TypedContractMethod<
       [],
       [bigint],
       'view'
@@ -1106,7 +1133,7 @@ getFunction(nameOrSignature: 'hasClaimed'): TypedContractMethod<
       'view'
     >;
 getFunction(nameOrSignature: 'mintForUsdcPurchase'): TypedContractMethod<
-      [to: AddressLike, bunitAmount: BigNumberish, ],
+      [to: AddressLike, usdcAmount: BigNumberish, baseTxHash: BytesLike, ],
       [void],
       'nonpayable'
     >;
@@ -1195,6 +1222,7 @@ getEvent(key: 'ClaimedFor'): TypedContractEvent<ClaimedForEvent.InputTuple, Clai
 getEvent(key: 'ConetTreasuryAndUsdcUpdated'): TypedContractEvent<ConetTreasuryAndUsdcUpdatedEvent.InputTuple, ConetTreasuryAndUsdcUpdatedEvent.OutputTuple, ConetTreasuryAndUsdcUpdatedEvent.OutputObject>;
 getEvent(key: 'ConsumedAndAirdropped'): TypedContractEvent<ConsumedAndAirdroppedEvent.InputTuple, ConsumedAndAirdroppedEvent.OutputTuple, ConsumedAndAirdroppedEvent.OutputObject>;
 getEvent(key: 'EIP712DomainChanged'): TypedContractEvent<EIP712DomainChangedEvent.InputTuple, EIP712DomainChangedEvent.OutputTuple, EIP712DomainChangedEvent.OutputObject>;
+getEvent(key: 'IndexerSyncFailed'): TypedContractEvent<IndexerSyncFailedEvent.InputTuple, IndexerSyncFailedEvent.OutputTuple, IndexerSyncFailedEvent.OutputObject>;
 getEvent(key: 'KindRegistered'): TypedContractEvent<KindRegisteredEvent.InputTuple, KindRegisteredEvent.OutputTuple, KindRegisteredEvent.OutputObject>;
 getEvent(key: 'OwnershipTransferred'): TypedContractEvent<OwnershipTransferredEvent.InputTuple, OwnershipTransferredEvent.OutputTuple, OwnershipTransferredEvent.OutputObject>;
 getEvent(key: 'QuoteHelperUpdated'): TypedContractEvent<QuoteHelperUpdatedEvent.InputTuple, QuoteHelperUpdatedEvent.OutputTuple, QuoteHelperUpdatedEvent.OutputObject>;
@@ -1236,6 +1264,10 @@ getEvent(key: 'WithdrewUsdc'): TypedContractEvent<WithdrewUsdcEvent.InputTuple, 
 
       'EIP712DomainChanged()': TypedContractEvent<EIP712DomainChangedEvent.InputTuple, EIP712DomainChangedEvent.OutputTuple, EIP712DomainChangedEvent.OutputObject>;
       EIP712DomainChanged: TypedContractEvent<EIP712DomainChangedEvent.InputTuple, EIP712DomainChangedEvent.OutputTuple, EIP712DomainChangedEvent.OutputObject>;
+    
+
+      'IndexerSyncFailed(bytes32,string)': TypedContractEvent<IndexerSyncFailedEvent.InputTuple, IndexerSyncFailedEvent.OutputTuple, IndexerSyncFailedEvent.OutputObject>;
+      IndexerSyncFailed: TypedContractEvent<IndexerSyncFailedEvent.InputTuple, IndexerSyncFailedEvent.OutputTuple, IndexerSyncFailedEvent.OutputObject>;
     
 
       'KindRegistered(uint256,string)': TypedContractEvent<KindRegisteredEvent.InputTuple, KindRegisteredEvent.OutputTuple, KindRegisteredEvent.OutputObject>;

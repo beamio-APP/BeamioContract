@@ -168,6 +168,8 @@ contract BUnitAirdrop is Ownable, EIP712 {
     uint256 public claimAmount;
     /// @dev 焚烧 1 BUint = 0.01 USDC，即 amount / 100
     uint256 public constant BUNIT_TO_USDC_RATE = 100;
+    /// @dev USDC 购买 B-Unit 汇率：1 USDC (6 decimals) = 100 B-Units (6 decimals)
+    uint256 public constant USDC_TO_BUNIT_RATE = 100;
 
     /// @dev ConetTreasury 与 CoNET USDC，用于 consumeFromUser 后 airdrop USDC 到本合约
     address public conetTreasury;
@@ -258,6 +260,8 @@ contract BUnitAirdrop is Ownable, EIP712 {
     event KindRegistered(uint256 indexed kind, string name);
     event QuoteHelperUpdated(address indexed oldHelper, address indexed newHelper);
     event ClaimAmountUpdated(uint256 indexed oldAmount, uint256 indexed newAmount);
+    /// @dev syncTokenAction 失败时发出，便于排查 Indexer 未记账问题
+    event IndexerSyncFailed(bytes32 indexed context, string reason);
 
     modifier onlyAdmin() {
         if (msg.sender != owner() && !admins[msg.sender]) revert Unauthorized();
@@ -529,18 +533,25 @@ contract BUnitAirdrop is Ownable, EIP712 {
                 afterNotePayee: ""
             })
         });
-        try IActionFacet(idx).syncTokenAction(in_) {} catch {}
+        try IActionFacet(idx).syncTokenAction(in_) {} catch Error(string memory reason) {
+            emit IndexerSyncFailed(TX_BUINT_CLAIM, reason);
+        } catch (bytes memory) {
+            emit IndexerSyncFailed(TX_BUINT_CLAIM, "syncTokenAction low-level revert");
+        }
     }
 
     /**
      * @dev USDC 购买 B-Unit 成功后向 BeamioIndexerDiamond 记账。txCategory=buintUSDC，payer=BUint，payee=to，route 为空。
+     *      usdcAmount=用户支付的 USDC，bunitAmount=铸造的 B-Units。
+     *      baseTxHash=Base 链上 USDC 转账 tx hash，写入 originalPaymentHash 供前端关联；displayJson 仅存 Indexer 约定字段，不自行组装。
      */
-    function _indexUsdcPurchaseToBeamioIndexer(address to, uint256 bunitAmount) internal {
+    function _indexUsdcPurchaseToBeamioIndexer(address to, uint256 usdcAmount, uint256 bunitAmount, bytes32 baseTxHash) internal {
         address idx = beamioIndexerDiamond != address(0) ? beamioIndexerDiamond : DEFAULT_BEAMIO_INDEXER;
         bytes32 txId = keccak256(abi.encodePacked(to, block.number, block.timestamp, block.prevrandao, address(this), "buintUSDC"));
+        // baseTxHash 写入 originalPaymentHash 供前端关联 Base 链 purchase tx
         IActionFacet.TransactionInput memory in_ = IActionFacet.TransactionInput({
             txId: txId,
-            originalPaymentHash: bytes32(0),
+            originalPaymentHash: baseTxHash,
             chainId: CONET_CHAIN_ID,
             txCategory: TX_BUINT_USDC,
             displayJson: "",
@@ -548,7 +559,7 @@ contract BUnitAirdrop is Ownable, EIP712 {
             payer: address(bunit),
             payee: to,
             finalRequestAmountFiat6: bunitAmount,
-            finalRequestAmountUSDC6: bunitAmount,
+            finalRequestAmountUSDC6: usdcAmount,
             isAAAccount: false,
             route: new IActionFacet.RouteItemInput[](0),
             fees: IActionFacet.FeeInfoInput({
@@ -562,7 +573,7 @@ contract BUnitAirdrop is Ownable, EIP712 {
             }),
             meta: IActionFacet.TransactionMetaInput({
                 requestAmountFiat6: bunitAmount,
-                requestAmountUSDC6: bunitAmount,
+                requestAmountUSDC6: usdcAmount,
                 currencyFiat: 0,
                 discountAmountFiat6: 0,
                 discountRateBps: 0,
@@ -572,16 +583,23 @@ contract BUnitAirdrop is Ownable, EIP712 {
                 afterNotePayee: ""
             })
         });
-        try IActionFacet(idx).syncTokenAction(in_) {} catch {}
+        try IActionFacet(idx).syncTokenAction(in_) {} catch Error(string memory reason) {
+            emit IndexerSyncFailed(TX_BUINT_USDC, reason);
+        } catch (bytes memory) {
+            emit IndexerSyncFailed(TX_BUINT_USDC, "syncTokenAction low-level revert");
+        }
     }
 
     /**
-     * @dev USDC 购买 B-Unit：仅 admin（ConetTreasury）可调用。miner 投票通过后，按 1 USDC = 100 B-Units (6 decimals) 铸造到付费池。
+     * @dev USDC 购买 B-Unit：仅 admin（ConetTreasury）可调用。入参为 usdcAmount (6 decimals)，
+     *      按 USDC_TO_BUNIT_RATE (1 USDC = 100 B-Units) 计算 bunitAmount 后铸造到付费池。
      *      成功后向 BeamioIndexerDiamond 记账，txCategory=buintUSDC。
+     *      baseTxHash=Base 链上 USDC 转账 tx hash，写入 originalPaymentHash 供前端关联。
      */
-    function mintForUsdcPurchase(address to, uint256 bunitAmount) external onlyAdmin {
+    function mintForUsdcPurchase(address to, uint256 usdcAmount, bytes32 baseTxHash) external onlyAdmin {
         if (to == address(0)) revert Unauthorized();
-        if (bunitAmount == 0) revert ClaimNotAvailable();
+        if (usdcAmount == 0) revert ClaimNotAvailable();
+        uint256 bunitAmount = usdcAmount * USDC_TO_BUNIT_RATE;
         totalPaidAirdropped += bunitAmount;
         airdropCount++;
         _recordAirdrop();
@@ -590,7 +608,7 @@ contract BUnitAirdrop is Ownable, EIP712 {
         );
         if (!ok) revert TransferFailed();
 
-        _indexUsdcPurchaseToBeamioIndexer(to, bunitAmount);
+        _indexUsdcPurchaseToBeamioIndexer(to, usdcAmount, bunitAmount, baseTxHash);
     }
 
     /**
@@ -689,17 +707,19 @@ contract BUnitAirdrop is Ownable, EIP712 {
         _recordBurn(baseGas, gasUSDC, amount, kind);
         emit ConsumedAndAirdropped(user, amount, usdcAmount, baseHash, baseGas, kind);
 
-        _indexBurnToBeamioIndexer(user, amount, paidBurned, baseGas, gasUSDC, kind);
+        _indexBurnToBeamioIndexer(user, amount, paidBurned, baseHash, baseGas, gasUSDC, kind);
     }
 
     /**
      * @dev 焚烧成功后向 BeamioIndexerDiamond 记账。txCategory=keccak256(kind 对应 string)，
      *      finalRequestAmountFiat6=焚烧总额，finalRequestAmountUSDC6=焚烧付费池 BUint。
+     *      baseHash 非零时写入 displayJson 供前端展示 Base 链关联交易。
      */
     function _indexBurnToBeamioIndexer(
         address user,
         uint256 amount,
         uint256 paidBurned,
+        bytes32 baseHash,
         uint256 baseGas,
         uint256 gasUSDC,
         uint256 kind
@@ -710,9 +730,10 @@ contract BUnitAirdrop is Ownable, EIP712 {
             ? keccak256(abi.encodePacked(kindName))
             : keccak256("buintBurn");
         bytes32 txId = keccak256(abi.encodePacked(user, block.number, block.timestamp, block.prevrandao, address(this), "buintBurn", kind));
+        // baseHash 写入 originalPaymentHash 供前端关联 Base 链关联交易
         IActionFacet.TransactionInput memory in_ = IActionFacet.TransactionInput({
             txId: txId,
-            originalPaymentHash: bytes32(0),
+            originalPaymentHash: baseHash,
             chainId: CONET_CHAIN_ID,
             txCategory: txCategory,
             displayJson: "",
@@ -744,7 +765,11 @@ contract BUnitAirdrop is Ownable, EIP712 {
                 afterNotePayee: ""
             })
         });
-        try IActionFacet(idx).syncTokenAction(in_) {} catch {}
+        try IActionFacet(idx).syncTokenAction(in_) {} catch Error(string memory reason) {
+            emit IndexerSyncFailed(txCategory, reason);
+        } catch (bytes memory) {
+            emit IndexerSyncFailed(txCategory, "syncTokenAction low-level revert");
+        }
     }
 
     /**
