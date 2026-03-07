@@ -363,6 +363,144 @@ contract ActionFacet {
         return (actionIdPlusOne - 1, true);
     }
 
+    /**
+     * @notice 全局最新交易分页（按 actionId 倒序：最新在前）
+     * @dev offset=0 即最新第一页；limit=20 可直接取“全局最新20条”
+     */
+    function getLatestTransactionsPaged(uint256 offset, uint256 limit)
+        external
+        view
+        returns (uint256 total, LibActionStorage.TransactionRecord[] memory page)
+    {
+        LibActionStorage.Layout storage a = LibActionStorage.layout();
+        total = a.txCount;
+        if (offset >= total || limit == 0) {
+            return (total, new LibActionStorage.TransactionRecord[](0));
+        }
+
+        uint256 end = offset + limit;
+        if (end > total) end = total;
+        page = new LibActionStorage.TransactionRecord[](end - offset);
+
+        for (uint256 i = 0; i < page.length; i++) {
+            uint256 actionId = total - 1 - (offset + i);
+            page[i] = a.txRecordByActionId[actionId];
+        }
+    }
+
+    /**
+     * @notice 全局最新交易分页（完整结构，含 route）
+     * @dev offset=0 即最新第一页；limit=20 可直接取“全局最新20条”
+     */
+    function getLatestTransactionsPagedFull(uint256 offset, uint256 limit)
+        external
+        view
+        returns (uint256 total, TransactionFull[] memory page)
+    {
+        LibActionStorage.Layout storage a = LibActionStorage.layout();
+        total = a.txCount;
+        if (offset >= total || limit == 0) {
+            return (total, new TransactionFull[](0));
+        }
+
+        uint256 end = offset + limit;
+        if (end > total) end = total;
+        page = new TransactionFull[](end - offset);
+
+        for (uint256 i = 0; i < page.length; i++) {
+            uint256 actionId = total - 1 - (offset + i);
+            page[i] = _buildFullTransaction(a.txRecordByActionId[actionId], a.routeByActionId[actionId]);
+        }
+    }
+
+    /**
+     * @notice 按 txCategory 的全局最新交易分页（按 actionId 倒序：最新在前）
+     * @dev txCategoryFilter=bytes32(0) 表示不过滤分类
+     */
+    function getLatestTransactionsByCategoryPaged(
+        bytes32 txCategoryFilter,
+        uint256 offset,
+        uint256 limit
+    ) external view returns (uint256 total, LibActionStorage.TransactionRecord[] memory page) {
+        LibActionStorage.Layout storage a = LibActionStorage.layout();
+        uint256 txCount = a.txCount;
+
+        for (uint256 i = txCount; i > 0; i--) {
+            LibActionStorage.TransactionRecord storage txr = a.txRecordByActionId[i - 1];
+            if (!txr.exists) continue;
+            if (txCategoryFilter != bytes32(0) && txr.txCategory != txCategoryFilter) continue;
+            total++;
+        }
+
+        if (offset >= total || limit == 0) {
+            return (total, new LibActionStorage.TransactionRecord[](0));
+        }
+
+        uint256 end = offset + limit;
+        if (end > total) end = total;
+        page = new LibActionStorage.TransactionRecord[](end - offset);
+
+        uint256 seen;
+        uint256 outIdx;
+        for (uint256 i = txCount; i > 0; i--) {
+            uint256 actionId = i - 1;
+            LibActionStorage.TransactionRecord storage txr = a.txRecordByActionId[actionId];
+            if (!txr.exists) continue;
+            if (txCategoryFilter != bytes32(0) && txr.txCategory != txCategoryFilter) continue;
+
+            if (seen >= offset && seen < end) {
+                page[outIdx] = txr;
+                outIdx++;
+            }
+            seen++;
+            if (seen >= end) break;
+        }
+    }
+
+    /**
+     * @notice 按 txCategory 的全局最新交易分页（完整结构，含 route）
+     * @dev txCategoryFilter=bytes32(0) 表示不过滤分类
+     */
+    function getLatestTransactionsByCategoryPagedFull(
+        bytes32 txCategoryFilter,
+        uint256 offset,
+        uint256 limit
+    ) external view returns (uint256 total, TransactionFull[] memory page) {
+        LibActionStorage.Layout storage a = LibActionStorage.layout();
+        uint256 txCount = a.txCount;
+
+        for (uint256 i = txCount; i > 0; i--) {
+            LibActionStorage.TransactionRecord storage txr = a.txRecordByActionId[i - 1];
+            if (!txr.exists) continue;
+            if (txCategoryFilter != bytes32(0) && txr.txCategory != txCategoryFilter) continue;
+            total++;
+        }
+
+        if (offset >= total || limit == 0) {
+            return (total, new TransactionFull[](0));
+        }
+
+        uint256 end = offset + limit;
+        if (end > total) end = total;
+        page = new TransactionFull[](end - offset);
+
+        uint256 seen;
+        uint256 outIdx;
+        for (uint256 i = txCount; i > 0; i--) {
+            uint256 actionId = i - 1;
+            LibActionStorage.TransactionRecord storage txr = a.txRecordByActionId[actionId];
+            if (!txr.exists) continue;
+            if (txCategoryFilter != bytes32(0) && txr.txCategory != txCategoryFilter) continue;
+
+            if (seen >= offset && seen < end) {
+                page[outIdx] = _buildFullTransaction(txr, a.routeByActionId[actionId]);
+                outIdx++;
+            }
+            seen++;
+            if (seen >= end) break;
+        }
+    }
+
     function getAccountActionCount(address account) external view returns (uint256) {
         return LibActionStorage.layout().accountActionIds[account].length;
     }
@@ -379,7 +517,10 @@ contract ActionFacet {
         uint256 end = offset + limit;
         if (end > total) end = total;
         page = new uint256[](end - offset);
-        for (uint256 i = 0; i < page.length; i++) page[i] = ids[offset + i];
+        for (uint256 i = 0; i < page.length; i++) {
+            uint256 revIndex = total - 1 - (offset + i);
+            page[i] = ids[revIndex];
+        }
     }
 
     function getAccountTransactionsPaged(address account, uint256 offset, uint256 limit)
@@ -396,7 +537,8 @@ contract ActionFacet {
         LibActionStorage.Layout storage a = LibActionStorage.layout();
         page = new LibActionStorage.TransactionRecord[](end - offset);
         for (uint256 i = 0; i < page.length; i++) {
-            page[i] = a.txRecordByActionId[ids[offset + i]];
+            uint256 revIndex = total - 1 - (offset + i);
+            page[i] = a.txRecordByActionId[ids[revIndex]];
         }
     }
 
@@ -447,8 +589,8 @@ contract ActionFacet {
 
         uint256 seen;
         uint256 outIdx;
-        for (uint256 i = 0; i < ids.length; i++) {
-            uint256 actionId = ids[i];
+        for (uint256 i = ids.length; i > 0; i--) {
+            uint256 actionId = ids[i - 1];
             if (
                 !_matchByPeriodAndCategory(
                     a.txRecordByActionId[actionId],
@@ -836,8 +978,8 @@ contract ActionFacet {
 
         uint256 seen;
         uint256 outIdx;
-        for (uint256 i = 0; i < ids.length; i++) {
-            uint256 actionId = ids[i];
+        for (uint256 i = ids.length; i > 0; i--) {
+            uint256 actionId = ids[i - 1];
             if (!_matchByPeriodAndCategory(a.txRecordByActionId[actionId], periodStart, periodEnd, txCategoryFilter, accountMode)) {
                 continue;
             }
@@ -878,8 +1020,8 @@ contract ActionFacet {
 
         uint256 seen;
         uint256 outIdx;
-        for (uint256 i = 0; i < ids.length; i++) {
-            uint256 actionId = ids[i];
+        for (uint256 i = ids.length; i > 0; i--) {
+            uint256 actionId = ids[i - 1];
             if (!_matchByPeriodAndCategory(a.txRecordByActionId[actionId], periodStart, periodEnd, txCategoryFilter, accountMode)) {
                 continue;
             }

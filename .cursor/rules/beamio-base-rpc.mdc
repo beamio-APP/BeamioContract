@@ -15,7 +15,7 @@ alwaysApply: true
 ## 适用范围
 
 - Hardhat / 部署脚本：`BASE_RPC_URL`
-- CoNET-SI vote 轮询、/base-rpc 转发：`BASE_RPC_HTTP`、`BASE_RPC`
+- CoNET-SI vote 轮询、/base-rpc 转发：优先 `BASE_RPC` (wss)，否则 `BASE_RPC_HTTP`
 - x402sdk / MemberCard：`base_endpoint`（~/.master.json）或默认
 - 各类脚本、诊断工具：`BASE_RPC`、`BASE_RPC_URL`
 
@@ -23,7 +23,7 @@ alwaysApply: true
 
 - `.env`：`BASE_RPC_URL=https://base-rpc.conet.network`
 - `~/.master.json`：`base_endpoint: "https://base-rpc.conet.network"`
-- CoNET-SI：`BASE_RPC_HTTP=https://base-rpc.conet.network`、`BASE_RPC=wss://base-rpc.conet.network/ws`
+- CoNET-SI：优先 `BASE_RPC=wss://base-rpc.conet.network/ws`，否则 `BASE_RPC_HTTP=https://base-rpc.conet.network`
 
 ## 新增代码
 

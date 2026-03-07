@@ -1,5 +1,5 @@
 /**
- * 仅迁移 ActionFacet 的 syncTokenAction selector 到最新实现
+ * 迁移 ActionFacet 的全部 selectors 到最新实现（Add/Replace）
  *
  * 用法:
  *   npx hardhat run scripts/migrateActionSyncSelector.ts --network conet
@@ -30,7 +30,7 @@ async function main() {
   const [signer] = await ethers.getSigners();
   const diamond = getDiamondAddressFromDeployment();
 
-  console.log("迁移 syncTokenAction selector");
+  console.log("迁移 ActionFacet 全量 selectors");
   console.log("Signer:", signer.address);
   console.log("Diamond:", diamond);
 
@@ -40,9 +40,12 @@ async function main() {
   const actionFacetAddr = await actionFacet.getAddress();
   console.log("New ActionFacet:", actionFacetAddr);
 
-  const iface = ActionFacet.interface;
-  const syncSelector = iface.getFunction("syncTokenAction")!.selector.toLowerCase();
-  console.log("syncTokenAction selector:", syncSelector);
+  const selectors = [...new Set(
+    ActionFacet.interface.fragments
+      .filter((f: any) => f.type === "function")
+      .map((f: any) => f.selector.toLowerCase())
+  )];
+  console.log("ActionFacet selectors:", selectors.length);
 
   const diamondCutAbi = [
     "function diamondCut((address facetAddress,uint8 action,bytes4[] functionSelectors)[] _diamondCut,address _init,bytes _calldata) external",
@@ -50,22 +53,54 @@ async function main() {
   const loupeAbi = ["function facetAddress(bytes4 _functionSelector) external view returns (address facetAddress)"];
   const diamondCut = new ethersLib.Contract(diamond, diamondCutAbi, signer);
   const loupe = new ethersLib.Contract(diamond, loupeAbi, signer);
-  const existingFacet = (await loupe.facetAddress(syncSelector)).toLowerCase();
-  const action = existingFacet === ethersLib.ZeroAddress.toLowerCase() ? 0 : 1; // Add or Replace
-  console.log("syncTokenAction 当前 Facet:", existingFacet);
-  console.log("diamondCut action:", action === 0 ? "Add" : "Replace");
-  const cuts = [
-    {
+  const toAdd: string[] = [];
+  const toReplace: string[] = [];
+
+  for (const selector of selectors) {
+    const existingFacet = (await loupe.facetAddress(selector)).toLowerCase();
+    if (existingFacet === ethersLib.ZeroAddress.toLowerCase()) {
+      toAdd.push(selector);
+    } else {
+      toReplace.push(selector);
+    }
+  }
+
+  console.log("toAdd:", toAdd.length, "toReplace:", toReplace.length);
+  const cuts: { facetAddress: string; action: number; functionSelectors: string[] }[] = [];
+  if (toAdd.length) {
+    cuts.push({
       facetAddress: actionFacetAddr,
-      action,
-      functionSelectors: [syncSelector],
-    },
-  ];
+      action: 0,
+      functionSelectors: toAdd,
+    });
+  }
+  if (toReplace.length) {
+    cuts.push({
+      facetAddress: actionFacetAddr,
+      action: 1,
+      functionSelectors: toReplace,
+    });
+  }
+
+  if (!cuts.length) {
+    console.log("没有需要迁移的 selectors");
+    return;
+  }
 
   const tx = await diamondCut.diamondCut(cuts, ethersLib.ZeroAddress, "0x");
   console.log("diamondCut tx:", tx.hash);
   await tx.wait();
-  console.log("✅ syncTokenAction 已迁移");
+  console.log("✅ ActionFacet 已迁移");
+
+  const deployPath = path.join(__dirname, "..", "deployments", "conet-IndexerDiamond.json");
+  if (fs.existsSync(deployPath)) {
+    const data = JSON.parse(fs.readFileSync(deployPath, "utf-8"));
+    data.facets = data.facets || {};
+    data.facets.ActionFacet = actionFacetAddr;
+    data.lastActionFacetMigrationAt = new Date().toISOString();
+    fs.writeFileSync(deployPath, JSON.stringify(data, null, 2));
+    console.log("已更新部署文件:", deployPath);
+  }
 }
 
 main().catch((err) => {

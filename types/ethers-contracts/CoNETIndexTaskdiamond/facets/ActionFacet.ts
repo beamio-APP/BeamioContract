@@ -56,7 +56,7 @@ export declare namespace ActionFacet {
     }
 
   export interface ActionFacetInterface extends Interface {
-    getFunction(nameOrSignature: "ACCOUNT_MODE_AA" | "ACCOUNT_MODE_ALL" | "ACCOUNT_MODE_EOA" | "ATOMIC_BUCKET_SECONDS" | "CHAIN_ID_FILTER_ALL" | "GAS_CHAIN_FILTER_ALL" | "PERIOD_DAY" | "PERIOD_HOUR" | "PERIOD_MONTH" | "PERIOD_QUARTER" | "PERIOD_WEEK" | "PERIOD_YEAR" | "getAccountActionCount" | "getAccountActionIdsByPeriodPaged" | "getAccountActionIdsPaged" | "getAccountTransactionsByCurrentPeriodOffsetAndAccountModePaged" | "getAccountTransactionsByCurrentPeriodOffsetAndAccountModePagedFull" | "getAccountTransactionsByCurrentPeriodOffsetPaged" | "getAccountTransactionsByDayOffsetPaged" | "getAccountTransactionsByHourOffsetPaged" | "getAccountTransactionsByMonthOffsetPaged" | "getAccountTransactionsByPeriodPaged" | "getAccountTransactionsByQuarterOffsetPaged" | "getAccountTransactionsByWeekOffsetAndAccountModePaged" | "getAccountTransactionsByWeekOffsetPaged" | "getAccountTransactionsByYearOffsetPaged" | "getAccountTransactionsPaged" | "getTransactionActionId" | "getTransactionCount" | "getTransactionFull" | "getTransactionFullByTxId" | "getTransactionRecord" | "getTransactionRecordByTxId" | "setAfterNotes" | "syncTokenAction"): FunctionFragment;
+    getFunction(nameOrSignature: "ACCOUNT_MODE_AA" | "ACCOUNT_MODE_ALL" | "ACCOUNT_MODE_EOA" | "ATOMIC_BUCKET_SECONDS" | "CHAIN_ID_FILTER_ALL" | "GAS_CHAIN_FILTER_ALL" | "PERIOD_DAY" | "PERIOD_HOUR" | "PERIOD_MONTH" | "PERIOD_QUARTER" | "PERIOD_WEEK" | "PERIOD_YEAR" | "getAccountActionCount" | "getAccountActionIdsByPeriodPaged" | "getAccountActionIdsPaged" | "getAccountTransactionsByCurrentPeriodOffsetAndAccountModePaged" | "getAccountTransactionsByCurrentPeriodOffsetAndAccountModePagedFull" | "getAccountTransactionsByCurrentPeriodOffsetPaged" | "getAccountTransactionsByDayOffsetPaged" | "getAccountTransactionsByHourOffsetPaged" | "getAccountTransactionsByMonthOffsetPaged" | "getAccountTransactionsByPeriodPaged" | "getAccountTransactionsByQuarterOffsetPaged" | "getAccountTransactionsByWeekOffsetAndAccountModePaged" | "getAccountTransactionsByWeekOffsetPaged" | "getAccountTransactionsByYearOffsetPaged" | "getAccountTransactionsPaged" | "getLatestTransactionsByCategoryPaged" | "getLatestTransactionsByCategoryPagedFull" | "getLatestTransactionsPaged" | "getLatestTransactionsPagedFull" | "getTransactionActionId" | "getTransactionCount" | "getTransactionFull" | "getTransactionFullByTxId" | "getTransactionRecord" | "getTransactionRecordByTxId" | "setAfterNotes" | "syncTokenAction"): FunctionFragment;
 
     getEvent(nameOrSignatureOrTopic: "AfterNotesUpdated" | "StatsUpdated" | "TransactionRecordSynced"): EventFragment;
 
@@ -87,6 +87,10 @@ encodeFunctionData(functionFragment: 'getAccountTransactionsByWeekOffsetAndAccou
 encodeFunctionData(functionFragment: 'getAccountTransactionsByWeekOffsetPaged', values: [AddressLike, BigNumberish, BigNumberish, BigNumberish, BytesLike]): string;
 encodeFunctionData(functionFragment: 'getAccountTransactionsByYearOffsetPaged', values: [AddressLike, BigNumberish, BigNumberish, BigNumberish, BytesLike]): string;
 encodeFunctionData(functionFragment: 'getAccountTransactionsPaged', values: [AddressLike, BigNumberish, BigNumberish]): string;
+encodeFunctionData(functionFragment: 'getLatestTransactionsByCategoryPaged', values: [BytesLike, BigNumberish, BigNumberish]): string;
+encodeFunctionData(functionFragment: 'getLatestTransactionsByCategoryPagedFull', values: [BytesLike, BigNumberish, BigNumberish]): string;
+encodeFunctionData(functionFragment: 'getLatestTransactionsPaged', values: [BigNumberish, BigNumberish]): string;
+encodeFunctionData(functionFragment: 'getLatestTransactionsPagedFull', values: [BigNumberish, BigNumberish]): string;
 encodeFunctionData(functionFragment: 'getTransactionActionId', values: [BytesLike]): string;
 encodeFunctionData(functionFragment: 'getTransactionCount', values?: undefined): string;
 encodeFunctionData(functionFragment: 'getTransactionFull', values: [BigNumberish]): string;
@@ -123,6 +127,10 @@ decodeFunctionResult(functionFragment: 'getAccountTransactionsByWeekOffsetAndAcc
 decodeFunctionResult(functionFragment: 'getAccountTransactionsByWeekOffsetPaged', data: BytesLike): Result;
 decodeFunctionResult(functionFragment: 'getAccountTransactionsByYearOffsetPaged', data: BytesLike): Result;
 decodeFunctionResult(functionFragment: 'getAccountTransactionsPaged', data: BytesLike): Result;
+decodeFunctionResult(functionFragment: 'getLatestTransactionsByCategoryPaged', data: BytesLike): Result;
+decodeFunctionResult(functionFragment: 'getLatestTransactionsByCategoryPagedFull', data: BytesLike): Result;
+decodeFunctionResult(functionFragment: 'getLatestTransactionsPaged', data: BytesLike): Result;
+decodeFunctionResult(functionFragment: 'getLatestTransactionsPagedFull', data: BytesLike): Result;
 decodeFunctionResult(functionFragment: 'getTransactionActionId', data: BytesLike): Result;
 decodeFunctionResult(functionFragment: 'getTransactionCount', data: BytesLike): Result;
 decodeFunctionResult(functionFragment: 'getTransactionFull', data: BytesLike): Result;
@@ -420,6 +428,38 @@ decodeFunctionResult(functionFragment: 'syncTokenAction', data: BytesLike): Resu
     
 
     
+    getLatestTransactionsByCategoryPaged: TypedContractMethod<
+      [txCategoryFilter: BytesLike, offset: BigNumberish, limit: BigNumberish, ],
+      [[bigint, LibActionStorage.TransactionRecordStructOutput[]] & {total: bigint, page: LibActionStorage.TransactionRecordStructOutput[] }],
+      'view'
+    >
+    
+
+    
+    getLatestTransactionsByCategoryPagedFull: TypedContractMethod<
+      [txCategoryFilter: BytesLike, offset: BigNumberish, limit: BigNumberish, ],
+      [[bigint, ActionFacet.TransactionFullStructOutput[]] & {total: bigint, page: ActionFacet.TransactionFullStructOutput[] }],
+      'view'
+    >
+    
+
+    
+    getLatestTransactionsPaged: TypedContractMethod<
+      [offset: BigNumberish, limit: BigNumberish, ],
+      [[bigint, LibActionStorage.TransactionRecordStructOutput[]] & {total: bigint, page: LibActionStorage.TransactionRecordStructOutput[] }],
+      'view'
+    >
+    
+
+    
+    getLatestTransactionsPagedFull: TypedContractMethod<
+      [offset: BigNumberish, limit: BigNumberish, ],
+      [[bigint, ActionFacet.TransactionFullStructOutput[]] & {total: bigint, page: ActionFacet.TransactionFullStructOutput[] }],
+      'view'
+    >
+    
+
+    
     getTransactionActionId: TypedContractMethod<
       [txId: BytesLike, ],
       [[bigint, boolean] & {actionId: bigint, exists: boolean }],
@@ -619,6 +659,26 @@ getFunction(nameOrSignature: 'getAccountTransactionsByYearOffsetPaged'): TypedCo
 getFunction(nameOrSignature: 'getAccountTransactionsPaged'): TypedContractMethod<
       [account: AddressLike, offset: BigNumberish, limit: BigNumberish, ],
       [LibActionStorage.TransactionRecordStructOutput[]],
+      'view'
+    >;
+getFunction(nameOrSignature: 'getLatestTransactionsByCategoryPaged'): TypedContractMethod<
+      [txCategoryFilter: BytesLike, offset: BigNumberish, limit: BigNumberish, ],
+      [[bigint, LibActionStorage.TransactionRecordStructOutput[]] & {total: bigint, page: LibActionStorage.TransactionRecordStructOutput[] }],
+      'view'
+    >;
+getFunction(nameOrSignature: 'getLatestTransactionsByCategoryPagedFull'): TypedContractMethod<
+      [txCategoryFilter: BytesLike, offset: BigNumberish, limit: BigNumberish, ],
+      [[bigint, ActionFacet.TransactionFullStructOutput[]] & {total: bigint, page: ActionFacet.TransactionFullStructOutput[] }],
+      'view'
+    >;
+getFunction(nameOrSignature: 'getLatestTransactionsPaged'): TypedContractMethod<
+      [offset: BigNumberish, limit: BigNumberish, ],
+      [[bigint, LibActionStorage.TransactionRecordStructOutput[]] & {total: bigint, page: LibActionStorage.TransactionRecordStructOutput[] }],
+      'view'
+    >;
+getFunction(nameOrSignature: 'getLatestTransactionsPagedFull'): TypedContractMethod<
+      [offset: BigNumberish, limit: BigNumberish, ],
+      [[bigint, ActionFacet.TransactionFullStructOutput[]] & {total: bigint, page: ActionFacet.TransactionFullStructOutput[] }],
       'view'
     >;
 getFunction(nameOrSignature: 'getTransactionActionId'): TypedContractMethod<

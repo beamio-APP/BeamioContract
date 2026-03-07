@@ -523,6 +523,18 @@ function getAccountActionIdsPaged(address account, uint256 offset, uint256 limit
 function getAccountTransactionsPaged(address account, uint256 offset, uint256 limit)
   external view returns (TransactionRecord[] memory);
 
+// 全局最新分页（非账户维度）
+function getLatestTransactionsPaged(uint256 offset, uint256 limit)
+  external view returns (uint256 total, TransactionRecord[] memory page);
+function getLatestTransactionsPagedFull(uint256 offset, uint256 limit)
+  external view returns (uint256 total, Transaction[] memory page);
+
+// 按分类 txCategory 的全局最新分页（bytes32(0)=不过滤）
+function getLatestTransactionsByCategoryPaged(bytes32 txCategoryFilter, uint256 offset, uint256 limit)
+  external view returns (uint256 total, TransactionRecord[] memory page);
+function getLatestTransactionsByCategoryPagedFull(bytes32 txCategoryFilter, uint256 offset, uint256 limit)
+  external view returns (uint256 total, Transaction[] memory page);
+
 // 按时间桶 + 分类筛选
 function getAccountActionIdsByPeriodPaged(
   address account,

@@ -17,21 +17,29 @@ const BASE_URL = "https://mainnet.conet.network";
 const DIAMOND = "0x0DBDF27E71f9c89353bC5e4dC27c9C5dAe0cc612";
 const DIAMOND_INITIAL_OWNER = "0x87cAeD4e51C36a2C2ece3Aaf4ddaC9693d2405E1";
 const DIAMOND_CUT_FACET = "0xf079eA83B3dDBaB64473df13Fa49021BA85E80C4";
+const DEPLOY_PATH = path.join(__dirname, "..", "deployments", "conet-IndexerDiamond.json");
 
-// Diamond + Facet 地址（来自 CoNET mainnet loupe.facets()，脚本 getDiamondFacets.ts）
-const TARGETS: { name: string; address: string; constructorArgs?: string }[] = [
-  { name: "BeamioIndexerDiamond", address: DIAMOND },
-  { name: "DiamondCutFacet", address: "0xf079eA83B3dDBaB64473df13Fa49021BA85E80C4" },
-  { name: "DiamondLoupeFacet", address: "0x980340A8Eb23117b624b1f037b8a489F54C7b6a5" },
-  { name: "OwnershipFacet", address: "0x3EBf14813932E6206c448a58A6ecFf32DC1981B2" },
-  { name: "TaskFacet", address: "0x2334225a4C70EF86590B454Cd2e8f01fD23F0Da0" },
-  { name: "ActionFacet", address: "0x0D6E32f683998EFc2026dE7E36e124D2A8771272" },
-  { name: "CatalogFacet", address: "0x070BcBd163a3a280Ab6106bA62A079f228139379" },
-  { name: "StatsFacet", address: "0x37878cDc63f1DFF1223d280198eB07819f76079c" },
-  { name: "FeeStatsFacet", address: "0x51796E6413Da09179D431b0F16F47480053de7a5" },
-  { name: "BeamioUserCardStatsFacet", address: "0x008b49e4d8B490c508787283b25E3A4A62d826B0" },
-  { name: "AdminFacet", address: "0x729149e5B6c9F835cF8f6B3235Adee8813A17144" },
-];
+function getTargetsFromDeployment(): { name: string; address: string; constructorArgs?: string }[] {
+  if (!fs.existsSync(DEPLOY_PATH)) {
+    throw new Error(`deployment 文件不存在: ${DEPLOY_PATH}`);
+  }
+  const deploy = JSON.parse(fs.readFileSync(DEPLOY_PATH, "utf-8"));
+  const facets = deploy.facets || {};
+  const diamond = deploy.diamond || DIAMOND;
+  return [
+    { name: "BeamioIndexerDiamond", address: diamond },
+    { name: "DiamondCutFacet", address: facets.DiamondCutFacet || DIAMOND_CUT_FACET },
+    { name: "DiamondLoupeFacet", address: facets.DiamondLoupeFacet },
+    { name: "OwnershipFacet", address: facets.OwnershipFacet },
+    { name: "TaskFacet", address: facets.TaskFacet },
+    { name: "ActionFacet", address: facets.ActionFacet },
+    { name: "CatalogFacet", address: facets.CatalogFacet },
+    { name: "StatsFacet", address: facets.StatsFacet },
+    { name: "FeeStatsFacet", address: facets.FeeStatsFacet },
+    { name: "BeamioUserCardStatsFacet", address: facets.BeamioUserCardStatsFacet },
+    { name: "AdminFacet", address: facets.AdminFacet },
+  ].filter((t) => t.address);
+}
 
 async function encodeDiamondConstructor(): Promise<string> {
   const { AbiCoder } = await import("ethers");
@@ -106,6 +114,7 @@ async function main() {
 
   console.log("Standard JSON 大小:", standardJson.length, "bytes");
   console.log("包含 viaIR:", (minimalInput.settings as { viaIR?: boolean }).viaIR);
+  const TARGETS = getTargetsFromDeployment();
   console.log("待验证:", TARGETS.length, "(Diamond + facets)");
   console.log("");
 
