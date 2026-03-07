@@ -1,8 +1,9 @@
 /**
- * Register BUnitAirdrop kind (e.g. kind=1 as "sendUSDC").
+ * Register BUnitAirdrop kind (e.g. kind=1 as "sendUSDC", kind=5 as "x402Send").
  *
  * Run: npx hardhat run scripts/registerBUnitKind.ts --network conet
  * Or: KIND_ID=1 KIND_NAME=sendUSDC npx hardhat run scripts/registerBUnitKind.ts --network conet
+ * Or: KIND_ID=5 KIND_NAME=x402Send npx hardhat run scripts/registerBUnitKind.ts --network conet
  */
 
 import { network as networkModule } from "hardhat";

@@ -155,6 +155,8 @@ Explorer: https://basescan.org/address/0x5c64a8b0935DA72d60933bBD8cD10579E1C40c5
 
 **记账**：BUnitAirdrop 向 BeamioIndexerDiamond (0x0DBDF27E71f9c89353bC5e4dC27c9C5dAe0cc612) 记账：claim/claimFor→buintClaim，mintForUsdcPurchase→buintUSDC，consumeFromUser→keccak256(kind 名称)。需将 BUnitAirdrop 设为 BeamioIndexerDiamond 的 admin（AdminFacet.setAdmin）。
 
+**consumeFromUser kind 登记**：kind=1 sendUSDC（AAtoEOA/Container），kind=2 cardTopup，kind=3 issueCard，kind=4 requestAccounting，kind=5 x402Send（BeamioTransfer x402）。登记命令：`npm run register:bunit-kind:x402Send:conet` 或 `KIND_ID=5 KIND_NAME=x402Send npx hardhat run scripts/registerBUnitKind.ts --network conet`。
+
 **claimFor 的 gas limit**：claimFor 内部会调用 syncTokenAction 向 Indexer 记账。syncTokenAction 需要约 55 万 gas（冷存储写入）。若 x402sdk 的 claimBUnitsProcess 发送 claimFor 时 gas limit 过低（如 82 万），剩余 gas 不足会导致 syncTokenAction 失败（out of gas），claim 成功但 Indexer 无记账。**x402sdk MemberCard.ts claimBUnitsProcess 已设置 gas limit 1_200_000**。
 
 Explorer: https://mainnet.conet.network

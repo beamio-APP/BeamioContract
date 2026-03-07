@@ -60,6 +60,7 @@
     "deploy:bunit-airdrop:conet": "hardhat run scripts/deployBUnitAirdropToConet.ts --network conet",
     "deploy:conet-treasury:conet": "hardhat run scripts/deployConetTreasuryToConet.ts --network conet",
     "register:bunit-airdrop:conet": "hardhat run scripts/registerBUnitAirdropToConet.ts --network conet",
+    "register:bunit-kind:x402Send:conet": "KIND_ID=5 KIND_NAME=x402Send hardhat run scripts/registerBUnitKind.ts --network conet",
     "verify:buint-airdrop:conet": "hardhat run scripts/verifyBUintAndAirdropConet.ts --network conet",
     "verify:conet-deployments": "hardhat run scripts/verifyConetDeployments.ts --network conet",
     "verify:conet-treasury-usdc": "hardhat run scripts/verifyConetTreasuryAndUsdc.ts --network conet",

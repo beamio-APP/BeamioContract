@@ -1,5 +1,7 @@
 # createCCSA / 诊断脚本 使用的 Base RPC
 
+**Beamio 标准**：项目内 Base RPC 统一使用 `https://base-rpc.conet.network`（HTTP）、`wss://base-rpc.conet.network/ws`（WebSocket）。
+
 ## 两处 RPC 来源（可能不一致）
 
 | 场景 | RPC 来源 | 默认值 |
