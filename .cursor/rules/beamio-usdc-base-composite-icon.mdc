@@ -1,0 +1,20 @@
+---
+description: Beamio UI 中 USDC 必须使用 USDC+Base 复合图标
+alwaysApply: true
+---
+
+# USDC + Base Composite Icon Protocol
+
+在 Beamio 的 UI 中，凡是表示 **USDC on Base**（例如 `Cash · Main Wallet (EOA)`、路由明细中的 USDC 行），图标必须使用 **USDC 官方主图标 + 右下角 Base 角标** 的复合样式。
+
+## Required
+
+- 不要只使用单一 `$` 圆点或纯文本占位作为 USDC 图标。
+- 必须显示「USDC 主圆标」与「Base 角标」叠加关系（角标在右下）。
+- 在同一页面/组件内，USDC on Base 图标尺寸与对齐应保持一致。
+- 深色模式下保持可读性（边框、底色、文字对比足够）。
+
+## Example
+
+- `✅` USDC 主圆标 + Base 角标（右下叠加）
+- `❌` 仅蓝底 `$` 圆点
