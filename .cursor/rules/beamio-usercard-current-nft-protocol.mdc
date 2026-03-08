@@ -1,0 +1,28 @@
+# BeamioUserCard Current NFT Selection Protocol
+
+Beamio 会员卡（`BeamioUserCard`）在涉及“当前卡层级/当前卡样式”判断时，必须遵循统一协议，避免 UI 与链上状态不一致。
+
+## Constants
+
+- `NFT_START_ID = 100`
+- `ISSUED_NFT_START_ID = 100_000_000_000`
+
+## Current Card Selection Rule (Mandatory)
+
+- 当用户持有多个 NFT 时，**只在 membership 区间内选择当前卡**：
+  - `tokenId >= NFT_START_ID`
+  - `tokenId < ISSUED_NFT_START_ID`
+- 在上述候选集合中，**选择最大的 `tokenId`** 作为“当前卡（current card）”。
+
+## Rendering Rule
+
+- 需要渲染当前卡样式（例如 `pts` 圆形图标背景色）时：
+  1. 先按本协议选出当前卡 `tokenId`
+  2. 再读取该 `tokenId` 对应 tier metadata（如 `background_color`）
+  3. 文本颜色按背景亮度自动选择（浅色背景用黑字，否则白字）
+
+## Do Not
+
+- 不要用“历史金额推算 tier”替代链上当前 NFT 选择
+- 不要在 membership 候选中混入 `tokenId >= ISSUED_NFT_START_ID` 的 issued NFT
+- 不要在有多个 membership NFT 时选最小值或首个值
