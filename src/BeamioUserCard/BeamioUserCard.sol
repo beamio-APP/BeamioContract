@@ -196,7 +196,7 @@ contract BeamioUserCard is ERC1155, Ownable, ReentrancyGuard {
 
     // ===== tiers =====
     struct Tier {
-        uint256 minUsdc6; // semantic: minPointsDelta6
+        uint256 minUsdc6; // Tier thresholds are points-based (semantic: minPointsDelta6), not direct USDC balances.
         uint256 attr;
         uint256 tierExpirySeconds; // 0 => use global expirySeconds
         /// @dev true = 按余额达到 minUsdc6 即升级到本档；false = 按单次 topup/redeem 金额达到 minUsdc6 即升级到本档
